@@ -61,7 +61,6 @@ public class CastlingMoveGenerator extends AbstractMoveGenerator {
         int defender = Player.opponent(attacker);
 
         long threat = Mask.pawnThreat(square, defender) & state.pieceMasks[Piece.pawn(attacker)];
-//        long threat = pawnThreat(Mask.single(position), Player.isWhite(defender)) & state.pieceMasks[Piece.pawn(attacker)];
         threat |= Mask.mKnightAttacks[square] & state.pieceMasks[Piece.knight(attacker)];
         threat |= Mask.mKingAttacks[square] & state.pieceMasks[Piece.king(attacker)];
         if (threat != 0) {

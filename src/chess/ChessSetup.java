@@ -17,19 +17,6 @@ public class ChessSetup {
     public void reset(ChessState state) {
         clear(state);
         fromFen(state, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-//        setCastling(state, Castling.CASTLE_A1 | Castling.CASTLE_H1 | Castling.CASTLE_A8 | Castling.CASTLE_H8);
-//
-//        for (int x = 0; x < 8; x++) {
-//            flipPieceMirrored(state, Board.A2 + x, Piece.W_PAWN);
-//        }
-//        flipPieceMirrored(state, Board.A1, Piece.W_ROOK);
-//        flipPieceMirrored(state, Board.B1, Piece.W_KNIGHT);
-//        flipPieceMirrored(state, Board.C1, Piece.W_BISHOP);
-//        flipPieceMirrored(state, Board.D1, Piece.W_QUEEN);
-//        flipPieceMirrored(state, Board.E1, Piece.W_KING);
-//        flipPieceMirrored(state, Board.F1, Piece.W_BISHOP);
-//        flipPieceMirrored(state, Board.G1, Piece.W_KNIGHT);
-//        flipPieceMirrored(state, Board.H1, Piece.W_ROOK);
     }
 
     public void clear(ChessState state) {
@@ -56,7 +43,7 @@ public class ChessSetup {
                 flipPiece(state, Board.mirror(square), Piece.asOpponentPiece(piece));
             }
         }
-        setPlayer(state, state.opponentPlayer());
+        setMoveCounter(state, state.opponentPlayer());
         HistoryState history = state.currentHistory();
         if(history.enPassant != 0) {
             setEnPassant(state, Board.mirror(history.enPassant));
@@ -86,13 +73,20 @@ public class ChessSetup {
         history.hash ^= Hash.enPassantHash(history.enPassant);
     }
     
-    public void setPlayer(ChessState state, int player) {
-        int currentPlayer = state.moveCounter;
-        HistoryState history = state.history[currentPlayer];
-        state.history[currentPlayer] = state.history[player];
-        state.history[player] = history;
-        history.hash ^= Hash.blackToMoveHash() * ((player ^ currentPlayer) & 1);
-        state.moveCounter = player;
+    public void setMoveCounter(ChessState state, int counter) {
+        int currentCounter = state.moveCounter;
+        HistoryState history = state.history[currentCounter];
+        state.history[currentCounter] = state.history[counter];
+        state.history[counter] = history;
+        history.hash ^= Hash.blackToMoveHash() * ((counter ^ currentCounter) & 1);
+        state.moveCounter = counter;
+    }
+    
+    public void setFiftyRule(ChessState state, byte fiftyRule) {
+        state.currentHistory().fiftyRule = fiftyRule;
+        if(state.moveCounter < fiftyRule) {
+            setMoveCounter(state, state.moveCounter + 100);//TODO: this is brutal...
+        }
     }
 
     public void fromFen(ChessState state, String fen) {
@@ -104,7 +98,7 @@ public class ChessSetup {
         fenCastling(state, parts[2]);
         fenPassant(state, parts[3]);
         if(parts.length >= 5) {
-            state.currentHistory().fiftyRule = Byte.parseByte(parts[4]);
+            setFiftyRule(state, Byte.parseByte(parts[4]));
         }
         assert new ChessStateValidator().validate(state);
     }
@@ -134,9 +128,9 @@ public class ChessSetup {
 
     private void fenPlayer(ChessState state, String part) {
         if(part.equals("b")) {
-            setPlayer(state, Player.BLACK);
+            setMoveCounter(state, Player.BLACK);
         } else {
-            setPlayer(state, Player.WHITE);
+            setMoveCounter(state, Player.WHITE);
         }
     }
 

@@ -1,10 +1,16 @@
 package chess;
 
+import chess.bots.Bot;
+import chess.bots.MaterialEvaluation;
+import chess.bots.PvsBot;
 import chess.moves.handlers.MoveExecutor;
 import chess.moves.Move;
 import chess.moves.generators.MoveGenerator;
 import chess.util.Board;
 import chess.util.Piece;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  *
@@ -16,9 +22,113 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        test3();
+        botGame();
     }
-    
+
+    private static void botGame() {
+        ChessPrinter printer = new ChessPrinter();
+        ChessState state = new ChessState();
+        ChessSetup setup = new ChessSetup();
+        setup.reset(state);
+        printer.print(state.pieces);
+        System.out.println("your turn");
+        MoveGenerator gen = new MoveGenerator();
+        MoveExecutor exe = new MoveExecutor();
+        Bot bot = new PvsBot(new MaterialEvaluation());
+        bot.setState(state);
+        Move[] buffer = MoveGenerator.createBuffer(500);
+        try (Scanner s = new Scanner(System.in)) {
+            String line;
+            while (!(line = s.nextLine()).equals("exit")) {
+                try {
+                    String[] parts = line.split(" ");
+                    int from = parseSquare(parts[0]);
+                    int to = parseSquare(parts[1]);
+                    List<Move> candidates = new ArrayList<>();
+                    int moves = gen.generateMoves(state, buffer, 0);
+                    for (int i = 0; i < moves; i++) {
+                        Move move = buffer[i];
+                        if (move.from == from && move.to == to) {
+                            candidates.add(move);
+                        }
+                    }
+
+                    if (candidates.size() > 1) {
+                        int promotion = -1;
+                        if (parts.length > 2) {
+                            promotion = parsePiece(parts[2].charAt(0));
+                        }
+                        for (int i = candidates.size() - 1; i >= 0; i--) {
+                            if (candidates.get(i).info != promotion) {
+                                candidates.remove(i);
+                            }
+                        }
+                    }
+
+                    if (candidates.size() != 1) {
+                        System.out.println("no unique move found");
+                        throw new IllegalStateException();
+                    }
+
+                    exe.makeMove(state, candidates.get(0));
+                    
+                    if(gen.isThreateningKing(state)) {
+                        exe.unmakeMove(state, candidates.get(0));
+                        System.out.println("can't leave your king checked");
+                        throw new IllegalStateException();
+                    }
+                    
+                    printer.print(state.pieces);
+                    System.out.println("computing...");
+                    Move botMove = bot.compute();
+                    System.out.println(botMove.toString());
+                    exe.makeMove(state, botMove);
+                    printer.print(state.pieces);
+                    System.out.println("your turn");
+
+                } catch (Throwable t) {
+                    System.out.println("invalid input");
+                    t.printStackTrace(System.out);
+                }
+            }
+        }
+    }
+
+    private static int parseSquare(String sq) {
+        return Board.square(sq.charAt(0) - 'a', sq.charAt(1) - '1');
+    }
+
+    private static int parsePiece(char piece) {
+        switch (piece) {
+            case 'p':
+                return Piece.B_PAWN;
+            case 'k':
+                return Piece.B_KING;
+            case 'b':
+                return Piece.B_BISHOP;
+            case 'n':
+                return Piece.B_KNIGHT;
+            case 'r':
+                return Piece.B_ROOK;
+            case 'q':
+                return Piece.B_QUEEN;
+            case 'P':
+                return Piece.W_PAWN;
+            case 'K':
+                return Piece.W_KING;
+            case 'B':
+                return Piece.W_BISHOP;
+            case 'N':
+                return Piece.W_KNIGHT;
+            case 'R':
+                return Piece.W_ROOK;
+            case 'Q':
+                return Piece.W_QUEEN;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
     private static void test3() {
         long millis = System.currentTimeMillis();
         ChessState state = new ChessState();
@@ -30,7 +140,7 @@ public class Main {
         new Perft().divide(state, buffer, result, 5);
         long sum = 0;
         for (int i = 0; i < result.length; i++) {
-            if(result[i] == 0) {
+            if (result[i] == 0) {
                 continue;
             }
             sum += result[i];
@@ -40,7 +150,7 @@ public class Main {
         millis = System.currentTimeMillis() - millis;
         System.out.println(millis + "ms");
     }
-    
+
     private static void test2() {
         ChessState state = new ChessState();
         new ChessSetup().fromFen(state, "8/p7/8/1P6/K1k3p1/6P1/7P/8 w - -");
@@ -50,7 +160,7 @@ public class Main {
         long[] result = new long[offset];
         new Perft().divide(state, buffer, result, 3);
         for (int i = 0; i < result.length; i++) {
-            if(result[i] == 0) {
+            if (result[i] == 0) {
                 continue;
             }
             System.out.println(buffer[i].toString() + " " + result[i]);
@@ -66,7 +176,7 @@ public class Main {
         long[] result2 = new long[offset];
         new Perft().divide(state, buffer, result2, 2);
         for (int i = 0; i < result2.length; i++) {
-            if(result2[i] == 0) {
+            if (result2[i] == 0) {
                 continue;
             }
             System.out.println(buffer[i].toString() + " " + result2[i]);
@@ -74,23 +184,23 @@ public class Main {
         new ChessPrinter().print(state.pieces);
 //        new ChessPrinter().printMoves(state.pieces, buffer, p, offset);
         for (int i = 0; i < offset; i++) {
-            if(buffer[i].from == Board.G4) {
+            if (buffer[i].from == Board.G4) {
                 answer = buffer[i];
 //                break;
             }
         }
         exec.makeMove(state, answer);
         offset = gen.generateMoves(state, buffer, 0);
-        
+
         long[] result3 = new long[offset];
         new Perft().divide(state, buffer, result3, 2);
         for (int i = 0; i < result3.length; i++) {
-            if(result3[i] == 0) {
+            if (result3[i] == 0) {
                 continue;
             }
             System.out.println(buffer[i].toString() + " " + result3[i]);
         }
-        
+
 //        new ChessPrinter().printMoves(state.pieces, buffer, 0, offset);
         new ChessPrinter().print(state.pieces);
         System.out.println("a");
@@ -107,12 +217,12 @@ public class Main {
         }
         int offset = new MoveGenerator().generateMoves(state, buffer, 0);
         printer.printMoves(state.pieces, buffer, 0, offset);
-        
+
         new MoveExecutor().makeMove(state, buffer[3]);
         printer.print(state.pieces);
         offset = new MoveGenerator().generateMoves(state, buffer, 0);
         printer.printMoves(state.pieces, buffer, 0, offset);
-        
+
         new MoveExecutor().makeMove(state, buffer[3]);
         printer.print(state.pieces);
         offset = new MoveGenerator().generateMoves(state, buffer, 0);

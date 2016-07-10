@@ -16,6 +16,7 @@ public abstract class MoveAdapter {
 
     public abstract void makeMove(ChessState state, Move move);
     public abstract void unmakeMove(ChessState state, Move move);
+//    public abstract boolean reconstruct(ChessState state, Move move);
     
     protected void flipMasks(ChessState state, long squares, int piece) {
         state.pieceMasks[piece] ^= squares;

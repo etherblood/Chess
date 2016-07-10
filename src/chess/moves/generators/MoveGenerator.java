@@ -2,10 +2,6 @@ package chess.moves.generators;
 
 import chess.ChessState;
 import chess.moves.Move;
-import chess.moves.generators.AttackPawnMoveGenerator;
-import chess.moves.generators.CastlingMoveGenerator;
-import chess.moves.generators.DefaultMoveGenerator;
-import chess.moves.generators.QuietPawnMoveGenerator;
 
 /**
  *
@@ -20,9 +16,9 @@ public final class MoveGenerator extends AbstractMoveGenerator {
 
     @Override
     public int generateMoves(ChessState state, Move[] buffer, int offset) {
-        offset = defaults.generateMoves(state, buffer, offset);
         offset = attacks.generateMoves(state, buffer, offset);
         offset = castlings.generateMoves(state, buffer, offset);
+        offset = defaults.generateMoves(state, buffer, offset);
         offset = quiets.generateMoves(state, buffer, offset);
         return offset;
     }

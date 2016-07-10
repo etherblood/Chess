@@ -1,8 +1,5 @@
 package chess;
 
-import chess.util.Piece;
-import java.util.Arrays;
-
 /**
  *
  * @author Philipp

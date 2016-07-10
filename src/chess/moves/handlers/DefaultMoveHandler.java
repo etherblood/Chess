@@ -53,4 +53,23 @@ public final class DefaultMoveHandler extends MoveAdapter {
         }
     }
 
+//    @Override
+//    public boolean reconstruct(ChessState state, Move move) {
+//        int from = move.from;
+//        int to = move.to;
+//        int piece = state.pieces[from];
+//        int capture = state.pieces[to];
+//        if(state.pieces[from] == Piece.EMPTY) {
+//            return false;
+//        }
+//        if(Piece.owner(piece) != state.currentPlayer()) {
+//            return false;
+//        }
+//        if(capture != Piece.EMPTY && Piece.owner(capture) == state.currentPlayer()) {
+//            return false;
+//        }
+//        move.capture = capture;
+//        return true;
+//    }
+
 }

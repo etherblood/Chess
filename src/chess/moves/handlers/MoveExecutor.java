@@ -74,5 +74,20 @@ public final class MoveExecutor {
         }
 //        assert validator.validate(state);
     }
+    
+//    public boolean reconstruct(ChessState state, Move move) {
+//        switch (move.info) {
+//            case Piece.EMPTY:
+//                return defaultHandler.reconstruct(state, move);
+//            case Piece.RESERVED_1:
+//                return doubleHandler.reconstruct(state, move);
+//            case Piece.RESERVED_2:
+//                return enPassantHandler.reconstruct(state, move);
+//            case Piece.RESERVED_3:
+//                return castlingHandler.reconstruct(state, move);
+//            default:
+//                return promotionHandler.reconstruct(state, move);
+//        }
+//    }
 
 }

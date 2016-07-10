@@ -65,6 +65,10 @@ public class ChessStateValidator {
         expectedHash ^= Hash.enPassantHash(state.currentHistory().enPassant);
         expectedHash ^= state.currentPlayer() * Hash.blackToMoveHash();
         assert expectedHash == state.currentHistory().hash;
+        assert state.moveCounter >= state.currentHistory().fiftyRule;
+        if(state.currentHistory().enPassant != 0) {
+            assert state.pieces[state.currentHistory().enPassant] == Piece.EMPTY;
+        }
         return true;
     }
 }

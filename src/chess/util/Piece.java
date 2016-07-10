@@ -23,11 +23,11 @@ public class Piece {
     public static final int B_QUEEN = 15;
     
     
-    public static int asWhitePiece(int whitePiece) {
-        return whitePiece & 14;
+    public static int asWhitePiece(int piece) {
+        return piece & 14;
     }
-    public static int asBlackPiece(int whitePiece) {
-        return whitePiece | 1;
+    public static int asBlackPiece(int piece) {
+        return piece | 1;
     }
     public static int asOpponentPiece(int piece) {
         return piece ^ 1;
@@ -53,11 +53,16 @@ public class Piece {
         return (piece & 14) == 12;
     }
     
+    public static boolean isValidPromotion(int piece) {
+        return piece >= W_BISHOP;
+    }
+    
     public static int owner(int piece) {
         return piece & 1;
     }
     
     public static int withOwner(int whitePiece, int owner) {
+        assert isWhite(whitePiece);
         return whitePiece | owner;
     }
     

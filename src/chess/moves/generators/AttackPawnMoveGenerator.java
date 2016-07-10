@@ -18,14 +18,14 @@ public final class AttackPawnMoveGenerator extends AbstractPawnMoveGenerator {
         long enPassantMask = Mask.single(enPassant) & ~1;
         long attackableMask = state.playerMasks[state.opponentPlayer()] | enPassantMask;
         if (isWhite) {
-            long targetSquares = Mask.whitePawn7Attacks(ownPawns) & attackableMask;//generateWhitePawnAttacks(ownPawns & ~Mask.fileA, attackableMask, direction);
+            long targetSquares = Mask.whitePawn7Attacks(ownPawns) & attackableMask;
             offset = pawnAttackBuffer(targetSquares, currentPlayer, -7, state, buffer, offset);
-            targetSquares = Mask.whitePawn9Attacks(ownPawns) & attackableMask;//generateWhitePawnAttacks(ownPawns & ~Mask.fileH, attackableMask, direction);
+            targetSquares = Mask.whitePawn9Attacks(ownPawns) & attackableMask;
             offset = pawnAttackBuffer(targetSquares, currentPlayer, -9, state, buffer, offset);
         } else {
-            long targetSquares = Mask.blackPawn9Attacks(ownPawns) & attackableMask;//generateBlackPawnAttacks(ownPawns & ~Mask.fileA, attackableMask, direction);
+            long targetSquares = Mask.blackPawn9Attacks(ownPawns) & attackableMask;
             offset = pawnAttackBuffer(targetSquares, currentPlayer, 9, state, buffer, offset);
-            targetSquares = Mask.blackPawn7Attacks(ownPawns) & attackableMask;//generateBlackPawnAttacks(ownPawns & ~Mask.fileH, attackableMask, direction);
+            targetSquares = Mask.blackPawn7Attacks(ownPawns) & attackableMask;
             offset = pawnAttackBuffer(targetSquares, currentPlayer, 7, state, buffer, offset);
         }
         return offset;
@@ -41,8 +41,13 @@ public final class AttackPawnMoveGenerator extends AbstractPawnMoveGenerator {
                 Move move = buffer[offset++];
                 move.to = to;
                 move.from = from;
-                move.capture = capture;
-                move.info = capture == Piece.EMPTY ? Piece.RESERVED_2 : Piece.EMPTY;
+                if(capture != Piece.EMPTY) {
+                    move.capture = capture;
+                    move.info = Piece.EMPTY;
+                } else {
+                    move.capture = Piece.pawn(Player.opponent(currentPlayer));
+                    move.info = Piece.RESERVED_2;
+                }
             } else {
                 offset = generatePromotions(from, to, capture, currentPlayer, buffer, offset);
             }

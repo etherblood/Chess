@@ -14,7 +14,7 @@ public class EnPassantMoveHandler extends MoveAdapter {
         int from = move.from;
         int to = move.to;
         int piece = state.pieces[from];
-        int capture = Piece.pawn(state.opponentPlayer());
+        int capture = move.capture;
         int epSquare = to - 8 * Player.sign(state.currentPlayer());
         
         //move
@@ -37,7 +37,7 @@ public class EnPassantMoveHandler extends MoveAdapter {
         int from = move.from;
         int to = move.to;
         int piece = state.pieces[to];
-        int capture = Piece.pawn(state.opponentPlayer());
+        int capture = move.capture;
         int epSquare = to - 8 * Player.sign(state.currentPlayer());
         
         //move
@@ -49,5 +49,19 @@ public class EnPassantMoveHandler extends MoveAdapter {
         flipMasks(state, Mask.single(epSquare), capture);
         state.pieces[epSquare] = capture;
     }
+
+//    @Override
+//    public boolean reconstruct(ChessState state, Move move) {
+//        int from = move.from;
+//        int to = move.to;
+//        int pawn = state.pieces[from];
+//        if(!Piece.isPawn(pawn)) {
+//            return false;
+//        }
+//        if(state.currentHistory().enPassant != to) {
+//            return false;
+//        }
+//        return Piece.owner(pawn) == state.currentPlayer();
+//    }
 
 }

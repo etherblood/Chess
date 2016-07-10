@@ -44,4 +44,21 @@ public class DoubleMoveHandler extends MoveAdapter {
         state.pieces[to] = Piece.EMPTY;
     }
 
+//    @Override
+//    public boolean reconstruct(ChessState state, Move move) {
+//        int from = move.from;
+//        int to = move.to;
+//        int pawn = state.pieces[from];
+//        if(!Piece.isPawn(pawn)) {
+//            return false;
+//        }
+//        if(state.pieces[to] != Piece.EMPTY) {
+//            return false;
+//        }
+//        if(state.pieces[(from + to) / 2] != Piece.EMPTY) {
+//            return false;
+//        }
+//        return Piece.owner(pawn) == state.currentPlayer();
+//    }
+
 }
