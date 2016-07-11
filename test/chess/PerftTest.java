@@ -149,8 +149,6 @@ public class PerftTest {
         
         int used = table.used();
         int size = table.size();
-        System.out.println(used + "/" + size);
-        System.out.println(100 * used / size + "%");
         table.clear();
         
         assertStatesEqual(state, other);

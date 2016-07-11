@@ -7,6 +7,7 @@ import chess.transpositions.RawTranspositionEntry;
 import chess.transpositions.RawTranspositionTable;
 import chess.transpositions.ScoreType;
 import chess.moves.Move;
+import chess.moves.generators.CaptureGenerator;
 import chess.moves.generators.MoveGenerator;
 import chess.moves.handlers.MoveExecutor;
 import chess.util.Score;
@@ -14,7 +15,8 @@ import chess.util.Score;
 public class PvsTableBot implements Bot {
 
     private final static int MAX_DEPTH = 20;
-    private final MoveGenerator gen = new MoveGenerator();
+    private final MoveGenerator moveGen = new MoveGenerator();
+    private final CaptureGenerator captGen = new CaptureGenerator();
     private final MoveExecutor exe = new MoveExecutor();
     private final Move[] buffer = MoveGenerator.createBuffer(1000);
     private final Evaluation eval;
@@ -41,9 +43,9 @@ public class PvsTableBot implements Bot {
     @Override
     public Move compute() {
         long millis = -System.currentTimeMillis();
-        int depth = 10;
+        int depth = 8;
         Move move = pvsRoot(depth, -Short.MAX_VALUE, Short.MAX_VALUE);
-        millis += System.currentTimeMillis();
+        millis += System.currentTimeMillis() + 1;
         System.out.println(nodes + " nodes / " + millis + " ms (" + (nodes / millis) + " kn/s)");
         System.out.println("effective branching: " + String.format("%s", Math.pow(nodes, 1d / depth)));
         return move;
@@ -53,12 +55,12 @@ public class PvsTableBot implements Bot {
         nodes = 1;
         Move bestMove = Move.EMPTY;
         boolean foundPv = false;
-        int moveLimit = gen.generateMoves(state, buffer, 0);
+        int moveLimit = moveGen.generateMoves(state, buffer, 0);
         moveOrder.sort(buffer, 0, moveLimit);
         for (int moveIndex = 0; moveIndex < moveLimit; moveIndex++) {
             Move move = buffer[moveIndex];
             exe.makeMove(state, move);
-            if (gen.isThreateningKing(state)) {
+            if (moveGen.isThreateningKing(state)) {
                 exe.unmakeMove(state, move);
             } else {
                 int value;
@@ -87,13 +89,13 @@ public class PvsTableBot implements Bot {
             return Score.boundScore(alpha, 0, beta);
         }
         if (state.currentHistory().fiftyRule >= 100) {
-            if (gen.isKingThreatened(state) && noLegalMoves(moveOffset)) {
+            if (moveGen.isKingThreatened(state) && noLegalMoves(moveOffset)) {
                 return alpha;
             }
             return Score.boundScore(alpha, 0, beta);
         }
         if (depth == 0) {
-            return eval.evaluate(state, alpha, beta);//TODO:qss
+            return quiescenceSearch(alpha, beta, moveOffset);
         }
 
         short hashMove = 0;
@@ -148,7 +150,7 @@ public class PvsTableBot implements Bot {
         int entryType = ScoreType.UPPER_BOUND;
         boolean foundPv = false, noMovesFound = true;
 
-        int moveLimit = gen.generateMoves(state, buffer, moveOffset);
+        int moveLimit = moveGen.generateMoves(state, buffer, moveOffset);
         if (hashMove != 0) {
             for (int moveIndex = moveOffset; moveIndex < moveLimit; moveIndex++) {
                 if (buffer[moveIndex].toShort() == hashMove) {
@@ -166,7 +168,7 @@ public class PvsTableBot implements Bot {
         for (int moveIndex = moveOffset; moveIndex < moveLimit; moveIndex++) {
             Move move = buffer[moveIndex];
             exe.makeMove(state, move);
-            if (gen.isThreateningKing(state)) {
+            if (moveGen.isThreateningKing(state)) {
                 exe.unmakeMove(state, move);
             } else {
                 noMovesFound = false;
@@ -193,21 +195,58 @@ public class PvsTableBot implements Bot {
                 }
             }
         }
-        if (noMovesFound && !gen.isKingThreatened(state)) {
+        if (noMovesFound && !moveGen.isKingThreatened(state)) {
             alpha = Score.boundScore(alpha, 0, beta);
         }
 
         entry.store(hash, bestMove.toShort(), depth, entryType, alpha);
         return alpha;
     }
+    
+    private int quiescenceSearch(int alpha, int beta, int moveOffset) {
+        int value = eval.evaluate(state, alpha, beta);
+        if(value > alpha) {
+            if(value >= beta) {
+                return beta;
+            }
+            alpha = value;
+        }
+        
+        int moveLimit;
+        if(moveGen.isKingThreatened(state)) {
+            moveLimit = moveGen.generateMoves(state, buffer, moveOffset);
+        } else {
+            moveLimit = captGen.generateMoves(state, buffer, moveOffset);
+        }
+        moveOrder.sort(buffer, moveOffset, moveLimit);
+        for (int moveIndex = moveOffset; moveIndex < moveLimit; moveIndex++) {
+            Move move = buffer[moveIndex];
+            exe.makeMove(state, move);
+            if (moveGen.isThreateningKing(state)) {
+                exe.unmakeMove(state, move);
+            } else {
+                value = -quiescenceSearch(-beta, -alpha, moveLimit);
+                exe.unmakeMove(state, move);
+                if (value > alpha) {
+                    if (value >= beta) {
+                        alpha = beta;
+                        break;
+                    }
+                    alpha = value;
+                }
+            }
+        }
+        
+        return alpha;
+    }
 
     private boolean noLegalMoves(int moveOffset) {
         boolean noMovesLeft = true;
-        int moveLimit = gen.generateMoves(state, buffer, moveOffset);
+        int moveLimit = moveGen.generateMoves(state, buffer, moveOffset);
         for (int i = moveOffset; i < moveLimit && noMovesLeft; i++) {
             Move move = buffer[i];
             exe.makeMove(state, move);
-            noMovesLeft &= gen.isThreateningKing(state);
+            noMovesLeft &= moveGen.isThreateningKing(state);
             exe.unmakeMove(state, move);
         }
         return noMovesLeft;

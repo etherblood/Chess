@@ -3,8 +3,6 @@ package chess.bots;
 import chess.ChessState;
 import chess.moves.Move;
 import chess.util.Piece;
-import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  *
@@ -36,11 +34,6 @@ public class MvvLvaOrder implements MoveOrder {
     public MvvLvaOrder(ChessState state) {
         this.state = state;
     }
-
-//    @Override
-//    public int compare(Move o1, Move o2) {
-//        return -Integer.compare(SCORES[o1.capture] - SCORES[state.pieces[o1.from]], SCORES[o2.capture] - SCORES[state.pieces[o2.from]]);
-//    }
 
     @Override
     public void sort(Move[] buffer, int from, int to) {

@@ -5,7 +5,7 @@
  */
 package chess.moves.moveMasks;
 
-import chess.moves.generators.moveMasks.QueenMoveMask;
+import chess.moves.generators.implementations.defaults.moveMasks.QueenMoveMask;
 import chess.util.Board;
 import chess.util.Mask;
 import org.junit.After;
@@ -32,7 +32,7 @@ public class QueenMoveMaskTest {
         
         int square = Board.D1;
         
-        assertEquals(0, new QueenMoveMask().moves(square, ownPieces, ownPieces));
+        assertEquals(0, new QueenMoveMask().moves(square, ownPieces, ~ownPieces));
     }
     
 }

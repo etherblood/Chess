@@ -1,5 +1,10 @@
 package chess.moves.generators;
 
+import chess.moves.generators.implementations.AbstractMoveGenerator;
+import chess.moves.generators.implementations.CastlingMoveGenerator;
+import chess.moves.generators.implementations.AttackPawnMoveGenerator;
+import chess.moves.generators.implementations.QuietPawnMoveGenerator;
+import chess.moves.generators.implementations.defaults.DefaultMoveGenerator;
 import chess.ChessState;
 import chess.moves.Move;
 

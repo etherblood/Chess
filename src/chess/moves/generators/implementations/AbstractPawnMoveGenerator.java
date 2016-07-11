@@ -1,4 +1,4 @@
-package chess.moves.generators;
+package chess.moves.generators.implementations;
 
 import chess.moves.Move;
 import chess.util.Piece;

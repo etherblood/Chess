@@ -1,5 +1,6 @@
 package chess.moves.generators;
 
+import chess.moves.generators.implementations.CastlingMoveGenerator;
 import chess.ChessState;
 import chess.ChessSetup;
 import chess.moves.Move;

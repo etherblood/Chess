@@ -1,8 +1,6 @@
 package chess;
 
 import chess.bots.Bot;
-import chess.bots.evaluations.MaterialEvaluation;
-import chess.bots.PvsBot;
 import chess.bots.PvsTableBot;
 import chess.bots.evaluations.PstEvaluation;
 import chess.moves.handlers.MoveExecutor;
@@ -25,7 +23,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        perft();
+        botGame();
     }
 
     private static void perft() {

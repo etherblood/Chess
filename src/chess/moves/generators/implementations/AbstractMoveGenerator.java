@@ -1,4 +1,4 @@
-package chess.moves.generators;
+package chess.moves.generators.implementations;
 
 import chess.ChessState;
 import chess.moves.Move;
