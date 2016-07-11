@@ -1,11 +1,14 @@
 package chess;
 
 import chess.bots.Bot;
-import chess.bots.MaterialEvaluation;
+import chess.bots.evaluations.MaterialEvaluation;
 import chess.bots.PvsBot;
+import chess.bots.PvsTableBot;
+import chess.bots.evaluations.PstEvaluation;
 import chess.moves.handlers.MoveExecutor;
 import chess.moves.Move;
 import chess.moves.generators.MoveGenerator;
+import chess.transpositions.PerftTranspositionTable;
 import chess.util.Board;
 import chess.util.Piece;
 import java.util.ArrayList;
@@ -22,7 +25,33 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        botGame();
+        perft();
+    }
+
+    private static void perft() {
+        PerftTranspositionTable table = new PerftTranspositionTable(26);
+        ChessState state = new ChessState();
+        ChessSetup setup = new ChessSetup();
+        setup.reset(state);
+        Move[] buffer = MoveGenerator.createBuffer(500);
+        Perft instance = new Perft(table);
+        long millis = -System.currentTimeMillis();
+        System.out.println("perft(7): " + instance.perft(state, buffer, 0, 7));
+        millis += System.currentTimeMillis();
+        System.out.println(millis + "ms");
+        long used = table.used();
+        long size = table.size();
+        System.out.println(used + "/" + size);
+        System.out.println(100 * used / size + "%");
+        
+        millis = -System.currentTimeMillis();
+        System.out.println("perft(8): " + instance.perft(state, buffer, 0, 8));
+        millis += System.currentTimeMillis();
+        System.out.println(millis + "ms");
+        used = table.used();
+        size = table.size();
+        System.out.println(used + "/" + size);
+        System.out.println(100 * used / size + "%");
     }
 
     private static void botGame() {
@@ -34,9 +63,19 @@ public class Main {
         System.out.println("your turn");
         MoveGenerator gen = new MoveGenerator();
         MoveExecutor exe = new MoveExecutor();
-        Bot bot = new PvsBot(new MaterialEvaluation());
+        Bot bot = new PvsTableBot(new PstEvaluation());
         bot.setState(state);
         Move[] buffer = MoveGenerator.createBuffer(500);
+        
+        for (int i = 0; i < 5; i++) {
+            System.out.println("computing...");
+            Move botMove = bot.compute();
+            System.out.println(botMove.toString());
+            exe.makeMove(state, botMove);
+            printer.print(state.pieces);
+        }
+        if(true)return;
+        
         try (Scanner s = new Scanner(System.in)) {
             String line;
             while (!(line = s.nextLine()).equals("exit")) {

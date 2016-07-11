@@ -2,6 +2,7 @@ package chess;
 
 import chess.moves.Move;
 import chess.moves.generators.MoveGenerator;
+import chess.transpositions.PerftTranspositionTable;
 import java.util.Arrays;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -135,15 +136,23 @@ public class PerftTest {
     
     private void assertPerft(String fen, int depth, long value) {
         assert depth <= 10;
+        PerftTranspositionTable table = new PerftTranspositionTable(25);
         ChessState state = new ChessState();
         ChessState other = new ChessState();
         ChessSetup setup = new ChessSetup();
         setup.fromFen(state, fen);
         setup.fromFen(other, fen);
         Move[] buffer = MoveGenerator.createBuffer(500);
-        Perft instance = new Perft();
+        Perft instance = new Perft(table);
         
         long perftResult = instance.perft(state, buffer, 0, depth);
+        
+        int used = table.used();
+        int size = table.size();
+        System.out.println(used + "/" + size);
+        System.out.println(100 * used / size + "%");
+        table.clear();
+        
         assertStatesEqual(state, other);
         assertEquals(value, perftResult);
         

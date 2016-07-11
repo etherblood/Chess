@@ -1,24 +1,28 @@
 package chess.transpositions;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 /**
  *
  * @author Philipp
  */
 public class RawTranspositionTable {
-    private final int[] map;
+    private final ByteBuffer source;
     private final int mask;
 
-    public RawTranspositionTable(int sizeBase) {
-        int size = 1 << sizeBase;
+    public RawTranspositionTable(int addressBits) {
+        int size = 1 << addressBits;
         mask = size - 1;
-        map = new int[3 * size];
+        source = ByteBuffer.allocateDirect(RawTranspositionEntry.BYTES * size);
+        source.order(ByteOrder.BIG_ENDIAN);
     }
     
-    public void get(long hash, RawTranspositionEntry entry) {
-        entry.index = (int) ((hash & mask) * 3);
+    public void attach(long hash, RawTranspositionEntry entry) {
+        entry.attach((int) ((hash & mask) * RawTranspositionEntry.BYTES));
     }
     
     public RawTranspositionEntry createEntry() {
-        return new RawTranspositionEntry(map);
+        return new RawTranspositionEntry(source);
     }
 }

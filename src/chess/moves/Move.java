@@ -7,7 +7,8 @@ import chess.ChessPrinter;
  * @author Philipp
  */
 public final class Move {
-    public int from, to, capture, info;
+    public static final Move EMPTY = new Move();
+    public int from, to, capture, info, score;
 
     public void fromInt(int value) {
         from = value & 0xff;

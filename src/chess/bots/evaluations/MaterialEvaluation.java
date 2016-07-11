@@ -1,15 +1,16 @@
-package chess.bots;
+package chess.bots.evaluations;
 
 import chess.ChessState;
 import chess.util.Mask;
 import chess.util.Piece;
 import chess.util.Player;
+import chess.util.Score;
 
 
 public class MaterialEvaluation implements Evaluation {
     
     @Override
-    public int evaluate(ChessState state) {
+    public int evaluate(ChessState state, int alpha, int beta) {
         int score = 0;
         score += 100 * Mask.count(state.pieceMasks[Piece.W_PAWN]);
         score += 300 * Mask.count(state.pieceMasks[Piece.W_BISHOP]);
@@ -22,7 +23,8 @@ public class MaterialEvaluation implements Evaluation {
         score -= 300 * Mask.count(state.pieceMasks[Piece.B_KNIGHT]);
         score -= 500 * Mask.count(state.pieceMasks[Piece.B_ROOK]);
         score -= 900 * Mask.count(state.pieceMasks[Piece.B_QUEEN]);
-        return Player.sign(state.currentPlayer()) * score;
+        
+        return Score.boundScore(alpha, Player.sign(state.currentPlayer()) * score, beta);
     }
 
 }

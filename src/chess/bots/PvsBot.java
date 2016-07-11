@@ -1,10 +1,12 @@
 package chess.bots;
 
+import chess.bots.evaluations.Evaluation;
 import chess.ChessState;
 import chess.HistoryState;
 import chess.moves.Move;
 import chess.moves.generators.MoveGenerator;
 import chess.moves.handlers.MoveExecutor;
+import chess.util.Score;
 
 public class PvsBot implements Bot {
 
@@ -69,16 +71,16 @@ public class PvsBot implements Bot {
     private int pvs(final int depth, int alpha, final int beta, final int moveOffset) {
         nodes++;
         if(isRepetition()) {
-            return drawScore(alpha, beta);
+            return Score.boundScore(alpha, 0, beta);
         }
         if(state.currentHistory().fiftyRule >= 100) {
             if(gen.isKingThreatened(state) && noLegalMoves(moveOffset)) {
                 return alpha;
             }
-            return drawScore(alpha, beta);
+            return Score.boundScore(alpha, 0, beta);
         }
         if (depth == 0) {
-            return eval.evaluate(state);//TODO:qss
+            return eval.evaluate(state, alpha, beta);//TODO:qss
         }
         
         //TODO: tt_load
@@ -113,7 +115,7 @@ public class PvsBot implements Bot {
             }
         }
         if (noMovesFound && !gen.isKingThreatened(state)) {
-            alpha = drawScore(alpha, beta);
+            alpha = Score.boundScore(alpha, 0, beta);
         }
         
         //TODO: tt_store
@@ -131,16 +133,6 @@ public class PvsBot implements Bot {
             exe.unmakeMove(state, move);
         }
         return noMovesLeft;
-    }
-    
-    private int drawScore(int alpha, int beta) {
-        if(alpha > 0) {
-            return alpha;
-        }
-        if(beta < 0) {
-            return beta;
-        }
-        return 0;
     }
 
     private boolean isRepetition() {

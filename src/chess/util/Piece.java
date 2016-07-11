@@ -4,7 +4,7 @@ package chess.util;
  *
  * @author Philipp
  */
-public class Piece {
+public class Piece {//TODO: make functions correct even if reserved values are passed
     public static final int EMPTY = 0;
     public static final int RESERVED_1 = 1;
     public static final int W_PAWN = 2;
