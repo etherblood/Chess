@@ -26,7 +26,7 @@ public class QueenMoveMaskTest {
      */
     @Test
     public void test1() {
-        long ownPieces = Mask.rank1 | Mask.rank2;
+        long ownPieces = Mask.RANK_1 | Mask.RANK_2;
         
         ownPieces ^= Mask.single(Board.G1) | Mask.single(Board.H3);
         

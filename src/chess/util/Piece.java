@@ -4,17 +4,17 @@ package chess.util;
  *
  * @author Philipp
  */
-public class Piece {//TODO: make functions correct even if reserved values are passed
+public class Piece {
     public static final int EMPTY = 0;
     public static final int RESERVED_1 = 1;
-    public static final int W_PAWN = 2;
-    public static final int B_PAWN = 3;
-    public static final int W_KING = 4;
-    public static final int B_KING = 5;
-    public static final int W_BISHOP = 6;
-    public static final int B_BISHOP = 7;
-    public static final int RESERVED_2 = 8;
-    public static final int RESERVED_3 = 9;
+    public static final int RESERVED_2 = 2;
+    public static final int RESERVED_3 = 3;
+    public static final int W_PAWN = 4;
+    public static final int B_PAWN = 5;
+    public static final int W_KING = 6;
+    public static final int B_KING = 7;
+    public static final int W_BISHOP = 8;
+    public static final int B_BISHOP = 9;
     public static final int W_KNIGHT = 10;
     public static final int B_KNIGHT = 11;
     public static final int W_ROOK = 12;
@@ -24,7 +24,7 @@ public class Piece {//TODO: make functions correct even if reserved values are p
     
     
     public static int asWhitePiece(int piece) {
-        return piece & 14;
+        return piece & ~1;
     }
     public static int asBlackPiece(int piece) {
         return piece | 1;
@@ -42,15 +42,15 @@ public class Piece {//TODO: make functions correct even if reserved values are p
     }
     
     public static boolean isPawn(int piece) {
-        return (piece & 12) == 0;
+        return asWhitePiece(piece) == W_PAWN;
     }
     
     public static boolean isKing(int piece) {
-        return (piece & 10) == 0;
+        return asWhitePiece(piece) == W_KING;
     }
     
     public static boolean isRook(int piece) {
-        return (piece & 14) == 12;
+        return asWhitePiece(piece) == W_ROOK;
     }
     
     public static boolean isValidPromotion(int piece) {
@@ -59,11 +59,6 @@ public class Piece {//TODO: make functions correct even if reserved values are p
     
     public static int owner(int piece) {
         return piece & 1;
-    }
-    
-    public static int withOwner(int whitePiece, int owner) {
-        assert isWhite(whitePiece);
-        return whitePiece | owner;
     }
     
     public static int pawn(int owner) {
@@ -88,5 +83,10 @@ public class Piece {//TODO: make functions correct even if reserved values are p
     
     public static int queen(int owner) {
         return withOwner(W_QUEEN, owner);
+    }
+    
+    private static int withOwner(int whitePiece, int owner) {
+        assert isWhite(whitePiece);
+        return whitePiece | owner;
     }
 }

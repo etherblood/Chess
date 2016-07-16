@@ -5,13 +5,13 @@ import chess.util.Board;
 import chess.util.Mask;
 import chess.util.Piece;
 import chess.util.Player;
-import chess.util.Score;
 
 /**
  *
  * @author Philipp
  */
 public class PstEvaluation implements Evaluation {
+
     private static final int[] PST;
 
     static {
@@ -84,7 +84,7 @@ public class PstEvaluation implements Evaluation {
             PST[(Piece.W_KNIGHT << 6) | square] = calc[3][square];
             PST[(Piece.W_ROOK << 6) | square] = calc[4][square];
             PST[(Piece.W_QUEEN << 6) | square] = calc[5][square];
-            
+
             int m = Board.mirror(square);
             PST[(Piece.B_PAWN << 6) | square] = -calc[0][m];
             PST[(Piece.B_KING << 6) | square] = -calc[1][m];
@@ -97,24 +97,48 @@ public class PstEvaluation implements Evaluation {
 
     @Override
     public int evaluate(ChessState state, int alpha, int beta) {
+        int wPawns = Mask.count(state.pieceMasks[Piece.W_PAWN]);
+        int bPawns = Mask.count(state.pieceMasks[Piece.B_PAWN]);
+
+        if ((wPawns | bPawns) == 0) {
+            int wKnights = Mask.count(state.pieceMasks[Piece.W_KNIGHT]);
+            int wBishops = Mask.count(state.pieceMasks[Piece.W_BISHOP]);
+            int wRooks = Mask.count(state.pieceMasks[Piece.W_ROOK]);
+            int wQueens = Mask.count(state.pieceMasks[Piece.W_QUEEN]);
+            int wTotal = wKnights + wBishops + wRooks + wQueens;
+
+            int bKnights = Mask.count(state.pieceMasks[Piece.B_KNIGHT]);
+            int bBishops = Mask.count(state.pieceMasks[Piece.B_BISHOP]);
+            int bRooks = Mask.count(state.pieceMasks[Piece.B_ROOK]);
+            int bQueens = Mask.count(state.pieceMasks[Piece.B_QUEEN]);
+            int bTotal = bKnights + bBishops + bRooks + bQueens;
+            
+            if (wTotal + bTotal == 0) {
+                return 0;
+            }
+
+            if (bTotal == 0 && wTotal == 1 && wKnights == 1) {
+                return 0;
+            }
+            if (wTotal == 0 && bTotal == 1 && bKnights == 1) {
+                return 0;
+            }
+
+            if (wBishops == wTotal && bBishops == bTotal) {
+                if (((state.pieceMasks[Piece.W_BISHOP] | state.pieceMasks[Piece.B_BISHOP]) & Mask.WHITE_SQUARES) == 0
+                        || ((state.pieceMasks[Piece.W_BISHOP] | state.pieceMasks[Piece.B_BISHOP]) & Mask.BLACK_SQUARES) == 0) {
+                    return 0;
+                }
+            }
+        }
+
         int score = 0;
         for (int square = 0; square < 64; square++) {
             int piece = state.pieces[square];
             score += PST[(piece << 6) | square];
         }
-//        score += 100 * Mask.count(state.pieceMasks[Piece.W_PAWN]);
-//        score += 300 * Mask.count(state.pieceMasks[Piece.W_BISHOP]);
-//        score += 300 * Mask.count(state.pieceMasks[Piece.W_KNIGHT]);
-//        score += 500 * Mask.count(state.pieceMasks[Piece.W_ROOK]);
-//        score += 900 * Mask.count(state.pieceMasks[Piece.W_QUEEN]);
-//        
-//        score -= 100 * Mask.count(state.pieceMasks[Piece.B_PAWN]);
-//        score -= 300 * Mask.count(state.pieceMasks[Piece.B_BISHOP]);
-//        score -= 300 * Mask.count(state.pieceMasks[Piece.B_KNIGHT]);
-//        score -= 500 * Mask.count(state.pieceMasks[Piece.B_ROOK]);
-//        score -= 900 * Mask.count(state.pieceMasks[Piece.B_QUEEN]);
-        
-        return Score.boundScore(alpha, Player.sign(state.currentPlayer()) * score + 5, beta);
+
+        return Player.sign(state.currentPlayer()) * score + 5;
     }
 
 }

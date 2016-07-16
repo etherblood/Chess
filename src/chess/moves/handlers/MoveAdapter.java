@@ -60,10 +60,12 @@ public abstract class MoveAdapter {
 
     private void removeCastling(ChessState state, int castleFlags) {
         HistoryState nextHistory = state.nextHistory();
-        nextHistory.hash ^= Hash.castleHash(nextHistory.castling);
-        nextHistory.castling &= ~castleFlags;
-        nextHistory.hash ^= Hash.castleHash(nextHistory.castling);
-        nextHistory.fiftyRule = 0;
+        if((nextHistory.castling & castleFlags) != 0) {
+            nextHistory.hash ^= Hash.castleHash(nextHistory.castling);
+            nextHistory.castling &= ~castleFlags;
+            nextHistory.hash ^= Hash.castleHash(nextHistory.castling);
+            nextHistory.fiftyRule = 0;
+        }
     }
     
 }

@@ -11,9 +11,6 @@ import org.junit.Test;
  */
 public class PieceTest {
 
-    /**
-     * Test of asWhitePiece method, of class Piece.
-     */
     @Test
     public void asWhitePiece() {
         assertEquals(Piece.W_PAWN, Piece.asWhitePiece(Piece.W_PAWN));
@@ -31,9 +28,6 @@ public class PieceTest {
         assertEquals(Piece.W_QUEEN, Piece.asWhitePiece(Piece.B_QUEEN));
     }
     
-    /**
-     * Test of asBlackPiece method, of class Piece.
-     */
     @Test
     public void asBlackPiece() {
         assertEquals(Piece.B_PAWN, Piece.asBlackPiece(Piece.W_PAWN));
@@ -51,9 +45,6 @@ public class PieceTest {
         assertEquals(Piece.B_QUEEN, Piece.asBlackPiece(Piece.B_QUEEN));
     }
 
-    /**
-     * Test of isPawn method, of class Piece.
-     */
     @Test
     public void isPawn() {
         assertTrue(Piece.isPawn(Piece.W_PAWN));
@@ -88,9 +79,6 @@ public class PieceTest {
         assertFalse(Piece.isRook(Piece.B_QUEEN));
     }
 
-    /**
-     * Test of owner method, of class Piece.
-     */
     @Test
     public void owner() {
         assertEquals(Player.WHITE, Piece.owner(Piece.W_PAWN));
@@ -108,74 +96,36 @@ public class PieceTest {
         assertEquals(Player.BLACK, Piece.owner(Piece.B_QUEEN));
     }
 
-    /**
-     * Test of withOwner method, of class Piece.
-     */
-    @Test
-    public void withOwner() {
-        assertEquals(Piece.W_PAWN, Piece.withOwner(Piece.W_PAWN, Player.WHITE));
-        assertEquals(Piece.W_KING, Piece.withOwner(Piece.W_KING, Player.WHITE));
-        assertEquals(Piece.W_BISHOP, Piece.withOwner(Piece.W_BISHOP, Player.WHITE));
-        assertEquals(Piece.W_KNIGHT, Piece.withOwner(Piece.W_KNIGHT, Player.WHITE));
-        assertEquals(Piece.W_ROOK, Piece.withOwner(Piece.W_ROOK, Player.WHITE));
-        assertEquals(Piece.W_QUEEN, Piece.withOwner(Piece.W_QUEEN, Player.WHITE));
-        
-        assertEquals(Piece.B_PAWN, Piece.withOwner(Piece.W_PAWN, Player.BLACK));
-        assertEquals(Piece.B_KING, Piece.withOwner(Piece.W_KING, Player.BLACK));
-        assertEquals(Piece.B_BISHOP, Piece.withOwner(Piece.W_BISHOP, Player.BLACK));
-        assertEquals(Piece.B_KNIGHT, Piece.withOwner(Piece.W_KNIGHT, Player.BLACK));
-        assertEquals(Piece.B_ROOK, Piece.withOwner(Piece.W_ROOK, Player.BLACK));
-        assertEquals(Piece.B_QUEEN, Piece.withOwner(Piece.W_QUEEN, Player.BLACK));
-    }
-
-    /**
-     * Test of pawn method, of class Piece.
-     */
     @Test
     public void pawn() {
         assertEquals(Piece.W_PAWN, Piece.pawn(Player.WHITE));
         assertEquals(Piece.B_PAWN, Piece.pawn(Player.BLACK));
     }
 
-    /**
-     * Test of king method, of class Piece.
-     */
     @Test
     public void king() {
         assertEquals(Piece.W_KING, Piece.king(Player.WHITE));
         assertEquals(Piece.B_KING, Piece.king(Player.BLACK));
     }
 
-    /**
-     * Test of bishop method, of class Piece.
-     */
     @Test
     public void bishop() {
         assertEquals(Piece.W_BISHOP, Piece.bishop(Player.WHITE));
         assertEquals(Piece.B_BISHOP, Piece.bishop(Player.BLACK));
     }
 
-    /**
-     * Test of knight method, of class Piece.
-     */
     @Test
     public void knight() {
         assertEquals(Piece.W_KNIGHT, Piece.knight(Player.WHITE));
         assertEquals(Piece.B_KNIGHT, Piece.knight(Player.BLACK));
     }
 
-    /**
-     * Test of rook method, of class Piece.
-     */
     @Test
     public void rook() {
         assertEquals(Piece.W_ROOK, Piece.rook(Player.WHITE));
         assertEquals(Piece.B_ROOK, Piece.rook(Player.BLACK));
     }
 
-    /**
-     * Test of queen method, of class Piece.
-     */
     @Test
     public void queen() {
         assertEquals(Piece.W_QUEEN, Piece.queen(Player.WHITE));

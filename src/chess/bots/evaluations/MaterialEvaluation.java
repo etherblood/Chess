@@ -4,7 +4,6 @@ import chess.ChessState;
 import chess.util.Mask;
 import chess.util.Piece;
 import chess.util.Player;
-import chess.util.Score;
 
 
 public class MaterialEvaluation implements Evaluation {
@@ -24,7 +23,7 @@ public class MaterialEvaluation implements Evaluation {
         score -= 500 * Mask.count(state.pieceMasks[Piece.B_ROOK]);
         score -= 900 * Mask.count(state.pieceMasks[Piece.B_QUEEN]);
         
-        return Score.boundScore(alpha, Player.sign(state.currentPlayer()) * score, beta);
+        return Player.sign(state.currentPlayer()) * score;
     }
 
 }

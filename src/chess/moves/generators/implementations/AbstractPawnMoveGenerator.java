@@ -4,7 +4,7 @@ import chess.moves.Move;
 import chess.util.Piece;
 
 
-public abstract class AbstractPawnMoveGenerator extends AbstractMoveGenerator {
+public abstract class AbstractPawnMoveGenerator {
 
     protected int generatePromotions(int from, int to, int capture, int currentPlayer, Move[] buffer, int offset) {
         Move move = buffer[offset++];

@@ -8,16 +8,15 @@ import chess.util.Piece;
 import chess.util.Player;
 
 
-public class CastlingMoveGenerator extends AbstractMoveGenerator {
+public class CastlingMoveGenerator {
 
-    @Override
     public int generateMoves(ChessState state, Move[] buffer, int offset) {
         long allPieces = state.allPieces();
         int currentPlayer = state.currentPlayer();
-        long kings = state.pieceMasks[Piece.withOwner(Piece.W_KING, currentPlayer)];
+        long kings = state.pieceMasks[Piece.king(currentPlayer)];
         int from = Mask.last(kings);
         long availableCastlings = Castling.availableCastlings(state.currentHistory().castling);
-        availableCastlings &= Mask.rank1 << (currentPlayer * 56);
+        availableCastlings &= Mask.RANK_1 << (currentPlayer * 56);
         while (availableCastlings != 0) {            
             int castling = Mask.last(availableCastlings);
             long free = Castling.castlingFreeArea(castling);
@@ -61,16 +60,16 @@ public class CastlingMoveGenerator extends AbstractMoveGenerator {
         int defender = Player.opponent(attacker);
 
         long threat = Mask.pawnThreat(square, defender) & state.pieceMasks[Piece.pawn(attacker)];
-        threat |= Mask.mKnightAttacks[square] & state.pieceMasks[Piece.knight(attacker)];
-        threat |= Mask.mKingAttacks[square] & state.pieceMasks[Piece.king(attacker)];
+        threat |= Mask.knightAttacks(square) & state.pieceMasks[Piece.knight(attacker)];
+        threat |= Mask.kingAttacks(square) & state.pieceMasks[Piece.king(attacker)];
         if (threat != 0) {
             return true;
         }
-        threat = Mask.RookMovement(state.allPieces(), square) & (state.pieceMasks[Piece.rook(attacker)] | state.pieceMasks[Piece.queen(attacker)]);
+        threat = Mask.rookMovement(state.allPieces(), square) & (state.pieceMasks[Piece.rook(attacker)] | state.pieceMasks[Piece.queen(attacker)]);
         if (threat != 0) {
             return true;
         }
-        threat = Mask.BishopMovement(state.allPieces(), square) & (state.pieceMasks[Piece.bishop(attacker)] | state.pieceMasks[Piece.queen(attacker)]);
+        threat = Mask.bishopMovement(state.allPieces(), square) & (state.pieceMasks[Piece.bishop(attacker)] | state.pieceMasks[Piece.queen(attacker)]);
         return threat != 0;
     }
 

@@ -7,7 +7,6 @@ import chess.moves.Move;
 import chess.moves.handlers.MoveExecutor;
 import chess.util.Board;
 import chess.util.Castling;
-import chess.util.Mask;
 import chess.util.Piece;
 import org.junit.Test;
 import static org.junit.Assert.*;

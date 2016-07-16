@@ -9,11 +9,10 @@ import chess.util.Player;
 
 public final class AttackPawnMoveGenerator extends AbstractPawnMoveGenerator {
 
-    @Override
     public int generateMoves(ChessState state, Move[] buffer, int offset) {
         int currentPlayer = state.currentPlayer();
         boolean isWhite = Player.isWhite(currentPlayer);
-        long ownPawns = state.pieceMasks[Piece.withOwner(Piece.W_PAWN, currentPlayer)];
+        long ownPawns = state.pieceMasks[Piece.pawn(currentPlayer)];
         int enPassant = state.currentHistory().enPassant;
         long enPassantMask = Mask.single(enPassant) & ~1;
         long attackableMask = state.playerMasks[state.opponentPlayer()] | enPassantMask;
@@ -37,7 +36,7 @@ public final class AttackPawnMoveGenerator extends AbstractPawnMoveGenerator {
             int from = to + direction;
             long single = Mask.single(to);
             int capture = state.pieces[to];
-            if (((Mask.rank1 | Mask.rank8) & single) == 0) {
+            if (((Mask.RANK_1 | Mask.RANK_8) & single) == 0) {
                 Move move = buffer[offset++];
                 move.to = to;
                 move.from = from;

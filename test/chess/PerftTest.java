@@ -136,7 +136,7 @@ public class PerftTest {
     
     private void assertPerft(String fen, int depth, long value) {
         assert depth <= 10;
-        PerftTranspositionTable table = new PerftTranspositionTable(25);
+        PerftTranspositionTable table = new PerftTranspositionTable(20);
         ChessState state = new ChessState();
         ChessState other = new ChessState();
         ChessSetup setup = new ChessSetup();
@@ -145,14 +145,15 @@ public class PerftTest {
         Move[] buffer = MoveGenerator.createBuffer(500);
         Perft instance = new Perft(table);
         
+        long millis = -System.currentTimeMillis();
         long perftResult = instance.perft(state, buffer, 0, depth);
-        
-        int used = table.used();
-        int size = table.size();
-        table.clear();
+        millis += System.currentTimeMillis();
         
         assertStatesEqual(state, other);
         assertEquals(value, perftResult);
+        
+        System.out.println("'" + fen + "'  perft(" + depth + ")=" + value + "  " + millis +"ms");
+        System.out.println();
         
 //        setup.mirrorState(state);
 //        setup.mirrorState(other);

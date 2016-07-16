@@ -10,7 +10,7 @@ public class BishopMoveMask implements SinglePieceMoveMask {
 
     @Override
     public long moves(int square, long allPieces, long targetSquares) {
-        return Mask.BishopMovement(allPieces, square) & targetSquares;
+        return Mask.bishopMovement(allPieces, square) & targetSquares;
     }
 
 }

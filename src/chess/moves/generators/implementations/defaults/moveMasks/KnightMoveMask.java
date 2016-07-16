@@ -10,7 +10,7 @@ public class KnightMoveMask implements SinglePieceMoveMask {
 
     @Override
     public long moves(int square, long allPieces, long targetSquares) {
-        return Mask.mKnightAttacks[square] & targetSquares;
+        return Mask.knightAttacks(square) & targetSquares;
     }
 
 }

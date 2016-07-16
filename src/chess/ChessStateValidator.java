@@ -30,8 +30,8 @@ public class ChessStateValidator {
         }
         assert state.playerMasks[Player.WHITE] == whitePiecesMask;
         assert state.playerMasks[Player.BLACK] == blackPiecesMask;
-        assert (state.pieceMasks[Piece.W_PAWN] & Mask.rank8) == 0;
-        assert (state.pieceMasks[Piece.B_PAWN] & Mask.rank1) == 0;
+        assert (state.pieceMasks[Piece.W_PAWN] & (Mask.RANK_1 | Mask.RANK_8)) == 0;
+        assert (state.pieceMasks[Piece.B_PAWN] & (Mask.RANK_1 | Mask.RANK_8)) == 0;
         
         int castling = state.currentHistory().castling;
         if((castling & Castling.CASTLE_A1) != 0) {

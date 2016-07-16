@@ -7,7 +7,11 @@ import chess.ChessPrinter;
  * @author Philipp
  */
 public final class Move {
-    public static final Move EMPTY = new Move();
+    private static final Move EMPTY = new Move();
+    public static Move empty() {
+        assert EMPTY.toInt() == 0;
+        return EMPTY;
+    }
     public int from, to, capture, info, score;
 
     public void fromInt(int value) {
@@ -50,6 +54,20 @@ public final class Move {
         assertRanges();
     }
     
+    public void fromMove(Move move) {
+        from = move.from;
+        to = move.to;
+        capture = move.capture;
+        info = move.info;
+    }
+    
+    public void clear() {
+        from = 0;
+        to = 0;
+        capture = 0;
+        info = 0;
+    }
+    
     public short toShort() {
         assertRanges();
         return toShort(from, to, info);
@@ -73,6 +91,10 @@ public final class Move {
         assert (capture & 0xff) == capture;
         assert (info & 0xf) == info;
         return true;
+    }
+    
+    public boolean identityEquals(Move move) {
+        return to == move.to && from == move.from && info == move.info;
     }
 
     @Override

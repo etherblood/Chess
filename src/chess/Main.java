@@ -1,14 +1,17 @@
 package chess;
 
 import chess.bots.Bot;
+import chess.bots.PvsBucketBot;
 import chess.bots.PvsTableBot;
 import chess.bots.evaluations.PstEvaluation;
 import chess.moves.handlers.MoveExecutor;
 import chess.moves.Move;
 import chess.moves.generators.MoveGenerator;
 import chess.transpositions.PerftTranspositionTable;
+import chess.transpositions.TranspositionTableStatistics;
 import chess.util.Board;
 import chess.util.Piece;
+import chess.util.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -51,6 +54,42 @@ public class Main {
         System.out.println(used + "/" + size);
         System.out.println(100 * used / size + "%");
     }
+    
+    private static boolean isGameOver(ChessState state) {
+        MoveExecutor exe = new MoveExecutor();
+        MoveGenerator gen = new MoveGenerator();
+        Move[] buffer = MoveGenerator.createBuffer(100);
+        int moves = gen.generateMoves(state, buffer, 0);
+        boolean noMoves = true;
+        for (int i = 0; noMoves && i < moves; i++) {
+            exe.makeMove(state, buffer[i]);
+            noMoves &= gen.isThreateningKing(state);
+            exe.unmakeMove(state, buffer[i]);
+        }
+        if(noMoves) {
+            if(gen.isKingThreatened(state)) {
+                System.out.println("mate - " + (Player.isWhite(state.currentPlayer())? "black" : "white") + " won");
+            } else {
+                System.out.println("stalemate");
+            }
+            return true;
+        }
+        if(state.currentHistory().fiftyRule >= 100) {
+            System.out.println("50 rule");
+            return true;
+        }
+        int repetitions = 0;
+        for (int i = 0; i < state.moveCounter; i++) {
+            if(state.history[i].hash == state.currentHistory().hash) {
+                repetitions++;
+            }
+        }
+        if(repetitions == 2) {
+            System.out.println("3 fold repetition");
+            return true;
+        }
+        return false;
+    }
 
     private static void botGame() {
         ChessPrinter printer = new ChessPrinter();
@@ -58,21 +97,24 @@ public class Main {
         ChessSetup setup = new ChessSetup();
         setup.reset(state);
         printer.print(state.pieces);
-        System.out.println("your turn");
         MoveGenerator gen = new MoveGenerator();
         MoveExecutor exe = new MoveExecutor();
-        Bot bot = new PvsTableBot(new PstEvaluation());
+        Bot bot = new PvsBucketBot(new PstEvaluation());
         bot.setState(state);
         Move[] buffer = MoveGenerator.createBuffer(500);
         
-        for (int i = 0; i < 5; i++) {
-            System.out.println("computing...");
-            Move botMove = bot.compute();
-            System.out.println(botMove.toString());
-            exe.makeMove(state, botMove);
-            printer.print(state.pieces);
+        boolean vsHuman = false;
+        if(!vsHuman) {
+            while(!isGameOver(state)) {
+                System.out.println("computing...");
+                Move botMove = bot.compute();
+                System.out.println(botMove.toString());
+                exe.makeMove(state, botMove);
+//                printer.print(state.pieces);
+            }
+            return;
         }
-        if(true)return;
+        System.out.println("your turn");
         
         try (Scanner s = new Scanner(System.in)) {
             String line;

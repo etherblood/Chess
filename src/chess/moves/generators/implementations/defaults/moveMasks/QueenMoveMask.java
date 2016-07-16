@@ -10,7 +10,7 @@ public class QueenMoveMask implements SinglePieceMoveMask {
 
     @Override
     public long moves(int square, long allPieces, long targetSquares) {
-        return Mask.QueenMovement(allPieces, square) & targetSquares;
+        return Mask.queenMovement(allPieces, square) & targetSquares;
     }
 
 }

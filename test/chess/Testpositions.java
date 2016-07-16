@@ -42,7 +42,7 @@ public class Testpositions {
     }
     
     @Test
-    public void quuenSkip() {
+    public void queenSkip() {
         ChessState state = new ChessState();
         ChessSetup setup = new ChessSetup();
         setup.reset(state);

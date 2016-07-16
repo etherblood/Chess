@@ -1,9 +1,7 @@
 package chess.moves.generators.implementations.defaults;
 
-import chess.moves.generators.*;
 import chess.ChessState;
 import chess.moves.Move;
-import chess.moves.generators.implementations.AbstractMoveGenerator;
 import chess.moves.generators.implementations.defaults.moveMasks.BishopMoveMask;
 import chess.moves.generators.implementations.defaults.moveMasks.KingMoveMask;
 import chess.moves.generators.implementations.defaults.moveMasks.KnightMoveMask;
@@ -14,28 +12,26 @@ import chess.util.Mask;
 import chess.util.Piece;
 
 
-public abstract class AbstractDefaultMoveGenerator extends AbstractMoveGenerator {
+public final class DefaultMovesGenerator {
     private final KingMoveMask kingMoves = new KingMoveMask();
     private final BishopMoveMask bishopMoves = new BishopMoveMask();
     private final KnightMoveMask knightMoves = new KnightMoveMask();
     private final RookMoveMask rookMoves = new RookMoveMask();
     private final QueenMoveMask queenMoves = new QueenMoveMask();
     
-    @Override
-    public int generateMoves(ChessState state, Move[] buffer, int offset) {
-        offset = generate(state, buffer, offset, kingMoves, Piece.W_KING);
-        offset = generate(state, buffer, offset, bishopMoves, Piece.W_BISHOP);
-        offset = generate(state, buffer, offset, knightMoves, Piece.W_KNIGHT);
-        offset = generate(state, buffer, offset, rookMoves, Piece.W_ROOK);
-        offset = generate(state, buffer, offset, queenMoves, Piece.W_QUEEN);
+    public int generateMoves(ChessState state, Move[] buffer, int offset, long targetable) {
+        int currentPlayer = state.currentPlayer();
+        offset = generate(state, buffer, offset, kingMoves, Piece.king(currentPlayer), targetable);
+        offset = generate(state, buffer, offset, bishopMoves, Piece.bishop(currentPlayer), targetable);
+        offset = generate(state, buffer, offset, knightMoves, Piece.knight(currentPlayer), targetable);
+        offset = generate(state, buffer, offset, rookMoves, Piece.rook(currentPlayer), targetable);
+        offset = generate(state, buffer, offset, queenMoves, Piece.queen(currentPlayer), targetable);
         return offset;
     }
     
-    private int generate(ChessState state, Move[] buffer, int offset, SinglePieceMoveMask moves, int whitePiece) {
+    private int generate(ChessState state, Move[] buffer, int offset, SinglePieceMoveMask moves, int piece, long targetable) {
         long allPieces = state.allPieces();
-        int currentPlayer = state.currentPlayer();
-        long pieceMask = state.pieceMasks[Piece.withOwner(whitePiece, currentPlayer)];
-        long targetable = targetable(state);
+        long pieceMask = state.pieceMasks[piece];
         while (pieceMask != 0) {
             int from = Mask.last(pieceMask);
             long targets = moves.moves(from, allPieces, targetable);
@@ -44,8 +40,6 @@ public abstract class AbstractDefaultMoveGenerator extends AbstractMoveGenerator
         }
         return offset;
     }
-
-    protected abstract long targetable(ChessState state);
 
     private int defaultGenerate(ChessState state, Move[] buffer, int offset, int from, long targets) {
         while (targets != 0) {

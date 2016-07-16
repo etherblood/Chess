@@ -1,30 +1,34 @@
 package chess.moves.generators;
 
-import chess.moves.generators.implementations.AbstractMoveGenerator;
 import chess.moves.generators.implementations.CastlingMoveGenerator;
 import chess.moves.generators.implementations.AttackPawnMoveGenerator;
 import chess.moves.generators.implementations.QuietPawnMoveGenerator;
-import chess.moves.generators.implementations.defaults.DefaultMoveGenerator;
 import chess.ChessState;
 import chess.moves.Move;
+import chess.moves.generators.implementations.defaults.DefaultMovesGenerator;
 
 /**
  *
  * @author Philipp
  */
-public final class MoveGenerator extends AbstractMoveGenerator {
+public final class MoveGenerator {
 
-    private final DefaultMoveGenerator defaults = new DefaultMoveGenerator();
+    private final DefaultMovesGenerator defaults = new DefaultMovesGenerator();
     private final AttackPawnMoveGenerator attacks = new AttackPawnMoveGenerator();
     private final CastlingMoveGenerator castlings = new CastlingMoveGenerator();
     private final QuietPawnMoveGenerator quiets = new QuietPawnMoveGenerator();
 
-    @Override
     public int generateMoves(ChessState state, Move[] buffer, int offset) {
         offset = attacks.generateMoves(state, buffer, offset);
         offset = quiets.generateMoves(state, buffer, offset);
         offset = castlings.generateMoves(state, buffer, offset);
-        offset = defaults.generateMoves(state, buffer, offset);
+        offset = defaults.generateMoves(state, buffer, offset, ~state.playerMasks[state.currentPlayer()]);
+        return offset;
+    }
+    
+    public int generateAttacks(ChessState state, Move[] buffer, int offset) {
+        offset = attacks.generateMoves(state, buffer, offset);
+        offset = defaults.generateMoves(state, buffer, offset, state.playerMasks[state.opponentPlayer()]);
         return offset;
     }
 

@@ -1,18 +1,22 @@
 package chess.bots;
 
+import chess.ChessPrinter;
 import chess.bots.evaluations.Evaluation;
 import chess.ChessState;
 import chess.HistoryState;
-import chess.transpositions.RawTranspositionEntry;
-import chess.transpositions.RawTranspositionTable;
 import chess.transpositions.ScoreType;
 import chess.moves.Move;
 import chess.moves.generators.MoveGenerator;
 import chess.moves.handlers.MoveExecutor;
+import chess.transpositions.BucketTranspositionEntry;
+import chess.transpositions.BucketTranspositionTable;
 import chess.transpositions.TranspositionTableStatistics;
+import chess.util.Player;
+import chess.util.Score;
 
-public class PvsTableBot implements Bot {
+public class PvsBucketBot implements Bot {
 
+    private final static boolean QUIESCENCE_DISABLED = false;
     private final static int MAX_DEPTH = 20;
     private final MoveGenerator moveGen = new MoveGenerator();
     private final MoveExecutor exe = new MoveExecutor();
@@ -21,15 +25,15 @@ public class PvsTableBot implements Bot {
     private final Evaluation eval;
     private ChessState state;
     private long nodes;
-    private final RawTranspositionTable table = new RawTranspositionTable(25);// 2^25 * 10B = 335 544 320B
-    private final RawTranspositionEntry[] depthEntries;
+    private final BucketTranspositionTable table = new BucketTranspositionTable(23);// 2^22 * 60B = 251 658 240B
+    private final BucketTranspositionEntry[] depthEntries;
     private MoveOrder moveOrder;
 
-    public PvsTableBot(Evaluation eval) {
+    public PvsBucketBot(Evaluation eval) {
         this.eval = eval;
-        depthEntries = new RawTranspositionEntry[MAX_DEPTH];
+        depthEntries = new BucketTranspositionEntry[MAX_DEPTH];
         for (int i = 0; i < MAX_DEPTH; i++) {
-            depthEntries[i] = table.createEntry();
+            depthEntries[i] = new BucketTranspositionEntry();
         }
     }
 
@@ -41,20 +45,40 @@ public class PvsTableBot implements Bot {
 
     @Override
     public Move compute() {
+        int depth = 8;
+        Move move = new Move();
+        new ChessPrinter().print(state.pieces);
         long millis = -System.currentTimeMillis();
-        int depth = 10;
-        Move move = pvsRoot(depth, -Short.MAX_VALUE, Short.MAX_VALUE);
+        for (int i = 1; i <= depth; i++) {
+            clearKillers();//clear killers here because we index them by depth
+            int score = pvsRoot(i, -Integer.MAX_VALUE, Integer.MAX_VALUE, move);
+            String scoreString;
+            if (Score.isMateScore(score)) {
+                int matePly = Score.plyFromMateScore(score);
+                scoreString = (Player.isWhite(~matePly & 1) ? "white" : "black") + " mates in " + (matePly - state.moveCounter);
+            } else {
+                scoreString = "w_score: " + String.valueOf(score * Player.sign(state.currentPlayer()));
+            }
+            System.out.println("(" + i + ") " + move.toString() + " " + scoreString);
+        }
         millis += System.currentTimeMillis();
-        System.out.println(nodes + " nodes / " + millis + " ms (" + (nodes / millis) + " kn/s)");
+        String nps = millis > 0 ? "" + (nodes / millis) : "-";
+        System.out.println(nodes + " nodes / " + millis + " ms (" + nps + " kn/s)");
         System.out.println("branching: " + String.format("%s", Math.pow(nodes, 1d / depth)));
         TranspositionTableStatistics.soutHitrate();
         TranspositionTableStatistics.clear();
+        System.out.println("final move: " + move.toString());
         return move;
     }
 
-    private Move pvsRoot(final int depth, int alpha, final int beta) {
+    private void clearKillers() {
+        for (Move killer : killers) {
+            killer.clear();
+        }
+    }
+
+    private int pvsRoot(final int depth, int alpha, final int beta, final Move bestMove) {
         nodes = 1;
-        Move bestMove = Move.empty();
         boolean foundPv = false;
         int moveLimit = moveGen.generateMoves(state, buffer, 0);
         moveOrder.sort(buffer, 0, moveLimit);
@@ -75,13 +99,13 @@ public class PvsTableBot implements Bot {
                 }
                 exe.unmakeMove(state, move);
                 if (value > alpha) {
-                    bestMove = move;
+                    bestMove.fromMove(move);
                     alpha = value;
                     foundPv = true;
                 }
             }
         }
-        return bestMove;
+        return alpha;
     }
 
     private int principalVariationSearch(final int depth, int alpha, int beta, int moveOffset) {
@@ -91,7 +115,7 @@ public class PvsTableBot implements Bot {
         }
         if (state.currentHistory().fiftyRule >= 100) {
             if (moveGen.isKingThreatened(state) && noLegalMoves(moveOffset)) {
-                return alpha-Short.MAX_VALUE + state.moveCounter;
+                return Score.mateLossScore(state.moveCounter);
             }
             return 0;
         }
@@ -100,52 +124,51 @@ public class PvsTableBot implements Bot {
         }
 
         short hashMove = 0;
-        RawTranspositionEntry entry = depthEntries[depth];
+        BucketTranspositionEntry entry = depthEntries[depth];
         long hash = state.currentHistory().hash;
-        table.attach(hash, entry);
-        entry.refresh();
-                TranspositionTableStatistics.requests++;
-        if (entry.hashEquals(hash)) {
-                TranspositionTableStatistics.hits++;
-            int entryType = entry.type();
-            if (entry.depth() >= depth) {
+        TranspositionTableStatistics.requests++;
+        if (table.load(hash, entry)) {
+            TranspositionTableStatistics.hits++;
+            int entryType = entry.type;
+            if (entry.depth >= depth) {
                 switch (entryType) {
                     case ScoreType.IN_BOUNDS:
-                        return entry.score();
+                        return Score.fromTableScore(entry.score, state.moveCounter);
                     case ScoreType.UPPER_BOUND:
-                        beta = entry.score();
-                        if (alpha >= beta) {
-                            return alpha;
-                        }
-                        break;
-                    case ScoreType.LOWER_BOUND:
-                        alpha = entry.score();
+                        beta = Score.fromTableScore(entry.score, state.moveCounter);
                         if (alpha >= beta) {
                             return beta;
                         }
-                        hashMove = entry.move();
+                        break;
+                    case ScoreType.LOWER_BOUND:
+                        alpha = Score.fromTableScore(entry.score, state.moveCounter);
+                        if (alpha >= beta) {
+                            return beta;
+                        }
+                        hashMove = entry.move;
                         break;
                     default:
-                        throw new IllegalStateException("entry type: " + entry.type());
+                        throw new IllegalStateException("entry type: " + entry.type);
                 }
             } else {
                 switch (entryType) {
                     case ScoreType.IN_BOUNDS:
                     case ScoreType.LOWER_BOUND:
-                        hashMove = entry.move();
+                        hashMove = entry.move;
                         break;
                 }
             }
         }
 
-        if (hashMove == 0 && depth > 4) {
+        if (hashMove == 0 && depth >= 3) {
             principalVariationSearch(depth - 2, alpha, beta, moveOffset);
-            entry.refresh();
-            switch (entry.type()) {
-                case ScoreType.IN_BOUNDS:
-                case ScoreType.LOWER_BOUND:
-                    hashMove = entry.move();
-                    break;
+            if (table.load(hash, entry)) {
+                switch (entry.type) {
+                    case ScoreType.IN_BOUNDS:
+                    case ScoreType.LOWER_BOUND:
+                        hashMove = entry.move;
+                        break;
+                }
             }
         }
 
@@ -153,7 +176,7 @@ public class PvsTableBot implements Bot {
         int entryType = ScoreType.UPPER_BOUND;
         boolean foundPv = false, noMovesFound = true;
         int preMoveIndex = 0;
-        
+
         int moveLimit = moveGen.generateMoves(state, buffer, moveOffset);
         if (hashMove != 0) {
             for (int moveIndex = moveOffset; moveIndex < moveLimit; moveIndex++) {
@@ -165,20 +188,19 @@ public class PvsTableBot implements Bot {
             }
             preMoveIndex++;
         }
-        
+
         for (int moveIndex = moveOffset + preMoveIndex; moveIndex < moveLimit; moveIndex++) {
             int killerIndex = depth << 1;
-            if (buffer[moveIndex].identityEquals(killers[killerIndex]) || buffer[moveIndex].identityEquals(killers[killerIndex | 1])) {
+            if (buffer[moveIndex].identityEquals(killers[killerIndex]) || buffer[moveIndex].identityEquals(killers[killerIndex + 1])) {
                 Move tmp = buffer[moveOffset + preMoveIndex];
                 buffer[moveOffset + preMoveIndex] = buffer[moveIndex];
                 buffer[moveIndex] = tmp;
                 preMoveIndex++;
             }
         }
-        
+
         moveOrder.sort(buffer, moveOffset + preMoveIndex, moveLimit);
-        
-        
+
         for (int moveIndex = moveOffset; moveIndex < moveLimit; moveIndex++) {
             Move move = buffer[moveIndex];
             exe.makeMove(state, move);
@@ -201,17 +223,6 @@ public class PvsTableBot implements Bot {
                     if (value >= beta) {
                         entryType = ScoreType.LOWER_BOUND;
                         alpha = beta;
-                        
-                        int killerIndex = depth << 1;
-                        if (!move.identityEquals(killers[killerIndex])) {
-                            if (buffer[moveIndex].identityEquals(killers[killerIndex | 1])) {
-                                Move tmp = killers[killerIndex | 1];
-                                killers[killerIndex | 1] = killers[killerIndex];
-                                killers[killerIndex] = tmp;
-                            } else {
-                                killers[killerIndex | 1].fromMove(move);
-                            }
-                        }
                         break;
                     }
                     entryType = ScoreType.IN_BOUNDS;
@@ -220,25 +231,52 @@ public class PvsTableBot implements Bot {
                 }
             }
         }
-        if (noMovesFound && !moveGen.isKingThreatened(state)) {
-            alpha = 0;
+        if (noMovesFound) {
+            entryType = ScoreType.IN_BOUNDS;
+            if (moveGen.isKingThreatened(state)) {
+                alpha = Score.mateLossScore(state.moveCounter);
+            } else {
+                alpha = 0;
+            }
+        } else if (entryType != ScoreType.UPPER_BOUND) {
+            int killerIndex = depth << 1;
+            if (!bestMove.identityEquals(killers[killerIndex])) {
+                Move tmp = killers[killerIndex + 1];
+                killers[killerIndex + 1] = killers[killerIndex];
+                killers[killerIndex] = tmp;
+                if (!bestMove.identityEquals(killers[killerIndex])) {
+                    killers[killerIndex].fromMove(bestMove);
+                }
+            }
         }
 
-        entry.store(hash, bestMove.toShort(), depth, entryType, alpha);
+//        if(alpha == 0 || alpha >= Short.MAX_VALUE / 2 || alpha <= Short.MAX_VALUE / -2) {
+//            return alpha;
+//        }
+        entry.hash = hash;
+        entry.move = bestMove.toShort();
+        entry.depth = depth;
+        entry.type = entryType;
+        entry.score = Score.toTableScore(alpha, state.moveCounter);
+        table.store(entry);
         return alpha;
     }
-    
+
     private int quiescenceSearch(int alpha, int beta, int moveOffset) {
         int value = eval.evaluate(state, alpha, beta);
-        if(value > alpha) {
-            if(value >= beta) {
+        if (QUIESCENCE_DISABLED) {
+            return value;
+        }
+        if (value > alpha) {
+            if (value >= beta) {
                 return beta;
             }
             alpha = value;
         }
-        
+
         int moveLimit;
-        if(moveGen.isKingThreatened(state)) {
+        boolean mateThreat = moveGen.isKingThreatened(state);
+        if (mateThreat) {
             moveLimit = moveGen.generateMoves(state, buffer, moveOffset);
         } else {
             moveLimit = moveGen.generateAttacks(state, buffer, moveOffset);
@@ -250,18 +288,22 @@ public class PvsTableBot implements Bot {
             if (moveGen.isThreateningKing(state)) {
                 exe.unmakeMove(state, move);
             } else {
+                mateThreat = false;
                 value = -quiescenceSearch(-beta, -alpha, moveLimit);
                 exe.unmakeMove(state, move);
                 if (value > alpha) {
                     if (value >= beta) {
-                        alpha = beta;
-                        break;
+                        return beta;
                     }
                     alpha = value;
                 }
             }
         }
-        
+
+        if (mateThreat) {
+            return Score.mateLossScore(state.moveCounter);
+        }
+
         return alpha;
     }
 

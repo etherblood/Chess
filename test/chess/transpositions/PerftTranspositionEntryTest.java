@@ -15,12 +15,11 @@ public class PerftTranspositionEntryTest {
         PerftTranspositionEntry entry = new PerftTranspositionEntry(buffer);
         
         long hash = 0xdeadbeef;
-        int depth = 33;
         long score = 345678690685L;
         
         entry.attach(0);
-        entry.store(hash, depth, score);
-        assertEquals(entry.depth(hash), depth);
+        entry.store(hash, score);
+        assertEquals(hash, entry.hash());
         assertEquals(score, entry.score());
     }
     

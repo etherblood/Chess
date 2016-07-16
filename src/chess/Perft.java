@@ -37,7 +37,7 @@ public class Perft {
             long hash = state.currentHistory().hash;
             PerftTranspositionEntry entry = entries[depth];
             table.attach(hash, entry);
-            if(entry.depth(hash) == depth) {
+            if((entry.hash() ^ hash) == depth) {
                 return entry.score();
             }
         }
@@ -55,7 +55,7 @@ public class Perft {
         if(table != null) {
             long hash = state.currentHistory().hash;
             PerftTranspositionEntry entry = entries[depth];
-            entry.store(hash, depth, sum);
+            entry.store(hash ^ depth, sum);
         }
         
         return sum;

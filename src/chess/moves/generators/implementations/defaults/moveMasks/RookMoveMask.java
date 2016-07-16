@@ -10,7 +10,7 @@ public class RookMoveMask implements SinglePieceMoveMask {
 
     @Override
     public long moves(int square, long allPieces, long targetSquares) {
-        return Mask.RookMovement(allPieces, square) & targetSquares;
+        return Mask.rookMovement(allPieces, square) & targetSquares;
     }
 
 }

@@ -6,7 +6,6 @@ import chess.HistoryState;
 import chess.moves.Move;
 import chess.moves.generators.MoveGenerator;
 import chess.moves.handlers.MoveExecutor;
-import chess.util.Score;
 
 public class PvsBot implements Bot {
 
@@ -71,13 +70,13 @@ public class PvsBot implements Bot {
     private int pvs(final int depth, int alpha, final int beta, final int moveOffset) {
         nodes++;
         if(isRepetition()) {
-            return Score.boundScore(alpha, 0, beta);
+            return 0;
         }
         if(state.currentHistory().fiftyRule >= 100) {
             if(gen.isKingThreatened(state) && noLegalMoves(moveOffset)) {
-                return alpha;
+                return -Short.MAX_VALUE + state.moveCounter;
             }
-            return Score.boundScore(alpha, 0, beta);
+            return 0;
         }
         if (depth == 0) {
             return eval.evaluate(state, alpha, beta);//TODO:qss
@@ -115,7 +114,7 @@ public class PvsBot implements Bot {
             }
         }
         if (noMovesFound && !gen.isKingThreatened(state)) {
-            alpha = Score.boundScore(alpha, 0, beta);
+            alpha = 0;
         }
         
         //TODO: tt_store

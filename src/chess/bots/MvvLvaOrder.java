@@ -55,7 +55,7 @@ public class MvvLvaOrder implements MoveOrder {
     private void selectionSort(Move[] buffer, int from, int to) {
         for (int i = from; i < to; i++) {
             Move move = buffer[i];
-            move.score = SCORES[move.capture] - SCORES[state.pieces[move.from]];
+            move.score = 16 * SCORES[move.capture] - SCORES[state.pieces[move.from]];
         }
         for (int i = from; i < to - 1; i++) {
             int best = i;

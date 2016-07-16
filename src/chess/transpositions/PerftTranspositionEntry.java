@@ -14,13 +14,13 @@ public class PerftTranspositionEntry {
         this.source = source;
     }
 
-    public void store(long hash, int depth, long score) {
-        source[index] = hash ^ depth;
+    public void store(long hash, long score) {
+        source[index] = hash;
         source[index + 1] = score;
     }
 
-    public long depth(long hash) {
-        return source[index] ^ hash;
+    public long hash() {
+        return source[index];
     }
 
     public long score() {
