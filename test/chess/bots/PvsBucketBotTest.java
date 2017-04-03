@@ -56,7 +56,7 @@ public class PvsBucketBotTest {
         setup.fromFen(state, fen);
         PvsBucketBot instance = new PvsBucketBot(new PstEvaluation());
         instance.setState(state);
-        Move result = instance.compute();
+        Move result = instance.compute(8);
         assertTrue(move.identityEquals(result));
     }
     

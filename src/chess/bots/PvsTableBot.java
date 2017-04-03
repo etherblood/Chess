@@ -40,9 +40,8 @@ public class PvsTableBot implements Bot {
     }
 
     @Override
-    public Move compute() {
+    public Move compute(int depth) {
         long millis = -System.currentTimeMillis();
-        int depth = 10;
         Move move = pvsRoot(depth, -Short.MAX_VALUE, Short.MAX_VALUE);
         millis += System.currentTimeMillis();
         System.out.println(nodes + " nodes / " + millis + " ms (" + (nodes / millis) + " kn/s)");
@@ -110,7 +109,7 @@ public class PvsTableBot implements Bot {
             int entryType = entry.type();
             if (entry.depth() >= depth) {
                 switch (entryType) {
-                    case ScoreType.IN_BOUNDS:
+                    case ScoreType.EXACT:
                         return entry.score();
                     case ScoreType.UPPER_BOUND:
                         beta = entry.score();
@@ -130,7 +129,7 @@ public class PvsTableBot implements Bot {
                 }
             } else {
                 switch (entryType) {
-                    case ScoreType.IN_BOUNDS:
+                    case ScoreType.EXACT:
                     case ScoreType.LOWER_BOUND:
                         hashMove = entry.move();
                         break;
@@ -142,7 +141,7 @@ public class PvsTableBot implements Bot {
             principalVariationSearch(depth - 2, alpha, beta, moveOffset);
             entry.refresh();
             switch (entry.type()) {
-                case ScoreType.IN_BOUNDS:
+                case ScoreType.EXACT:
                 case ScoreType.LOWER_BOUND:
                     hashMove = entry.move();
                     break;
@@ -214,7 +213,7 @@ public class PvsTableBot implements Bot {
                         }
                         break;
                     }
-                    entryType = ScoreType.IN_BOUNDS;
+                    entryType = ScoreType.EXACT;
                     alpha = value;
                     foundPv = true;
                 }

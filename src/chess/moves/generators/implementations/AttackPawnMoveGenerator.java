@@ -32,7 +32,7 @@ public final class AttackPawnMoveGenerator extends AbstractPawnMoveGenerator {
 
     private int pawnAttackBuffer(long targetSquares, int currentPlayer, int direction, ChessState state, Move[] buffer, int offset) {
         while (targetSquares != 0) {
-            int to = Mask.last(targetSquares);
+            int to = Mask.lowest(targetSquares);
             int from = to + direction;
             long single = Mask.single(to);
             int capture = state.pieces[to];

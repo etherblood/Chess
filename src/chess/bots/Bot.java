@@ -9,5 +9,5 @@ import chess.moves.Move;
  */
 public interface Bot {
     void setState(ChessState state);
-    Move compute();
+    Move compute(int strength);
 }

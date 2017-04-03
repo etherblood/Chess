@@ -14,11 +14,11 @@ public class CastlingMoveGenerator {
         long allPieces = state.allPieces();
         int currentPlayer = state.currentPlayer();
         long kings = state.pieceMasks[Piece.king(currentPlayer)];
-        int from = Mask.last(kings);
+        int from = Mask.lowest(kings);
         long availableCastlings = Castling.availableCastlings(state.currentHistory().castling);
         availableCastlings &= Mask.RANK_1 << (currentPlayer * 56);
         while (availableCastlings != 0) {            
-            int castling = Mask.last(availableCastlings);
+            int castling = Mask.lowest(availableCastlings);
             long free = Castling.castlingFreeArea(castling);
             if((allPieces & free) == 0) {
                 long safety = Castling.castlingSafetyArea(castling);
@@ -30,24 +30,27 @@ public class CastlingMoveGenerator {
                     move.info = Piece.RESERVED_3;
                 }
             }
-            availableCastlings ^= Mask.single(castling);
+            availableCastlings &= availableCastlings - 1;
         }
         return offset;
     }
     
     
     public boolean isThreateningKing(ChessState state) {
-        return isThreateningPosition(state, state.currentPlayer(), Mask.last(state.pieceMasks[Piece.king(state.opponentPlayer())]));
+        return isThreateningPosition(state, state.currentPlayer(), Mask.lowest(state.pieceMasks[Piece.king(state.opponentPlayer())]));
     }
 
     public boolean isKingThreatened(ChessState state) {
-        return isThreateningPosition(state, state.opponentPlayer(), Mask.last(state.pieceMasks[Piece.king(state.currentPlayer())]));
+        int king = Piece.king(state.currentPlayer());
+        long kings = state.pieceMasks[king];
+        int kingSquare = Mask.lowest(kings);
+        return isThreateningPosition(state, state.opponentPlayer(), kingSquare);
     }
 
     public boolean isThreateningZone(ChessState state, int attacker, long zone) {
         while (zone != 0) {
-            int pos = Mask.first(zone);
-            zone ^= Mask.single(pos);
+            int pos = Mask.lowest(zone);
+            zone &= zone - 1;
 
             if (isThreateningPosition(state, attacker, pos)) {
                 return true;
@@ -57,6 +60,8 @@ public class CastlingMoveGenerator {
     }
 
     private boolean isThreateningPosition(ChessState state, int attacker, int square) {
+        assert (attacker & 1) == attacker;
+        assert (square & 63) == square;
         int defender = Player.opponent(attacker);
 
         long threat = Mask.pawnThreat(square, defender) & state.pieceMasks[Piece.pawn(attacker)];

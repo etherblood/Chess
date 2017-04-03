@@ -33,23 +33,23 @@ public final class DefaultMovesGenerator {
         long allPieces = state.allPieces();
         long pieceMask = state.pieceMasks[piece];
         while (pieceMask != 0) {
-            int from = Mask.last(pieceMask);
+            int from = Mask.lowest(pieceMask);
             long targets = moves.moves(from, allPieces, targetable);
-            offset = defaultGenerate(state, buffer, offset, from, targets);
-            pieceMask ^= Mask.single(from);
+            offset = defaultGenerate(state.pieces, buffer, offset, from, targets);
+            pieceMask &= pieceMask - 1;
         }
         return offset;
     }
 
-    private int defaultGenerate(ChessState state, Move[] buffer, int offset, int from, long targets) {
+    private int defaultGenerate(int[] pieces, Move[] buffer, int offset, int from, long targets) {
         while (targets != 0) {
-            int to = Mask.last(targets);
+            int to = Mask.lowest(targets);
             Move move = buffer[offset++];
             move.to = to;
             move.from = from;
-            move.capture = state.pieces[to];
+            move.capture = pieces[to];
             move.info = Piece.EMPTY;
-            targets ^= Mask.single(to);
+            targets &= targets - 1;
         }
         return offset;
     }

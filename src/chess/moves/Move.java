@@ -14,6 +14,16 @@ public final class Move {
     }
     public int from, to, capture, info, score;
 
+    public Move() {
+    }
+
+    public Move(int from, int to, int capture, int info) {
+        this.from = from;
+        this.to = to;
+        this.capture = capture;
+        this.info = info;
+    }
+
     public void fromInt(int value) {
         from = value & 0xff;
         value >>>= 8;

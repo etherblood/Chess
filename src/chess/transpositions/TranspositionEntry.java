@@ -4,8 +4,9 @@ package chess.transpositions;
  *
  * @author Philipp
  */
-public class BucketTranspositionEntry {
+public class TranspositionEntry {
     public long hash;
     public short move, score;
-    public int depth, type;
+    public int depth;
+    public byte type;
 }

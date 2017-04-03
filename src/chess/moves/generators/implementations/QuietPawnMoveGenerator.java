@@ -17,7 +17,7 @@ public final class QuietPawnMoveGenerator extends AbstractPawnMoveGenerator {
         long pawnSimpleMoves = generatePawnSimpleMoves(ownPawns, allPieces, isWhite);
         long targetSquares = pawnSimpleMoves;
         while (targetSquares != 0) {
-            int to = Mask.last(targetSquares);
+            int to = Mask.lowest(targetSquares);
             int from = to - Player.sign(currentPlayer) * 8;
             long single = Mask.single(to);
             if (((Mask.RANK_1 | Mask.RANK_8) & single) == 0) {
@@ -35,17 +35,17 @@ public final class QuietPawnMoveGenerator extends AbstractPawnMoveGenerator {
         targetSquares = generatePawnDoubleMoves(pawnSimpleMoves, allPieces, isWhite);
         while (targetSquares != 0) {
             Move move = buffer[offset++];
-            int single = Mask.last(targetSquares);
-            move.to = single;
-            move.from = single - 16 * Player.sign(currentPlayer);
+            int to = Mask.lowest(targetSquares);
+            move.to = to;
+            move.from = to - 16 * Player.sign(currentPlayer);
             move.capture = Piece.EMPTY;
             move.info = Piece.RESERVED_1;
-            targetSquares ^= Mask.single(single);
+            targetSquares &= targetSquares - 1;
         }
         return offset;
     }
 
-    private long generatePawnSimpleMoves(long pawns, long allPieces, boolean white) {
+    public static long generatePawnSimpleMoves(long pawns, long allPieces, boolean white) {
         if (white) {
             pawns <<= 8;
         } else {
@@ -54,7 +54,7 @@ public final class QuietPawnMoveGenerator extends AbstractPawnMoveGenerator {
         return pawns & ~allPieces;
     }
 
-    private long generatePawnDoubleMoves(long simplePawnMoves, long allPieces, boolean white) {
+    public static long generatePawnDoubleMoves(long simplePawnMoves, long allPieces, boolean white) {
         if (white) {
             simplePawnMoves &= Mask.RANK_3;
             simplePawnMoves <<= 8;

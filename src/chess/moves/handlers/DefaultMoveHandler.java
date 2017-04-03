@@ -22,6 +22,7 @@ public final class DefaultMoveHandler extends MoveAdapter {
         state.pieces[to] = piece;
         
         if(capture != Piece.EMPTY) {
+            assert !Piece.isKing(capture);
             //capture
             flipMasks(state, Mask.single(to), capture);
             flipHash(state, capture, to);

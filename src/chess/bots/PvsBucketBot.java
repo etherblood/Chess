@@ -1,39 +1,50 @@
 package chess.bots;
 
 import chess.ChessPrinter;
-import chess.bots.evaluations.Evaluation;
 import chess.ChessState;
 import chess.HistoryState;
+import chess.bots.evaluations.Evaluation;
+import chess.bots.evaluations.PstEvaluation;
 import chess.transpositions.ScoreType;
 import chess.moves.Move;
+import chess.moves.NullMoveExecutor;
 import chess.moves.generators.MoveGenerator;
 import chess.moves.handlers.MoveExecutor;
-import chess.transpositions.BucketTranspositionEntry;
+import chess.transpositions.TranspositionEntry;
 import chess.transpositions.BucketTranspositionTable;
+import chess.transpositions.TranspositionTable;
 import chess.transpositions.TranspositionTableStatistics;
+import chess.util.Mask;
+import chess.util.Piece;
 import chess.util.Player;
 import chess.util.Score;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class PvsBucketBot implements Bot {
 
-    private final static boolean QUIESCENCE_DISABLED = false;
+    public /*private static final*/ boolean QUIESCENCE_ENABLED = true, KILLERS_ENABLED = true, NULLMOVE_ENABLED = true;
     private final static int MAX_DEPTH = 20;
     private final MoveGenerator moveGen = new MoveGenerator();
     private final MoveExecutor exe = new MoveExecutor();
+    private final NullMoveExecutor nullExe = new NullMoveExecutor();
     private final Move[] buffer = MoveGenerator.createBuffer(50 * MAX_DEPTH);//TODO: this might be to small
     private final Move[] killers = MoveGenerator.createBuffer(2 * MAX_DEPTH);
     private final Evaluation eval;
     private ChessState state;
-    private long nodes;
-    private final BucketTranspositionTable table = new BucketTranspositionTable(23);// 2^22 * 60B = 251 658 240B
-    private final BucketTranspositionEntry[] depthEntries;
+    private long nodes, totalNodes, totalMillis, totalSearches;
+    private final TranspositionTable table = new BucketTranspositionTable(20);// 2^22 * 60B = 251 658 240B
+    private final TranspositionEntry[] depthEntries;
     private MoveOrder moveOrder;
+    private int lastScore = 0;
+    private final List<Move> rootMoves = new ArrayList<>();
 
     public PvsBucketBot(Evaluation eval) {
         this.eval = eval;
-        depthEntries = new BucketTranspositionEntry[MAX_DEPTH];
+        depthEntries = new TranspositionEntry[MAX_DEPTH];
         for (int i = 0; i < MAX_DEPTH; i++) {
-            depthEntries[i] = new BucketTranspositionEntry();
+            depthEntries[i] = new TranspositionEntry();
         }
     }
 
@@ -44,31 +55,67 @@ public class PvsBucketBot implements Bot {
     }
 
     @Override
-    public Move compute() {
-        int depth = 8;
-        Move move = new Move();
+    public Move compute(int depth) {
+        nodes = 0;
+        generateRootMoves();
         new ChessPrinter().print(state.pieces);
+        lastScore *= Player.sign(state.currentPlayer());
         long millis = -System.currentTimeMillis();
         for (int i = 1; i <= depth; i++) {
-            clearKillers();//clear killers here because we index them by depth
-            int score = pvsRoot(i, -Integer.MAX_VALUE, Integer.MAX_VALUE, move);
+            clearKillers();
+            lastScore = windowedIteration(i, lastScore);
+            Collections.sort(rootMoves, (Move m1, Move m2) -> Integer.compare(m2.score, m1.score));
             String scoreString;
-            if (Score.isMateScore(score)) {
-                int matePly = Score.plyFromMateScore(score);
+            if (Score.isMateScore(lastScore)) {
+                int matePly = Score.plyFromMateScore(lastScore);
                 scoreString = (Player.isWhite(~matePly & 1) ? "white" : "black") + " mates in " + (matePly - state.moveCounter);
             } else {
-                scoreString = "w_score: " + String.valueOf(score * Player.sign(state.currentPlayer()));
+                scoreString = "w_score: " + String.valueOf(lastScore * Player.sign(state.currentPlayer()));
             }
-            System.out.println("(" + i + ") " + move.toString() + " " + scoreString);
+            System.out.println("(" + i + ") " + rootMoves.get(0).toString() + " " + scoreString);
         }
         millis += System.currentTimeMillis();
+        Move move = rootMoves.get(0);
+        rootMoves.clear();
+        move.score = lastScore;
+        lastScore *= Player.sign(state.currentPlayer());
+        totalMillis += millis;
+        totalNodes += nodes;
         String nps = millis > 0 ? "" + (nodes / millis) : "-";
         System.out.println(nodes + " nodes / " + millis + " ms (" + nps + " kn/s)");
+        System.out.println("total: " + totalNodes + " nodes / " + totalMillis + " ms (" + (totalNodes / totalMillis) + " kn/s)");
+        totalSearches++;
+        System.out.println("avg nodes: " + totalNodes / totalSearches);
         System.out.println("branching: " + String.format("%s", Math.pow(nodes, 1d / depth)));
+        System.out.println("avg branching: " + String.format("%s", Math.pow(totalNodes / totalSearches, 1d / depth)));
         TranspositionTableStatistics.soutHitrate();
         TranspositionTableStatistics.clear();
         System.out.println("final move: " + move.toString());
         return move;
+    }
+    
+    private void generateRootMoves() {
+        int moveLimit = moveGen.generateMoves(state, buffer, 0);
+        for (int i = 0; i < moveLimit; i++) {
+            Move move = new Move();
+            move.fromMove(buffer[i]);
+            exe.makeMove(state, move);
+            if (!moveGen.isThreateningKing(state)) {
+                rootMoves.add(move);
+            }
+            exe.unmakeMove(state, move);
+        }
+    }
+    
+    private int windowedIteration(int depth, int expectedScore) {
+        int delta = 25;
+        int alpha = expectedScore - delta;
+        int beta = expectedScore + delta;
+        int resultScore = pvsRoot(depth, alpha, beta);
+        if(resultScore <= alpha || resultScore >= beta) {
+            resultScore = pvsRoot(depth, -Integer.MAX_VALUE, Integer.MAX_VALUE);
+        }
+        return resultScore;
     }
 
     private void clearKillers() {
@@ -77,38 +124,36 @@ public class PvsBucketBot implements Bot {
         }
     }
 
-    private int pvsRoot(final int depth, int alpha, final int beta, final Move bestMove) {
-        nodes = 1;
+    private int pvsRoot(final int depth, int alpha, final int beta) {
+        nodes++;
         boolean foundPv = false;
-        int moveLimit = moveGen.generateMoves(state, buffer, 0);
-        moveOrder.sort(buffer, 0, moveLimit);
-        for (int moveIndex = 0; moveIndex < moveLimit; moveIndex++) {
-            Move move = buffer[moveIndex];
+        for (Move move : rootMoves) {
             exe.makeMove(state, move);
-            if (moveGen.isThreateningKing(state)) {
-                exe.unmakeMove(state, move);
+            assert !moveGen.isThreateningKing(state);
+            int value;
+            if (foundPv) {
+                value = -principalVariationSearch(depth - 1, -alpha - 1, -alpha, 0);
+                if (alpha < value) {
+                    value = -principalVariationSearch(depth - 1, -beta, -alpha, 0);
+                }
             } else {
-                int value;
-                if (foundPv) {
-                    value = -principalVariationSearch(depth - 1, -alpha - 1, -alpha, moveLimit);
-                    if (alpha < value) {
-                        value = -principalVariationSearch(depth - 1, -beta, -alpha, moveLimit);
-                    }
-                } else {
-                    value = -principalVariationSearch(depth - 1, -beta, -alpha, moveLimit);
+                value = -principalVariationSearch(depth - 1, -beta, -alpha, 0);
+            }
+            exe.unmakeMove(state, move);
+            if (value > alpha) {
+                move.score += depth;
+                if (value >= beta) {
+                    return beta;
                 }
-                exe.unmakeMove(state, move);
-                if (value > alpha) {
-                    bestMove.fromMove(move);
-                    alpha = value;
-                    foundPv = true;
-                }
+                alpha = value;
+                foundPv = true;
             }
         }
         return alpha;
     }
 
-    private int principalVariationSearch(final int depth, int alpha, int beta, int moveOffset) {
+    private int principalVariationSearch(int depth, int alpha, int beta, int moveOffset) {
+        assert alpha < beta;
         nodes++;
         if (isRepetition()) {
             return 0;
@@ -119,20 +164,31 @@ public class PvsBucketBot implements Bot {
             }
             return 0;
         }
-        if (depth == 0) {
+
+        if (depth <= 0) {
             return quiescenceSearch(alpha, beta, moveOffset);
+        }
+        
+        if (NULLMOVE_ENABLED && 0 < alpha && alpha + 1 == beta && !moveGen.isKingThreatened(state) && Mask.count(state.playerMasks[state.currentPlayer()] ^ state.pieceMasks[Piece.pawn(state.currentPlayer())]) > 2) {
+            int reduction = (depth  + 19) / 5;
+            nullExe.makeNullMove(state);
+            int score = -principalVariationSearch(depth - reduction, -beta, -alpha, moveOffset);
+            nullExe.unmakeNullMove(state);
+            if (score >= beta) {
+                depth = Math.max(0, depth - 4);
+            }
         }
 
         short hashMove = 0;
-        BucketTranspositionEntry entry = depthEntries[depth];
+        TranspositionEntry entry = depthEntries[depth];
         long hash = state.currentHistory().hash;
         TranspositionTableStatistics.requests++;
         if (table.load(hash, entry)) {
             TranspositionTableStatistics.hits++;
-            int entryType = entry.type;
+            byte entryType = entry.type;
             if (entry.depth >= depth) {
                 switch (entryType) {
-                    case ScoreType.IN_BOUNDS:
+                    case ScoreType.EXACT:
                         return Score.fromTableScore(entry.score, state.moveCounter);
                     case ScoreType.UPPER_BOUND:
                         beta = Score.fromTableScore(entry.score, state.moveCounter);
@@ -152,7 +208,7 @@ public class PvsBucketBot implements Bot {
                 }
             } else {
                 switch (entryType) {
-                    case ScoreType.IN_BOUNDS:
+                    case ScoreType.EXACT:
                     case ScoreType.LOWER_BOUND:
                         hashMove = entry.move;
                         break;
@@ -164,7 +220,7 @@ public class PvsBucketBot implements Bot {
             principalVariationSearch(depth - 2, alpha, beta, moveOffset);
             if (table.load(hash, entry)) {
                 switch (entry.type) {
-                    case ScoreType.IN_BOUNDS:
+                    case ScoreType.EXACT:
                     case ScoreType.LOWER_BOUND:
                         hashMove = entry.move;
                         break;
@@ -173,7 +229,7 @@ public class PvsBucketBot implements Bot {
         }
 
         Move bestMove = Move.empty();
-        int entryType = ScoreType.UPPER_BOUND;
+        byte entryType = ScoreType.UPPER_BOUND;
         boolean foundPv = false, noMovesFound = true;
         int preMoveIndex = 0;
 
@@ -189,16 +245,20 @@ public class PvsBucketBot implements Bot {
             preMoveIndex++;
         }
 
-        for (int moveIndex = moveOffset + preMoveIndex; moveIndex < moveLimit; moveIndex++) {
-            int killerIndex = depth << 1;
-            if (buffer[moveIndex].identityEquals(killers[killerIndex]) || buffer[moveIndex].identityEquals(killers[killerIndex + 1])) {
-                Move tmp = buffer[moveOffset + preMoveIndex];
-                buffer[moveOffset + preMoveIndex] = buffer[moveIndex];
-                buffer[moveIndex] = tmp;
-                preMoveIndex++;
+        if(KILLERS_ENABLED) {
+            for (int moveIndex = moveOffset + preMoveIndex; moveIndex < moveLimit; moveIndex++) {
+                int killerIndex = depth << 1;
+                assert killers[killerIndex].capture == Piece.EMPTY;
+                if (buffer[moveIndex].identityEquals(killers[killerIndex]) || buffer[moveIndex].identityEquals(killers[killerIndex + 1])) {
+                    Move tmp = buffer[moveOffset + preMoveIndex];
+                    buffer[moveOffset + preMoveIndex] = buffer[moveIndex];
+                    buffer[moveIndex] = tmp;
+                    preMoveIndex++;
+                }
             }
         }
-
+        
+        assert alpha < beta;
         moveOrder.sort(buffer, moveOffset + preMoveIndex, moveLimit);
 
         for (int moveIndex = moveOffset; moveIndex < moveLimit; moveIndex++) {
@@ -225,20 +285,20 @@ public class PvsBucketBot implements Bot {
                         alpha = beta;
                         break;
                     }
-                    entryType = ScoreType.IN_BOUNDS;
+                    entryType = ScoreType.EXACT;
                     alpha = value;
                     foundPv = true;
                 }
             }
         }
         if (noMovesFound) {
-            entryType = ScoreType.IN_BOUNDS;
+            entryType = ScoreType.EXACT;
             if (moveGen.isKingThreatened(state)) {
                 alpha = Score.mateLossScore(state.moveCounter);
             } else {
                 alpha = 0;
             }
-        } else if (entryType != ScoreType.UPPER_BOUND) {
+        } else if (KILLERS_ENABLED && bestMove.capture == Piece.EMPTY && entryType != ScoreType.UPPER_BOUND) {
             int killerIndex = depth << 1;
             if (!bestMove.identityEquals(killers[killerIndex])) {
                 Move tmp = killers[killerIndex + 1];
@@ -249,10 +309,8 @@ public class PvsBucketBot implements Bot {
                 }
             }
         }
+        assert alpha == (short)alpha;
 
-//        if(alpha == 0 || alpha >= Short.MAX_VALUE / 2 || alpha <= Short.MAX_VALUE / -2) {
-//            return alpha;
-//        }
         entry.hash = hash;
         entry.move = bestMove.toShort();
         entry.depth = depth;
@@ -264,7 +322,7 @@ public class PvsBucketBot implements Bot {
 
     private int quiescenceSearch(int alpha, int beta, int moveOffset) {
         int value = eval.evaluate(state, alpha, beta);
-        if (QUIESCENCE_DISABLED) {
+        if (!QUIESCENCE_ENABLED) {
             return value;
         }
         if (value > alpha) {

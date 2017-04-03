@@ -2,13 +2,12 @@ package chess;
 
 import chess.bots.Bot;
 import chess.bots.PvsBucketBot;
-import chess.bots.PvsTableBot;
+import chess.bots.evaluations.AdvancedEval;
 import chess.bots.evaluations.PstEvaluation;
 import chess.moves.handlers.MoveExecutor;
 import chess.moves.Move;
 import chess.moves.generators.MoveGenerator;
 import chess.transpositions.PerftTranspositionTable;
-import chess.transpositions.TranspositionTableStatistics;
 import chess.util.Board;
 import chess.util.Piece;
 import chess.util.Player;
@@ -21,12 +20,29 @@ import java.util.Scanner;
  * @author Philipp
  */
 public class Main {
+    private static final int WHITE_BOT_FLAG = 1 << Player.WHITE;
+    private static final int BLACK_BOT_FLAG = 1 << Player.BLACK;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        botGame();
+//        botVsBot();
+//        new AdvancedEval();
+        testPosition();
+//        game(WHITE_BOT_FLAG | BLACK_BOT_FLAG);
+    }
+    
+    private static void testPosition() {
+        ChessSetup setup = new ChessSetup();
+        ChessState state = new ChessState();
+        setup.reset(state);
+//        setup.fromFen(state, "r2qr1k1/pb3p2/p1p4Q/4b1p1/4p3/2N5/PPPB1PP1/1R2R2K w - -");
+        MoveExecutor exe = new MoveExecutor();
+//        exe.makeMove(state, new Move(Board.D2, Board.G5, Piece.B_PAWN, Piece.EMPTY));//this is probably the correct move
+        Bot bot = new PvsBucketBot(new PstEvaluation());
+        bot.setState(state);
+        bot.compute(11);
     }
 
     private static void perft() {
@@ -55,7 +71,28 @@ public class Main {
         System.out.println(100 * used / size + "%");
     }
     
-    private static boolean isGameOver(ChessState state) {
+    public static void botVsBot() {
+        ChessPrinter printer = new ChessPrinter();
+        ChessState state = new ChessState();
+        ChessSetup setup = new ChessSetup();
+        setup.reset(state);
+        printer.print(state.pieces);
+        MoveExecutor exe = new MoveExecutor();
+        PvsBucketBot botA = new PvsBucketBot(new PstEvaluation());
+        botA.setState(state);
+        PvsBucketBot botB = new PvsBucketBot(new PstEvaluation());
+        botB.setState(state);
+        Bot[] bots = new Bot[]{botA, botB};
+        while (!isGameOver(state)) {
+            System.out.println("bot" + state.currentPlayer() + " computing...");
+            Move botMove = bots[state.currentPlayer()].compute(7);
+            System.out.println(botMove.toString());
+            exe.makeMove(state, botMove);
+            printer.print(state.pieces);
+        }
+    }
+    
+    public static boolean isGameOver(ChessState state) {
         MoveExecutor exe = new MoveExecutor();
         MoveGenerator gen = new MoveGenerator();
         Move[] buffer = MoveGenerator.createBuffer(100);
@@ -91,7 +128,7 @@ public class Main {
         return false;
     }
 
-    private static void botGame() {
+    private static void game(int botFlags) {
         ChessPrinter printer = new ChessPrinter();
         ChessState state = new ChessState();
         ChessSetup setup = new ChessSetup();
@@ -102,73 +139,60 @@ public class Main {
         Bot bot = new PvsBucketBot(new PstEvaluation());
         bot.setState(state);
         Move[] buffer = MoveGenerator.createBuffer(500);
-        
-        boolean vsHuman = false;
-        if(!vsHuman) {
-            while(!isGameOver(state)) {
-                System.out.println("computing...");
-                Move botMove = bot.compute();
-                System.out.println(botMove.toString());
-                exe.makeMove(state, botMove);
-//                printer.print(state.pieces);
-            }
-            return;
-        }
-        System.out.println("your turn");
-        
-        try (Scanner s = new Scanner(System.in)) {
-            String line;
-            while (!(line = s.nextLine()).equals("exit")) {
-                try {
-                    String[] parts = line.split(" ");
-                    int from = parseSquare(parts[0]);
-                    int to = parseSquare(parts[1]);
-                    List<Move> candidates = new ArrayList<>();
-                    int moves = gen.generateMoves(state, buffer, 0);
-                    for (int i = 0; i < moves; i++) {
-                        Move move = buffer[i];
-                        if (move.from == from && move.to == to) {
-                            candidates.add(move);
-                        }
-                    }
 
-                    if (candidates.size() > 1) {
-                        int promotion = -1;
-                        if (parts.length > 2) {
-                            promotion = parsePiece(parts[2].charAt(0));
-                        }
-                        for (int i = candidates.size() - 1; i >= 0; i--) {
-                            if (candidates.get(i).info != promotion) {
-                                candidates.remove(i);
+        try (Scanner s = new Scanner(System.in)) {
+            while (!isGameOver(state)) {
+                if (((1 << state.currentPlayer()) & botFlags) == 0) {
+                    System.out.println("your turn...");
+                    String line = s.nextLine();
+                    try {
+                        String[] parts = line.split(" ");
+                        int from = parseSquare(parts[0]);
+                        int to = parseSquare(parts[1]);
+                        List<Move> candidates = new ArrayList<>();
+                        int moves = gen.generateMoves(state, buffer, 0);
+                        for (int i = 0; i < moves; i++) {
+                            Move move = buffer[i];
+                            if (move.from == from && move.to == to) {
+                                candidates.add(move);
                             }
                         }
-                    }
 
-                    if (candidates.size() != 1) {
-                        System.out.println("no unique move found");
-                        throw new IllegalStateException();
-                    }
+                        if (candidates.size() > 1) {
+                            int promotion = -1;
+                            if (parts.length > 2) {
+                                promotion = parsePiece(parts[2].charAt(0));
+                            }
+                            for (int i = candidates.size() - 1; i >= 0; i--) {
+                                if (candidates.get(i).info != promotion) {
+                                    candidates.remove(i);
+                                }
+                            }
+                        }
 
-                    exe.makeMove(state, candidates.get(0));
-                    
-                    if(gen.isThreateningKing(state)) {
-                        exe.unmakeMove(state, candidates.get(0));
-                        System.out.println("can't leave your king checked");
-                        throw new IllegalStateException();
+                        if (candidates.size() != 1) {
+                            System.out.println("no unique move found");
+                            throw new IllegalStateException();
+                        }
+
+                        exe.makeMove(state, candidates.get(0));
+
+                        if (gen.isThreateningKing(state)) {
+                            exe.unmakeMove(state, candidates.get(0));
+                            System.out.println("can't leave your king checked");
+                            throw new IllegalStateException();
+                        }
+                    } catch (Throwable t) {
+                        System.out.println("invalid input");
+                        t.printStackTrace(System.out);
                     }
-                    
-                    printer.print(state.pieces);
+                } else {
                     System.out.println("computing...");
-                    Move botMove = bot.compute();
+                    Move botMove = bot.compute(8);
                     System.out.println(botMove.toString());
                     exe.makeMove(state, botMove);
-                    printer.print(state.pieces);
-                    System.out.println("your turn");
-
-                } catch (Throwable t) {
-                    System.out.println("invalid input");
-                    t.printStackTrace(System.out);
                 }
+                printer.print(state.pieces);
             }
         }
     }

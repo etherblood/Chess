@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  *
  * @author Philipp
  */
-public class BucketTranspositionTable {
+public class BucketTranspositionTable implements TranspositionTable {
     private final static boolean DISABLED = false;
     private final static int ENTRY_BYTES = 10;
     private final static int BUCKET_ENTRIES = 3;
@@ -19,7 +19,8 @@ public class BucketTranspositionTable {
         source = ByteBuffer.allocateDirect(ENTRY_BYTES * BUCKET_ENTRIES * size);
     }
     
-    public boolean load(long hash, BucketTranspositionEntry entry) {
+    @Override
+    public boolean load(long hash, TranspositionEntry entry) {
         if(DISABLED) {
             return false;
         }
@@ -29,7 +30,7 @@ public class BucketTranspositionTable {
             if((readFirst & ~0xffffffL) == 0) {
                 entry.hash = hash;
                 entry.move = (short) readFirst;
-                entry.type = (int) ((readFirst >>> 16) & 3);
+                entry.type = (byte) ((readFirst >>> 16) & 3);
                 entry.depth = (int) ((readFirst >>> 18) & 0x3f);
                 entry.score = source.getShort(bucket + i * ENTRY_BYTES + Long.BYTES);
                 return true;
@@ -38,7 +39,8 @@ public class BucketTranspositionTable {
         return false;
     }
     
-    public void store(BucketTranspositionEntry entry) {
+    @Override
+    public void store(TranspositionEntry entry) {
         if(DISABLED) {
             return;
         }
@@ -62,7 +64,7 @@ public class BucketTranspositionTable {
         store(bucket + bestIndex * ENTRY_BYTES, entry);
     }
     
-    private void store(int index, BucketTranspositionEntry entry) {
+    private void store(int index, TranspositionEntry entry) {
         assert (entry.type & 3) == entry.type;
         assert (entry.depth & 0x3f) == entry.depth;
         long hash = entry.hash;

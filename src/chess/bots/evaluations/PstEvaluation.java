@@ -140,5 +140,11 @@ public class PstEvaluation implements Evaluation {
 
         return Player.sign(state.currentPlayer()) * score + 5;
     }
+    
+    public static int pieceSquareScore(int piece, int square) {
+        assert (piece & 15) == piece;
+        assert (square & 63) == square;
+        return PST[(piece << 6) | square];
+    }
 
 }

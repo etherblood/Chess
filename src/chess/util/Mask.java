@@ -3,8 +3,8 @@ package chess.util;
 public class Mask {
 
     public static final long BORDER_SQUARES = 0xff818181818181ffL;
-    public static final long BLACK_SQUARES = 0x5555555555555555L;
-    public static final long WHITE_SQUARES = 0x9999999999999999L;
+    public static final long BLACK_SQUARES = 0xAA55AA55AA55AA55L;
+    public static final long WHITE_SQUARES = 0x55AA55AA55AA55AAL;
     public static final long FILE_A = 0x0101010101010101L;
     public static final long FILE_B = 0x0202020202020202L;
     public static final long FILE_C = 0x0404040404040404L;
@@ -27,7 +27,7 @@ public class Mask {
     private static final long[] KNIGHT_ATTACKS = new long[64];
     private static final long[] KING_ATTACKS = new long[64];
     private static final long[] PAWN_ATTACKS = new long[2 * 64];
-    private static final long[] SIDE_NEIGHBORS = new long[64];
+    private static final long[] HORIZONTAL_NEIGHBORS = new long[64];
     private static final long[] DIAGONAL_A1_ATTACKS = new long[64 * 64];
     private static final long[] DIAGONAL_A8_ATTACKS = new long[64 * 64];
     private static final long[] RANK_ATTACKS = new long[64 * 64];
@@ -44,24 +44,32 @@ public class Mask {
 
         calculateKingAttacks();
         calculateKnightAttacks();
+        calculateHorizontalNeighbors();
+        calculatePawnAttacks();
+    }
+
+    private static void calculateHorizontalNeighbors() {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 int square = Board.square(x, y);
                 if (x > 0) {
-                    SIDE_NEIGHBORS[square] |= Mask.single(Board.square(x - 1, y));
+                    HORIZONTAL_NEIGHBORS[square] |= Mask.single(Board.square(x - 1, y));
                 }
                 if (x < 7) {
-                    SIDE_NEIGHBORS[square] |= Mask.single(Board.square(x + 1, y));
+                    HORIZONTAL_NEIGHBORS[square] |= Mask.single(Board.square(x + 1, y));
                 }
             }
         }
+    }
+
+    private static void calculatePawnAttacks() {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 int square = Board.square(x, y);
                 for (int player = 0; player < 2; player++) {
                     int yForward = y + Player.sign(player);
                     if((yForward & 7) == yForward) {
-                        PAWN_ATTACKS[(square << 1) | player] = SIDE_NEIGHBORS[Board.square(x, yForward)];
+                        PAWN_ATTACKS[(square << 1) | player] = HORIZONTAL_NEIGHBORS[Board.square(x, yForward)];
                     }
                 }
             }
@@ -99,24 +107,24 @@ public class Mask {
         for (int j = 0; j < 8; j++) {
             for (int state6Bit = 0; state6Bit < 64; state6Bit++) {
                 int state8Bit = state6Bit << 1;
-                long vertMask = 0;
-                long horiMask = 0;
+                long verticalMask = 0;
+                long horizontalMask = 0;
                 for (int i = j - 1; i >= 0; i--) {
-                    vertMask |= FILE_A << i;
-                    horiMask |= RANK_8 >>> (8 * i);
+                    verticalMask |= FILE_A << i;
+                    horizontalMask |= RANK_8 >>> (8 * i);
                     if (((1 << i) & state8Bit) != 0) {
                         break;
                     }
                 }
                 for (int i = j + 1; i < 8; i++) {
-                    vertMask |= FILE_A << i;
-                    horiMask |= RANK_8 >>> (8 * i);
+                    verticalMask |= FILE_A << i;
+                    horizontalMask |= RANK_8 >>> (8 * i);
                     if (((1 << i) & state8Bit) != 0) {
                         break;
                     }
                 }
-                vertical[j + state6Bit * 8] = vertMask;
-                horizontal[7 - j + state6Bit * 8] = horiMask;
+                vertical[j + state6Bit * 8] = verticalMask;
+                horizontal[7 - j + state6Bit * 8] = horizontalMask;
             }
         }
 
@@ -136,11 +144,7 @@ public class Mask {
 
     private static void calculateRankMask() {
         for (int square = 0; square < 64; square++) {
-            RANK_MASKS[square] = 0;
-            int y = Board.y(square);
-            for (int x = 1; x < 7; x++) {
-                RANK_MASKS[square] |= single(Board.square(x, y));
-            }
+            RANK_MASKS[square] = RANK_1 << (square & ~7);
         }
     }
 
@@ -179,16 +183,12 @@ public class Mask {
         return result;
     }
 
-    public static long single(int pos) {
-        assert (pos & 0x3f) == pos : pos;
-        return 1L << pos;
+    public static long single(int square) {
+        assert (square & 0x3f) == square : square;
+        return 1L << square;
     }
 
-    public static int first(long mask) {
-        return 63 - Long.numberOfLeadingZeros(mask);
-    }
-
-    public static int last(long mask) {
+    public static int lowest(long mask) {
         return Long.numberOfTrailingZeros(mask);
     }
 
@@ -201,7 +201,7 @@ public class Mask {
     }
 
     public static long fileMovement(long mask, int square) {
-        return FILE_ATTACKS[square + 64 * fileState(mask, square)];
+        return FILE_ATTACKS[square | (fileState(mask, square) << 6)];
     }
 
     public static int rankState(long mask, int square) {
@@ -209,7 +209,7 @@ public class Mask {
     }
 
     public static long rankMovement(long mask, int square) {
-        return RANK_ATTACKS[square + 64 * rankState(mask, square)];
+        return RANK_ATTACKS[square | (rankState(mask, square) << 6)];
     }
 
     public static int diA1State(long mask, int square) {
@@ -217,7 +217,7 @@ public class Mask {
     }
 
     public static long diA1Movement(long mask, int square) {
-        return DIAGONAL_A1_ATTACKS[square + 64 * diA1State(mask, square)];
+        return DIAGONAL_A1_ATTACKS[square | (diA1State(mask, square) << 6)];
     }
 
     public static int diA8State(long mask, int square) {
@@ -225,19 +225,19 @@ public class Mask {
     }
 
     public static long diA8Movement(long mask, int square) {
-        return DIAGONAL_A8_ATTACKS[square + 64 * diA8State(mask, square)];
+        return DIAGONAL_A8_ATTACKS[square | (diA8State(mask, square) << 6)];
     }
 
-    public static long bishopMovement(long mask, int square) {
-        return diA1Movement(mask, square) | diA8Movement(mask, square);
+    public static long bishopMovement(long allPieces, int square) {
+        return diA1Movement(allPieces, square) | diA8Movement(allPieces, square);
     }
 
-    public static long rookMovement(long mask, int square) {
-        return fileMovement(mask, square) | rankMovement(mask, square);
+    public static long rookMovement(long allPieces, int square) {
+        return fileMovement(allPieces, square) | rankMovement(allPieces, square);
     }
 
-    public static long queenMovement(long mask, int square) {
-        return rookMovement(mask, square) | bishopMovement(mask, square);
+    public static long queenMovement(long allPieces, int square) {
+        return rookMovement(allPieces, square) | bishopMovement(allPieces, square);
     }
 
     public static long kingAttacks(int square) {
@@ -248,11 +248,12 @@ public class Mask {
         return KNIGHT_ATTACKS[square];
     }
 
-    public static long sideNeighbors(int square) {
-        return SIDE_NEIGHBORS[square];
+    public static long horizontalNeighbors(int square) {
+        return HORIZONTAL_NEIGHBORS[square];
     }
     
     public static long pawnThreat(int square, int player) {
+        assert (square & 63) == square;
         return PAWN_ATTACKS[(square << 1) | player];
     }
 
@@ -270,5 +271,9 @@ public class Mask {
 
     public static long blackPawn9Attacks(long pawns) {
         return (pawns & ~FILE_A) >>> 9;
+    }
+    
+    public static long fileMask(int square) {
+        return FILE_A << Board.x(square);
     }
 }

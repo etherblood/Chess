@@ -1,15 +1,16 @@
 package chess.bots;
 
 import chess.ChessState;
+import chess.bots.evaluations.PstEvaluation;
 import chess.moves.Move;
 import chess.util.Piece;
+import chess.util.Player;
 
 /**
  *
  * @author Philipp
  */
 public class MvvLvaOrder implements MoveOrder {
-
     private static final int[] SCORES;
 
     static {
@@ -38,7 +39,8 @@ public class MvvLvaOrder implements MoveOrder {
     @Override
     public void sort(Move[] buffer, int from, int to) {
         int firstQuiet = partition(buffer, from, to);
-        selectionSort(buffer, from, firstQuiet);
+        selectionSortCaptures(buffer, from, firstQuiet);
+//        selectionSortQuiets(buffer, firstQuiet, to);
     }
 
     private int partition(Move[] buffer, int from, int to) {
@@ -52,10 +54,27 @@ public class MvvLvaOrder implements MoveOrder {
         return store;
     }
     
-    private void selectionSort(Move[] buffer, int from, int to) {
+    private void selectionSortCaptures(Move[] buffer, int from, int to) {
         for (int i = from; i < to; i++) {
             Move move = buffer[i];
             move.score = 16 * SCORES[move.capture] - SCORES[state.pieces[move.from]];
+        }
+        for (int i = from; i < to - 1; i++) {
+            int best = i;
+            for (int j = i + 1; j < to; j++) {
+                if(buffer[best].score < buffer[j].score) {
+                    best = j;
+                }
+            }
+            swap(buffer, i, best);
+        }
+    }
+    
+    private void selectionSortQuiets(Move[] buffer, int from, int to) {
+        for (int i = from; i < to; i++) {
+            Move move = buffer[i];
+            int piece = state.pieces[move.from];
+            move.score = Player.sign(state.currentPlayer()) * (PstEvaluation.pieceSquareScore(piece, move.to) - PstEvaluation.pieceSquareScore(piece, move.from));
         }
         for (int i = from; i < to - 1; i++) {
             int best = i;

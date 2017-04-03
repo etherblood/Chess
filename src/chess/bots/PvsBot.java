@@ -26,9 +26,8 @@ public class PvsBot implements Bot {
     }
 
     @Override
-    public Move compute() {
+    public Move compute(int depth) {
         long millis = -System.currentTimeMillis();
-        int depth = 7;
         Move move = pvsRoot(depth, -Short.MAX_VALUE, Short.MAX_VALUE);
         millis += System.currentTimeMillis();
         System.out.println(nodes + " nodes / " + millis + " ms (" + (nodes / millis) + " kn/s)");

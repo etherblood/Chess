@@ -23,7 +23,7 @@ public class DoubleMoveHandler extends MoveAdapter {
         state.pieces[to] = piece;
         
         //states
-        if((state.pieceMasks[Piece.pawn(state.opponentPlayer())] & Mask.sideNeighbors(to)) != 0) {
+        if((state.pieceMasks[Piece.pawn(state.opponentPlayer())] & Mask.horizontalNeighbors(to)) != 0) {
             HistoryState history = state.nextHistory();
             int ep = (from + to) >>> 1;
             history.enPassant = (byte)ep;

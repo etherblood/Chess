@@ -9,7 +9,13 @@ public class TranspositionTableStatistics {
     public static long requests, hits;
     
     public static void soutHitrate() {
-        System.out.println(100 * hits / requests + "% hitrate (" + hits + "/" + requests + ")");
+        String hitrate;
+        if(requests != 0) {
+            hitrate = String.valueOf(100 * hits / requests);
+        } else {
+            hitrate = "-";
+        }
+        System.out.println(hitrate + "% hitrate (" + hits + "/" + requests + ")");
     }
     
     public static void clear() {

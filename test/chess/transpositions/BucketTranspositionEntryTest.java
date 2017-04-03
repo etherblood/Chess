@@ -13,11 +13,11 @@ public class BucketTranspositionEntryTest {
     @Test
     public void test() {
         BucketTranspositionTable table = new BucketTranspositionTable(10);
-        BucketTranspositionEntry entry = new BucketTranspositionEntry();
+        TranspositionEntry entry = new TranspositionEntry();
 
         long hash = 0xdeadbeef;
         short move = (short) 0xaaaa;
-        int type = 3;
+        byte type = 3;
         int depth = 33;
         short score = -Short.MAX_VALUE;
 
@@ -32,7 +32,7 @@ public class BucketTranspositionEntryTest {
 
         table.store(entry);
 
-        BucketTranspositionEntry entry2 = new BucketTranspositionEntry();
+        TranspositionEntry entry2 = new TranspositionEntry();
 
         assertTrue(table.load(hash, entry2));
         assertEquals(hash, entry2.hash);
@@ -48,10 +48,10 @@ public class BucketTranspositionEntryTest {
         BucketTranspositionTable table = new BucketTranspositionTable(10);
 
         for (int i = 0; i < 1000; i++) {
-            BucketTranspositionEntry entry = new BucketTranspositionEntry();
+            TranspositionEntry entry = new TranspositionEntry();
             long hash = rng.nextLong();
             short move = (short) rng.nextInt();
-            int type = rng.nextInt(4);
+            byte type = (byte) rng.nextInt(4);
             int depth = rng.nextInt(64);
             short score = (short) rng.nextInt();
 
@@ -66,7 +66,7 @@ public class BucketTranspositionEntryTest {
 
             table.store(entry);
 
-            BucketTranspositionEntry entry2 = new BucketTranspositionEntry();
+            TranspositionEntry entry2 = new TranspositionEntry();
 
             assertTrue(table.load(hash, entry2));
             assertEquals(hash, entry2.hash);
