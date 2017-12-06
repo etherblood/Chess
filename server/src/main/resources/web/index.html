@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login Page</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body onload='document.guestForm.name.focus();'>
+        <h3>Login as guest</h3>
+        <form name='guestForm' action='/auth/login/guest' method='POST'>
+            <table>
+                <tr>
+                    <td>Name:</td>
+                    <td>
+                        <input type='text' name='name' value=''>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='2'>
+                        <input name="submit" type="submit" value="Login"/>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <!--        <h3>Login with Username and Password</h3>
+                <form name='loginForm' action='/auth/login' method='POST'>
+                    <table>
+                        <tr>
+                            <td>User:</td>
+                            <td>
+                                <input type='text' name='username' value=''>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Password:</td>
+                            <td>
+                                <input type='password' name='password' value='password'/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'>
+                                <input name="submit" type="submit" value="Login"/>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                <h4>Register with Username</h4>
+                <form name='registerForm' action='/user/new' method='POST'>
+                    <table>
+                        <tr>
+                            <td>User:</td>
+                            <td>
+                                <input type='text' name='username' value=''>
+                            </td>
+                        </tr>
+                        <tr>
+        <td>Password:</td>
+        <td>
+        <input type='password' name='password'/>
+        </td>
+        </tr>
+                        <tr>
+                            <td colspan='2'>
+                                <input name="submit" type="submit" value="Register"/>
+                            </td>
+                        </tr>
+                    </table>
+                </form>-->
+    </body>
+</html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!--<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <form action="/login" method="post">
+            <div>
+                <label>
+<b>Username</b>
+</label>
+                <input type="text" placeholder="Enter Email" name="email" required>
+
+                <label>
+<b>Password</b>
+</label>
+                <input type="password" placeholder="Enter Password" name="password" required>
+
+                <button type="submit">Login</button>
+                <input type="checkbox" checked="checked"> Remember me
+            </div>
+
+            <div>
+                <button type="button">Cancel</button>
+                <span>
+<a href="#">Forgot password?</a>
+</span>
+            </div>
+        </form> 
+    </body>
+</html>-->

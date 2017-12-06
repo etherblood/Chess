@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Chess</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="chessboard.css" type="text/css"/>        
+
+        <script src="EventService.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="HttpService.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="UserService.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="MatchService.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="BoardService.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="PollService.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="MatchController.js" type="text/javascript" charset="UTF-8"></script>
+    </head>
+    <body>
+        <div>it iz works!</div>
+        <script>
+            
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) === ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) === 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            let eventService = new EventService();
+            let httpService = new HttpService(getCookie("XSRF-TOKEN"));
+            let userService = new UserService(httpService);
+            let matchService = new MatchService(httpService);
+            let boardService = new BoardService(eventService);
+            let pollService = new PollService(httpService, eventService);
+            let matchController = new MatchController(matchService, boardService, eventService);
+            
+            
+            
+/*            let matchId;
+//            userService.createPlayer("white").then(function (whitePlayer) {
+//                userService.createPlayer("black").then(function (blackPlayer) {
+            matchService.startMatch("c1c2cad2-2f9a-4e25-ba46-14872851c5dd", "c1c2cad2-2f9a-4e25-ba46-14872851c5dd").then(function (id) {
+                matchId = id;
+                let chessPanel = document.createElement("div");
+                document.body.appendChild(chessPanel);
+
+                matchService.getPieces(matchId).then(function (pieces) {
+                    boardService.initMatch(matchId, chessPanel, pieces);
+                    matchService.moves(matchId).then(function (moves) {
+                        boardService.setAvailableMoves(matchId, moves);
+                    });
+                });
+            });
+//                });
+//            });
+            pollService.run();*/
+        </script>
+    </body>
+</html>
