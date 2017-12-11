@@ -1,8 +1,5 @@
 package com.etherblood.chess.server.users.authentication.model;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  *
  * @author Philipp
  */
-public class GuestLoginDetails implements UserDetails {
+public class UserDetailsImpl implements UserDetails {
 
     private static final long serialVersionUID = 1L;
     private final UUID userId;
@@ -19,15 +16,11 @@ public class GuestLoginDetails implements UserDetails {
     private final String password;
     private final Set<UserAuthority> authorities;
 
-    public GuestLoginDetails(UUID userId, String loginHandle, String password, Collection<UserAuthority> authorities) {
+    public UserDetailsImpl(UUID userId, String loginHandle, String password, Set<UserAuthority> authorities) {
         this.userId = userId;
         this.loginHandle = loginHandle;
         this.password = password;
-        this.authorities = Collections.unmodifiableSet(new HashSet<>(authorities));
-    }
-
-    public UUID getUserId() {
-        return userId;
+        this.authorities = authorities;
     }
 
     @Override
@@ -37,12 +30,12 @@ public class GuestLoginDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return loginHandle;
     }
 
     @Override
@@ -63,6 +56,10 @@ public class GuestLoginDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
 }

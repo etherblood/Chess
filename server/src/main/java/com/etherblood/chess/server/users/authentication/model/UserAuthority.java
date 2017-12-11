@@ -8,7 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public enum UserAuthority implements GrantedAuthority{
 
-    GUEST, PLAYER, ADMIN;
+    PLAYER;
 
     @Override
     public String getAuthority() {

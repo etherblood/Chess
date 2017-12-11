@@ -3,7 +3,7 @@ package com.etherblood.chess.server.polling;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,8 +33,8 @@ public class PollRemoteService {
 
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
     @ResponseBody
-    @RequestMapping("/")
-    public DeferredResult<List<PollEvent>> poll(@CookieValue("clientId") long clientId) {
+    @RequestMapping("/{clientId}")
+    public DeferredResult<List<PollEvent>> poll(@PathVariable("clientId") long clientId) {
         return pollService.poll(clientId);
     }
 }

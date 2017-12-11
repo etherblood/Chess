@@ -1,5 +1,6 @@
 package com.etherblood.chess.server.users;
 
+import com.etherblood.chess.server.users.model.Account;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -18,25 +19,21 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final static Logger LOG = LoggerFactory.getLogger(UserService.class);
-    
-    private final Map<UUID, User> users = new ConcurrentHashMap<>();
 
-    {
-        users.put(UUID.fromString("c1c2cad2-2f9a-4e25-ba46-14872851c5dd"), new User(UUID.fromString("c1c2cad2-2f9a-4e25-ba46-14872851c5dd"), "tester", new Date()));
+    public UUID register(String loginHandle) {
+        Objects.requireNonNull(loginHandle);
+        Account account = new Account();
+        account.setId(UUID.randomUUID());
+        account.setLoginHandle(loginHandle);
+        account.setPassword(UUID.randomUUID().toString());
+        LOG.info("created new account {}", loginHandle);
+        return account.getId();
     }
-
-    public UUID createUser(String name) {
-        Objects.requireNonNull(name);
-        User user = new User(UUID.randomUUID(), name, new Date());
-        users.put(user.getId(), user);
-        LOG.info("created new User {}", name);
-        return user.getId();
-    }
-
-    public User getUser(UUID userId) {
-        return users.get(userId);
-    }
-
+//
+//    public User getUser(UUID userId) {
+//        return users.get(userId);
+//    }
+//
 //    public Collection<User> getAllUsers() {
 //        return users.values();
 //    }
