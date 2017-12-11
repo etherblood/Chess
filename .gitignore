@@ -3,3 +3,7 @@ build/
 dist/
 target/
 nb-configuration.xml
+.classpath
+.project
+.settings/
+.metadata/

@@ -1,15 +1,14 @@
 package com.etherblood.chess.server.users;
 
-import com.etherblood.chess.server.users.model.Account;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.etherblood.chess.server.users.model.Account;
 
 /**
  *
@@ -19,13 +18,24 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final static Logger LOG = LoggerFactory.getLogger(UserService.class);
+    
+    private final AccountRepository accountRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public UUID register(String loginHandle) {
+
+	public UserService(AccountRepository accountRepo, PasswordEncoder passwordEncoder) {
+		this.accountRepo = accountRepo;
+		this.passwordEncoder = passwordEncoder;
+	}
+
+
+	public UUID register(String loginHandle) {
         Objects.requireNonNull(loginHandle);
         Account account = new Account();
         account.setId(UUID.randomUUID());
         account.setLoginHandle(loginHandle);
-        account.setPassword(UUID.randomUUID().toString());
+        account.setPassword(passwordEncoder.encode("test"));//UUID.randomUUID().toString());
+        accountRepo.persist(account);
         LOG.info("created new account {}", loginHandle);
         return account.getId();
     }
