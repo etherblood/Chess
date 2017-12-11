@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+						http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-4.2.xsd
+						http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+						http://www.springframework.org/schema/security
+						http://www.springframework.org/schema/security/spring-security-4.2.xsd
+						http://www.springframework.org/schema/task
+						http://www.springframework.org/schema/task/spring-task-4.2.xsd">
+
+    <task:scheduler id="taskScheduler" pool-size="30" />
+    <task:annotation-driven scheduler="taskScheduler" />
+
+    <!--	<bean id="testTask"
+            class="package.TestTask" />
+    <task:scheduled-tasks scheduler="taskScheduler">
+            <task:scheduled ref="testTask" method="run"
+                    fixed-rate="${timerTask.testTask.period}"
+                    initial-delay="${timerTask.testTask.delay}" />
+    </task:scheduled-tasks>-->
+
+</beans>

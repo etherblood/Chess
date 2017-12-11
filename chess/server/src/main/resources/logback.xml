@@ -1,0 +1,35 @@
+<!-- ONLY IN DEV ENV FOR DEVELOPING THE LOGGER <configuration scan="true" 
+	scanPeriod="3 seconds"> -->
+
+<configuration>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
+			by default -->
+		<encoder>
+			<pattern>%date [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender"
+		level="info">
+		<file>${user.home}/server.log</file>
+		<append>false</append>
+		<encoder>
+			<pattern>%-5relative %-5level %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- For dev purpose debug level logging for our own code -->
+	<logger name="de.blackbytes.chat" level="info" />
+	<logger name="de.blackbytes.chat.server.clientconnection.model.async"
+		level="info" />
+	<logger
+		name="de.blackbytes.chat.server.clientconnection.model.DefaultClientQueues"
+		level="info" />
+	<logger name="de.blackbytes.chat.web.spring.SpringAsyncGwtRemoteService"
+		level="info" />
+	<root level="info">
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>
