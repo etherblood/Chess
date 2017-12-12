@@ -7,7 +7,8 @@
     </head>
     <body onload='document.loginForm.name.focus();'>
         <h3>Login with Username and Password</h3>
-        <form name='loginForm' action='/j_spring_security_check' method='POST'>
+        <form name='loginForm' action='/login' method='POST'>
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <table>
                 <tr>
                     <td>User:</td>
@@ -18,7 +19,7 @@
                 <tr>
                     <td>Password:</td>
                     <td>
-                        <input type='password' name='password' value='password'/>
+                        <input type='password' name='password' value='test'/>
                     </td>
                 </tr>
                 <tr>
@@ -30,6 +31,7 @@
         </form>
         <h4>Register with Username</h4>
         <form name='registerForm' action='/api/user/register' method='POST'>
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <table>
                 <tr>
                     <td>User:</td>

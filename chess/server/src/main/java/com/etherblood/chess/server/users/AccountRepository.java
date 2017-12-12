@@ -13,11 +13,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AccountRepository extends AbstractRepository {
 
-	private static final QAccount qAccount = QAccount.account;
+    private static final QAccount qAccount = QAccount.account;
 
-	public Account findByHandle(String loginHandle) {
-		return from(qAccount)
-				.where(qAccount.loginHandle.equalsIgnoreCase(loginHandle))
-				.uniqueResult(qAccount);
-	}
+    public Account findByHandle(String loginHandle) {
+        return from(qAccount)
+                .where(qAccount.loginHandle.equalsIgnoreCase(loginHandle))
+                .uniqueResult(qAccount);
+    }
 }

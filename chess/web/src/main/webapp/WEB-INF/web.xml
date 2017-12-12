@@ -32,36 +32,21 @@
 
     <!-- SPRING CONFIG -->
     <!-- The parent context in which to find the service beans def -->
-    <context-param>
+<!--    <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>
-            classpath*:main_spring_context.xml
-        </param-value>
-    </context-param>
+        <param-value>classpath*:main.xml</param-value>
+    </context-param>-->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
     <listener>
         <!-- Needed to access the http session -->
-        <listener-class>
-            org.springframework.web.context.request.RequestContextListener
-        </listener-class>
-    </listener>
-	
-    <!-- Listener to notify spring security about new http-session. Needed for Limitation for one single session
-   via <session-management> <concurrency-control>
-    -->
-    <listener>
-        <listener-class>
-            org.springframework.security.web.session.HttpSessionEventPublisher
-        </listener-class>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
 	
     <filter>
         <filter-name>encodingFilter</filter-name>
-        <filter-class>
-            org.springframework.web.filter.CharacterEncodingFilter
-        </filter-class>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
         <init-param>
             <param-name>encoding</param-name>
             <param-value>UTF-8</param-value>
@@ -73,7 +58,7 @@
     </filter>
     <filter-mapping>
         <filter-name>encodingFilter</filter-name>
-        <url-pattern>/j_spring_security_check</url-pattern>
+        <url-pattern>/login</url-pattern>
     </filter-mapping>
 	
     <!-- Security follows -->

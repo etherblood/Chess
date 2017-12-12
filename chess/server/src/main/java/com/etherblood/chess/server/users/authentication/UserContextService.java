@@ -1,17 +1,11 @@
 package com.etherblood.chess.server.users.authentication;
 
-import com.etherblood.chess.server.users.authentication.model.UserAuthority;
 import com.etherblood.chess.server.users.authentication.model.UserDetailsImpl;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**

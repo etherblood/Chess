@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.etherblood.chess.server.users.model.Account;
+import javax.annotation.PostConstruct;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -18,19 +20,18 @@ import com.etherblood.chess.server.users.model.Account;
 public class UserService {
 
     private final static Logger LOG = LoggerFactory.getLogger(UserService.class);
-    
+
     private final AccountRepository accountRepo;
     private final PasswordEncoder passwordEncoder;
 
+    public UserService(AccountRepository accountRepo, PasswordEncoder passwordEncoder) {
+        this.accountRepo = accountRepo;
+        this.passwordEncoder = passwordEncoder;
+        LOG.warn("instance created");
+    }
 
-	public UserService(AccountRepository accountRepo, PasswordEncoder passwordEncoder) {
-		this.accountRepo = accountRepo;
-		this.passwordEncoder = passwordEncoder;
-                LOG.warn("instance created");
-	}
-
-
-	public UUID register(String loginHandle) {
+    @Transactional
+    public UUID register(String loginHandle) {
         Objects.requireNonNull(loginHandle);
         Account account = new Account();
         account.setId(UUID.randomUUID());

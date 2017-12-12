@@ -17,5 +17,5 @@
 						http://www.springframework.org/schema/task
 						http://www.springframework.org/schema/task/spring-task-4.2.xsd">
 	
-    <import resource="classpath*:base_spring_context.xml" />
+    <import resource="classpath*:base.xml" />
 </beans>
