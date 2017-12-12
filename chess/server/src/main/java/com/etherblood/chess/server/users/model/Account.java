@@ -47,5 +47,10 @@ public class Account extends MutableEntity {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public String toString() {
+        return "Account{" + "id=" + id + ", loginHandle=" + loginHandle + ", password=" + password + '}';
+    }
     
 }

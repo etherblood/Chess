@@ -31,7 +31,7 @@ public class UserService {
     }
 
     @Transactional
-    public UUID register(String loginHandle) {
+    public Account register(String loginHandle) {
         Objects.requireNonNull(loginHandle);
         Account account = new Account();
         account.setId(UUID.randomUUID());
@@ -39,7 +39,7 @@ public class UserService {
         account.setPassword(passwordEncoder.encode("test"));//UUID.randomUUID().toString());
         accountRepo.persist(account);
         LOG.info("created new account {}", loginHandle);
-        return account.getId();
+        return account;
     }
 //
 //    public User getUser(UUID userId) {

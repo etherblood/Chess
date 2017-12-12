@@ -1,6 +1,8 @@
 package com.etherblood.chess.server.users;
 
-import java.util.UUID;
+import com.etherblood.chess.server.users.authentication.UserContextService;
+import com.etherblood.chess.server.users.authentication.model.UserAuthority;
+import java.util.EnumSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,16 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserRemoteService {
 
     private final UserService userService;
+    private final UserContextService userContextService;
 
     @Autowired
-    public UserRemoteService(UserService userService) {
+    public UserRemoteService(UserService userService, UserContextService userContextService) {
         this.userService = userService;
+        this.userContextService = userContextService;
     }
 
     @PreAuthorize(value = "permitAll()")
     @RequestMapping(path = "/user/register", method = RequestMethod.POST)
-    public UUID register(@RequestParam String loginHandle) {
-        UUID id = userService.register(loginHandle);
-        return id;
+    public String register(@RequestParam String loginHandle) {
+        userContextService.forceLogin(userService.register(loginHandle), EnumSet.of(UserAuthority.PLAYER));
+        throw new UnsupportedOperationException("redirect:/private/sandbox.html");
     }
+
 }

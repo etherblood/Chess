@@ -4,8 +4,7 @@ import com.etherblood.chess.server.users.AccountRepository;
 import com.etherblood.chess.server.users.authentication.model.UserAuthority;
 import com.etherblood.chess.server.users.authentication.model.UserDetailsImpl;
 import com.etherblood.chess.server.users.model.Account;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if(account == null) {
             throw new UsernameNotFoundException(loginHandle);
         }
-        return new UserDetailsImpl(account.getId(), account.getLoginHandle(), account.getPassword(), new HashSet<>(Arrays.asList(UserAuthority.PLAYER)));
+        return new UserDetailsImpl(account.getId(), account.getLoginHandle(), account.getPassword(), EnumSet.of(UserAuthority.PLAYER));
     }
 
 }

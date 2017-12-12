@@ -1,9 +1,16 @@
 package com.etherblood.chess.server.users.authentication;
 
+import com.etherblood.chess.server.users.authentication.model.UserAuthority;
 import com.etherblood.chess.server.users.authentication.model.UserDetailsImpl;
+import com.etherblood.chess.server.users.model.Account;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,18 +33,15 @@ public class UserContextService {
         throw new IllegalStateException(String.valueOf(principal));
     }
 
-//    public void login(String loginHandle, String password) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-////        if (authentication == null) {
-////            return;
-////        }
-//        if (authentication instanceof UsernamePasswordAuthenticationToken) {
-//            UserLoginDetails userLogin = new UserLoginDetails(((UserLoginDetails) authentication.getCredentials()).getUserId(), loginHandle, password, new ArrayList<>());
-//            authentication = new UsernamePasswordAuthenticationToken(userLogin, userLogin.getPassword());
-//            authenticationProvider.authenticate(authentication);
-//            LOG.info("authentication updated {} - {}", loginHandle, userLogin.getUserId());
-//        }
-//    }
+    public void forceLogin(Account account, Set<UserAuthority> authorities) {
+        String password = null;
+        UserDetailsImpl userLogin = new UserDetailsImpl(account.getId(), account.getLoginHandle(), password, authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userLogin, userLogin.getPassword(), authorities);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        LOG.info("authentication updated {} - {}", account, authorities);
+    }
 //    @Override
 //    public UserDetails loadUserByUsername(String loginHandle) throws UsernameNotFoundException {
 //        for (UserLoginDetails value : userLogins.values()) {
@@ -48,7 +52,7 @@ public class UserContextService {
 //        throw new UsernameNotFoundException(loginHandle);
 //    }
 //
-//    public void login(String loginHandle, String password) {
+//    public void forceLogin(String loginHandle, String password) {
 //        SecurityContext context = SecurityContextHolder.createEmptyContext();
 //        UserDetails userDetails = new UserDetailsImpl(DEFAULT_UUID, loginHandle, password, authorities)
 //        UserLoginDetails userLogin = new UserLoginDetails(UUID.randomUUID(), "anon", "none", new ArrayList<>());
