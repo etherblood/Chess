@@ -1,10 +1,10 @@
 function PollService(httpService, eventService) {
 
     this.run = function () {
-//        httpService.post("/poll/subscribe").then(function (clientId) {
+        httpService.post("/api/poll/subscribe").then(function (clientId) {
             let retries = 10;
             let poll = function () {
-                httpService.get("/poll/").then(function (events) {
+                httpService.get("/api/poll/" + clientId).then(function (events) {
                     poll();
                     for (let i = 0; i < events.length; i++) {
                         let event = events[i];
@@ -21,6 +21,6 @@ function PollService(httpService, eventService) {
                 });
             };
             poll();
-//        });
+        });
     };
 }

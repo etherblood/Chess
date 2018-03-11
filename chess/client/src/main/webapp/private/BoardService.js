@@ -1,3 +1,4 @@
+"use strict";
 function BoardService(eventService) {
     let matchDivs = {};
     let matchMoves = {};

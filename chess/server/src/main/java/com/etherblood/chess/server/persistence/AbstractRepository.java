@@ -1,9 +1,10 @@
 package com.etherblood.chess.server.persistence;
 
-import com.mysema.query.jpa.impl.JPAQuery;
-import com.mysema.query.types.EntityPath;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import com.mysema.query.jpa.impl.JPAQuery;
+import com.mysema.query.types.EntityPath;
 
 /**
  *
@@ -28,5 +29,9 @@ public abstract class AbstractRepository {
 
     protected EntityManager getEntityManager() {
         return entityManager;
+    }
+    
+    public <T> T proxyById(Class<T> entityClass, Object id) {
+    	return entityManager.getReference(entityClass, id);
     }
 }

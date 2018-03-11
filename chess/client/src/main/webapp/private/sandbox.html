@@ -1,9 +1,4 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <html>
     <head>
         <title>Chess</title>
@@ -11,6 +6,19 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="chessboard.css" type="text/css"/>        
 
+        <script src="./lib/jquery-3.2.1.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./lib/cookies.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./util/jquery-extension.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./util/Listeners.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./util/ObjectCache.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./util/TrackableList.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./util/TrackableMap.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./util/TrackableProperty.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./lobby/LobbiesView.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./lobby/LobbyModel.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./lobby/LobbyProvider.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./lobby/LobbyService.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="./lobby/LobbyView.js" type="text/javascript" charset="UTF-8"></script>
         <script src="./EventService.js" type="text/javascript" charset="UTF-8"></script>
         <script src="./HttpService.js" type="text/javascript" charset="UTF-8"></script>
         <script src="./UserService.js" type="text/javascript" charset="UTF-8"></script>
@@ -18,12 +26,21 @@ and open the template in the editor.
         <script src="./BoardService.js" type="text/javascript" charset="UTF-8"></script>
         <script src="./PollService.js" type="text/javascript" charset="UTF-8"></script>
         <script src="./MatchController.js" type="text/javascript" charset="UTF-8"></script>
-    </head>
-    <body>
-        <div>it iz works!</div>
+        <script src="./Context.js" type="text/javascript" charset="UTF-8"></script>
         <script>
-            
-            function getCookie(cname) {
+        $(document).ready(function(){
+        let lobbiesDiv = $("#lobbyList");
+    	let lobbiesView = new LobbiesView(lobbiesDiv[0], context.lobbies, context.selectedLobby);
+    	let lobbyDiv = $("#lobbyContainer");
+    	
+    	let changeListener = function(newValue, oldValue) {
+    		lobbyDiv.empty();
+    		if(newValue) {
+    			new LobbyView(lobbyDiv, newValue);
+    		}
+    	};
+    	context.selectedLobby.subscribeChangeListener(changeListener, true);
+/*            function getCookie(cname) {
                 var name = cname + "=";
                 var decodedCookie = decodeURIComponent(document.cookie);
                 var ca = decodedCookie.split(';');
@@ -66,7 +83,13 @@ and open the template in the editor.
             });
 //                });
 //            });
-            pollService.run();
+            pollService.run();*/
+        });
         </script>
+    </head>
+    <body>
+        <div>it iz works!</div>
+        <div id="lobbyList"></div>
+        <div id="lobbyContainer"></div>
     </body>
 </html>

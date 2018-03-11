@@ -21,15 +21,10 @@
         pre-post-annotations="enabled" />
 
     <security:http auto-config="true">
-        <security:csrf disabled="true" /><!-- TODO: enable csrf -->
-        <!--		<security:intercept-url pattern="/favicon.ico"
-        access="hasAnyRole('ROLE_ANONYMOUS','ROLE_PLAYER')" />
-<security:intercept-url pattern="/public/**"
-        access="hasAnyRole('ROLE_ANONYMOUS','ROLE_PLAYER')" />-->
+    	<security:http-basic/>
+    	<security:csrf token-repository-ref="tokenRepository"/>
         <security:intercept-url pattern="/private/**"
                                 access="hasRole('ROLE_PLAYER')" />
-        <!--		<security:intercept-url pattern="/api/**"
-        access="hasRole('ROLE_PLAYER')" />-->
         <security:form-login login-processing-url="/login"
                              authentication-success-handler-ref="authenticationSuccessHandler"
                              login-page="/" username-parameter="loginHandle" />
@@ -41,8 +36,9 @@
                 max-sessions="1" />
         </security:session-management>
     </security:http>
-    <bean id="authenticationSuccessHandler" class="com.etherblood.chess.server.users.authentication.AuthenticationSuccessHandlerImpl"/>
+    <bean id="authenticationSuccessHandler" class="com.etherblood.chess.server.user.authentication.AuthenticationSuccessHandlerImpl"/>
     <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
-    <!--	<bean id="userDetailsServiceImpl"
-    class="com.etherblood.chess.server.users.authentication.UserDetailsServiceImpl" />-->
+    <bean id="tokenRepository" class="org.springframework.security.web.csrf.CookieCsrfTokenRepository">
+    	<property name="cookieHttpOnly" value="false"/>
+    </bean>
 </beans>

@@ -7,15 +7,15 @@
 	</appender>
 
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender"
-		level="debug">
-		<file>${user.home}/server.log</file>
+		level="info">
+		<file>${user.home}/chess/server.log</file>
 		<append>false</append>
 		<encoder>
 			<pattern>%-5relative %-5level %logger{35} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
-	<root level="debug">
+	<root level="info">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>

@@ -10,7 +10,7 @@
     <display-name>Chess</display-name>
     <!-- Default page to serve -->
     <welcome-file-list>
-        <welcome-file>/index.html</welcome-file>
+        <welcome-file>/index.jsp</welcome-file>
     </welcome-file-list>
 
     <context-param>
@@ -32,7 +32,7 @@
 
     <!-- SPRING CONFIG -->
     <!-- The parent context in which to find the service beans def -->
-<!--    <context-param>
+    <!--    <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath*:main.xml</param-value>
     </context-param>-->
@@ -79,13 +79,13 @@
     <!-- Spring mvc dispatcher - Beware as spring mvc has a private context 
     http://www.dotkam.com/2008/07/09/spring-web-application-context-visibility/ -->
     <servlet>
-        <servlet-name>rest</servlet-name>
+        <servlet-name>dispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
         <async-supported>true</async-supported>
     </servlet>
     <servlet-mapping>
-        <servlet-name>rest</servlet-name>
+        <servlet-name>dispatcher</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
 </web-app>

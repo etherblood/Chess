@@ -1,5 +1,6 @@
+"use strict";
 function HttpService(csrfToken) {
-
+	
     this.makeRequest = function (method, url, data) {
         return new Promise(function (resolve, reject) {
             let req = new XMLHttpRequest();
@@ -20,7 +21,7 @@ function HttpService(csrfToken) {
                 }
             };
             req.onerror = function () {
-                reject(Error("Something went wrong ... "));
+                reject(Error("Something went wrong during " + method + " to " + url));
             };
             if (data) {
                 req.setRequestHeader('Content-type', 'application/json');

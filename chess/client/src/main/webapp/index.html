@@ -5,10 +5,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body onload='document.loginForm.name.focus();'>
+    <body onload='document.loginForm.loginHandle.focus();'>
         <h3>Login with Username and Password</h3>
         <form name='loginForm' action='/login' method='POST'>
-            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <table>
                 <tr>
                     <td>User:</td>
@@ -30,8 +29,7 @@
             </table>
         </form>
         <h4>Register with Username</h4>
-        <form name='registerForm' action='/api/user/register' method='POST'>
-            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        <form name='registerForm' action='/api/account/register' method='POST'>
             <table>
                 <tr>
                     <td>User:</td>
