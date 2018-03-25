@@ -1,7 +1,6 @@
 "use strict";
 function LobbyModel(id, name) {
-	let members = new TrackableList();
-	let messages = new TrackableList();
+	this.details = null;
 
 	Object.defineProperties(this, {
 		id : {
@@ -12,16 +11,6 @@ function LobbyModel(id, name) {
 		name : {
 			get : function() {
 				return name;
-			}
-		},
-		members : {
-			get : function() {
-				return members;
-			}
-		},
-		messages : {
-			get : function() {
-				return messages;
 			}
 		}
 	});

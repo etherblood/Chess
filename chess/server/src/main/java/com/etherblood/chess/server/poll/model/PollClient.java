@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.web.context.request.async.DeferredResult;
 
-import com.etherblood.chess.server.poll.PollEvent;
+import com.etherblood.chess.api.PollEvent;
 
 /**
  *
@@ -19,20 +19,20 @@ import com.etherblood.chess.server.poll.PollEvent;
  */
 public class PollClient {
 
-	private final long id;
+	private final int id;
 	private final UUID userId;
 	private volatile Instant heartbeat;
 	private final Queue<PollEvent> eventQueue = new ConcurrentLinkedQueue<>();
 	private final AtomicReference<DeferredResult<List<PollEvent>>> deferredResult = new AtomicReference<>(null);
 
-	public PollClient(long id, UUID userId, Instant heartbeat) {
+	public PollClient(int id, UUID userId, Instant heartbeat) {
 		this.id = id;
 		Objects.requireNonNull(userId);
 		this.userId = userId;
 		setHeartbeat(heartbeat);
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 

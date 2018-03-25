@@ -1,38 +1,41 @@
 "use strict";
-function LobbyService(httpService, eventService, lobbies) {
+function LobbyService(httpService, eventService, lobbies, lobbyCache, playerCache) {
 
-	let convertLobby = function(json) {
-		let lobby = new LobbyModel(json.id, json.name);
-		if (json.members) {
-			for (var i = 0; i < json.members.length; i++) {
-				let member = new PlayerModel(json.members[i].id,
-						json.members[i].name);
-				lobby.members.add(member);
+	eventService.subscribe("newLobbyChatMessageEvent", function(event) {
+		$.when(lobbyCache.fetchObject(event.lobbyId), playerCache.fetchObject(event.message.senderId)).then(function(lobby, sender) {
+			lobby.details.messages.add(new MessageModel(event.message.id, sender, event.message.text, event.message.created));
+		});
+	});
+	eventService.subscribe("newLobbyEvent", function(event) {
+		lobbyCache.fetchObject(event.id).then(function(lobby) {
+			lobbies.add(lobby);
+		});
+	});
+	eventService.subscribe("newLobbyMemberEvent", function(event) {
+		lobbyCache.fetchObject(event.lobbyId).then(function(lobby) {
+			if(lobby.details) {
+				playerCache.fetchObject(event.memberId).then(lobby.details.members.add);
 			}
-		}
-		if (json.messages) {
-			for (var i = 0; i < json.messages.length; i++) {
-				let message = new PlayerModel(json.messages[i].sender,
-						json.messages[i].text, json.messages[i].created);
-				lobby.messages.add(message);
-			}
-		}
-		return lobby;
-	}
+		});
+	});
 
-	this.run = function() {
+	this.init = function() {
 		httpService.get("/api/lobby/list").then(function(result) {
 			for (var i = 0; i < result.length; i++) {
-				let lobby = convertLobby(result[i]);
-				lobbies.add(lobby);
+				lobbyCache.fetchObject(result[i].id).then(lobbies.add);
 			}
 		});
 	}
 
 	this.createLobby = function(name) {
-		httpService.post("/api/lobby/create", name).then(function(result) {
-			let lobby = convertLobby(result);
-			lobbies.add(lobby);
-		});
+		httpService.post("/api/lobby/create", {name:name});
+	}
+
+	this.sendMessage = function(lobbyId, text) {
+		httpService.post("/api/lobby/" + lobbyId+ "/send", {text:text});
+	}
+
+	this.join = function(lobbyId) {
+		httpService.post("/api/lobby/" + lobbyId+ "/join");
 	}
 }

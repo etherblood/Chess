@@ -4,92 +4,60 @@
         <title>Chess</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="chessboard.css" type="text/css"/>        
+        <link rel="stylesheet" href="chessboard.css" type="text/css"/>
+        <link rel="stylesheet" href="default.css" type="text/css"/>
 
-        <script src="./lib/jquery-3.2.1.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./lib/cookies.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./util/jquery-extension.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./util/Listeners.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./util/ObjectCache.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./util/TrackableList.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./util/TrackableMap.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./util/TrackableProperty.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./lobby/LobbiesView.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./lobby/LobbyModel.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./lobby/LobbyProvider.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./lobby/LobbyService.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./lobby/LobbyView.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./EventService.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./HttpService.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./UserService.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./MatchService.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./BoardService.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./PollService.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./MatchController.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="./Context.js" type="text/javascript" charset="UTF-8"></script>
-        <script>
-        $(document).ready(function(){
-        let lobbiesDiv = $("#lobbyList");
-    	let lobbiesView = new LobbiesView(lobbiesDiv[0], context.lobbies, context.selectedLobby);
-    	let lobbyDiv = $("#lobbyContainer");
-    	
-    	let changeListener = function(newValue, oldValue) {
-    		lobbyDiv.empty();
-    		if(newValue) {
-    			new LobbyView(lobbyDiv, newValue);
-    		}
-    	};
-    	context.selectedLobby.subscribeChangeListener(changeListener, true);
-/*            function getCookie(cname) {
-                var name = cname + "=";
-                var decodedCookie = decodeURIComponent(document.cookie);
-                var ca = decodedCookie.split(';');
-                for (var i = 0; i < ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) === ' ') {
-                        c = c.substring(1);
-                    }
-                    if (c.indexOf(name) === 0) {
-                        return c.substring(name.length, c.length);
-                    }
-                }
-                return "";
-            }
-
-            let eventService = new EventService();
-            let httpService = new HttpService(getCookie("XSRF-TOKEN"));
-            let userService = new UserService(httpService);
-            let matchService = new MatchService(httpService);
-            let boardService = new BoardService(eventService);
-            let pollService = new PollService(httpService, eventService);
-            let matchController = new MatchController(matchService, boardService, eventService);
-            
-            
-            
-            let matchId;
-//            userService.createPlayer("white").then(function (whitePlayer) {
-//                userService.createPlayer("black").then(function (blackPlayer) {
-            matchService.startMatch("c1c2cad2-2f9a-4e25-ba46-14872851c5dd", "c1c2cad2-2f9a-4e25-ba46-14872851c5dd").then(function (id) {
-                matchId = id;
-                let chessPanel = document.createElement("div");
-                document.body.appendChild(chessPanel);
-
-                matchService.getPieces(matchId).then(function (pieces) {
-                    boardService.initMatch(matchId, chessPanel, pieces);
-                    matchService.moves(matchId).then(function (moves) {
-                        boardService.setAvailableMoves(matchId, moves);
-                    });
-                });
-            });
-//                });
-//            });
-            pollService.run();*/
-        });
-        </script>
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lib/cookies.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lib/chess.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./util/Listeners.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./util/ObjectCache.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./util/TrackableList.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./util/TrackableMap.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./util/TrackableItem.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lobby/LobbiesController.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lobby/LobbyModel.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lobby/LobbyDetailsModel.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lobby/LobbyProvider.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lobby/LobbyService.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lobby/LobbyController.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./lobby/LobbyDetailsController.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./player/PlayerModel.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./player/PlayerProvider.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./player/PlayerService.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./player/PlayerController.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./match/MatchModel.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./match/MatchProvider.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./match/MatchService.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./match/MatchController.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./match/MatchesController.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./match/MatchRequestsController.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./message/MessageModel.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./message/MessageController.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./EventService.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./HttpService.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./UserService.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./BoardService.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./PollService.js" type="text/javascript" charset="UTF-8" defer></script>
+        <script src="./Context.js" type="text/javascript" charset="UTF-8" defer></script>
     </head>
     <body>
-        <div>it iz works!</div>
-        <div id="lobbyList"></div>
-        <div id="lobbyContainer"></div>
+        <div id="lobbyList" class="container"></div>
+		<p/>
+		<form action="javascript:void(0);" onsubmit="context.lobbyService.createLobby(this.lobbyName.value)" class="container">
+			<input type="text" name="lobbyName" placeholder="lobby name">
+            <input name="submit" type="submit" value="create"/>
+		</form>
+        <div id="lobbyContainer" class="container"></div>
+		<p/>
+        <div id="playerDetails" class="container"></div>
+        <div id="requestList" class="container"></div>
+        <div id="matchList" class="container"></div>
+		<p/>
+        <div id="matchContainer" class="container">
+        	<div id="matchWhitePlayer"></div>
+        	<div id="matchBlackPlayer"></div>
+        	<div id="matchBoard"></div>
+        </div>
     </body>
 </html>

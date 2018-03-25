@@ -1,9 +1,16 @@
 "use strict";
 function PlayerModel(id, name) {
-	this.getId = function() {
-		return id;
-	}
-	this.getName = function() {
-		return name;
-	}
+
+	Object.defineProperties(this, {
+		id : {
+			get : function() {
+				return id;
+			}
+		},
+		name : {
+			get : function() {
+				return name;
+			}
+		}
+	});
 }

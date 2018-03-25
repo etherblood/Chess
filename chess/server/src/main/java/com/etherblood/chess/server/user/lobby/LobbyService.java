@@ -13,6 +13,7 @@ import com.etherblood.chess.server.user.account.model.Account;
 import com.etherblood.chess.server.user.authentication.UserContextService;
 import com.etherblood.chess.server.user.lobby.model.Lobby;
 import com.etherblood.chess.server.user.lobby.model.LobbyMembership;
+import com.etherblood.chess.server.user.lobby.model.MembershipType;
 
 @Service
 public class LobbyService {
@@ -32,6 +33,11 @@ public class LobbyService {
 		return lobbyRepo.findVisibleLobbies(currentUserId);
 	}
 
+	public Lobby visibleLobbyById(UUID lobbyId) {
+		UUID currentUserId = userContextService.currentUserId();
+		return lobbyRepo.findVisibleLobbyById(lobbyId, currentUserId);
+	}
+
 	public List<UUID> lobbyAccountIds(UUID lobbyId) {
 		return lobbyRepo.lobbyAccountIds(lobbyId);
 	}
@@ -40,7 +46,7 @@ public class LobbyService {
 		return lobbyRepo.lobbyAccounts(lobbyId);
 	}
 
-	public boolean isAccountMemberOfLobby(UUID accountId, UUID lobbyId) {
+	public boolean isMemberOfLobby(UUID accountId, UUID lobbyId) {
 		return lobbyRepo.findMembership(lobbyId, accountId) != null;
 	}
 
@@ -55,25 +61,55 @@ public class LobbyService {
 		lobby.setOwner(currentAccount);
 		lobbyRepo.persist(lobby);
 		LOG.info("created lobby {}", lobby);
-		createLobbyMembership(currentAccount, lobby);
+		createLobbyMembership(currentAccount, lobby, MembershipType.MEMBER);
 		return lobby;
 	}
 
 	@Transactional
-	public void joinLobby(UUID lobbyId) {
+	public LobbyMembership inviteToLobby(UUID lobbyId, UUID accountId) {
+		Lobby lobby = lobbyRepo.findById(lobbyId);
 		UUID currentUserId = userContextService.currentUserId();
-		Account currentAccount = lobbyRepo.proxyById(Account.class, currentUserId);
-		Lobby lobby = lobbyRepo.proxyById(Lobby.class, lobbyId);
-		createLobbyMembership(currentAccount, lobby);
+		if(lobby.isPublic() || lobby.getOwner().getId().equals(currentUserId)) {
+			LobbyMembership membership = lobbyRepo.findMembership(lobbyId, accountId);
+			if(membership == null) {
+				Account account = lobbyRepo.proxyById(Account.class, accountId);
+				membership = createLobbyMembership(account, lobby, MembershipType.INVITED);
+			} else if (membership.getType() == MembershipType.REQUESTED) {
+				membership.setType(MembershipType.MEMBER);
+				LOG.info("updated {} to member", membership);
+			}
+			return membership;
+		}
+		throw new IllegalStateException("failed to invite to " + lobby + " as user " + currentUserId);
 	}
 
-	private void createLobbyMembership(Account currentAccount, Lobby lobby) {
+	@Transactional
+	public LobbyMembership joinLobby(UUID lobbyId) {
+		UUID currentUserId = userContextService.currentUserId();
+		Lobby lobby = lobbyRepo.findById(lobbyId);
+		LobbyMembership membership = lobbyRepo.findMembership(lobbyId, currentUserId);
+		if (membership == null) {
+			Account currentAccount = lobbyRepo.proxyById(Account.class, currentUserId);
+			membership = createLobbyMembership(currentAccount, lobby,
+					lobby.isPublic() ? MembershipType.MEMBER : MembershipType.REQUESTED);
+		} else if (membership.getType() == MembershipType.INVITED) {
+			membership.setType(MembershipType.MEMBER);
+			LOG.info("updated {} to member", membership);
+		} else {
+			throw new IllegalStateException("failed to join lobby with " + membership);
+		}
+		return membership;
+	}
+
+	private LobbyMembership createLobbyMembership(Account currentAccount, Lobby lobby, MembershipType type) {
 		LobbyMembership membership = new LobbyMembership();
 		membership.setId(UUID.randomUUID());
 		membership.setLobby(lobby);
 		membership.setAccount(currentAccount);
+		membership.setType(type);
 		lobbyRepo.persist(membership);
-		LOG.info("created membership {}", membership);
+		LOG.info("created {}", membership);
+		return membership;
 	}
 
 	@Transactional

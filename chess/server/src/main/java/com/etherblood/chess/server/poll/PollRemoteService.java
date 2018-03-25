@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import com.etherblood.chess.api.PollEvent;
+
 /**
  *
  * @author Philipp
@@ -28,14 +30,14 @@ public class PollRemoteService {
 
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
     @RequestMapping(path = "/subscribe", method = RequestMethod.POST)
-    public long subscribe() {
+    public int subscribe() {
         return pollService.subscribe(Instant.now());
     }
 
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
     @ResponseBody
     @RequestMapping("/{clientId}")
-    public DeferredResult<List<PollEvent>> poll(@PathVariable("clientId") long clientId) {
+    public DeferredResult<List<PollEvent>> poll(@PathVariable("clientId") int clientId) {
         return pollService.poll(clientId);
     }
 }

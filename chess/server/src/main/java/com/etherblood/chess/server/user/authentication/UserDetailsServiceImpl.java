@@ -1,15 +1,15 @@
 package com.etherblood.chess.server.user.authentication;
 
-import com.etherblood.chess.server.user.account.AccountRepository;
-import com.etherblood.chess.server.user.account.model.Account;
-import com.etherblood.chess.server.user.authentication.model.UserAuthority;
-import com.etherblood.chess.server.user.authentication.model.UserDetailsImpl;
-
 import java.util.EnumSet;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import com.etherblood.chess.server.user.authentication.model.Login;
+import com.etherblood.chess.server.user.authentication.model.UserAuthority;
+import com.etherblood.chess.server.user.authentication.model.UserDetailsImpl;
 
 /**
  *
@@ -18,19 +18,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final AccountRepository accountRepo;
+    private final LoginRepository loginRepo;
 
-    public UserDetailsServiceImpl(AccountRepository accountRepo) {
-        this.accountRepo = accountRepo;
+    public UserDetailsServiceImpl(LoginRepository loginRepo) {
+        this.loginRepo = loginRepo;
     }
 
     @Override
     public UserDetails loadUserByUsername(String loginHandle) throws UsernameNotFoundException {
-        Account account = accountRepo.findByHandle(loginHandle);
-        if(account == null) {
+        Login login = loginRepo.findByHandle(loginHandle);
+        if(login == null) {
             throw new UsernameNotFoundException(loginHandle);
         }
-        return new UserDetailsImpl(account.getId(), account.getLoginHandle(), account.getPassword(), EnumSet.of(UserAuthority.PLAYER));
+        return new UserDetailsImpl(login.getAccount().getId(), login.getLoginHandle(), login.getPassword(), EnumSet.of(UserAuthority.PLAYER));
     }
 
 }

@@ -18,17 +18,11 @@ public class AccountRepository extends AbstractRepository {
 
     private static final QAccount qAccount = QAccount.account;
 
-    public Account findByHandle(String loginHandle) {
-        return from(qAccount)
-                .where(qAccount.loginHandle.equalsIgnoreCase(loginHandle))
-                .uniqueResult(qAccount);
-    }
-
     public List<Account> getAccountsByIds(List<UUID> ids) {
         return from(qAccount).where(qAccount.id.in(ids)).list(qAccount);
     }
 
-    Account getAccountById(UUID id) {
+    public Account getAccountById(UUID id) {
         return from(qAccount).where(qAccount.id.eq(id)).uniqueResult(qAccount);
     }
 }

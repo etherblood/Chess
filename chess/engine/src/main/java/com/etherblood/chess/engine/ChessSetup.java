@@ -14,9 +14,11 @@ import java.util.Arrays;
  */
 public class ChessSetup {
 
-    public void reset(ChessState state) {
+    public static final String DEFAULT_STARTPOSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+	public void reset(ChessState state) {
         clear(state);
-        fromFen(state, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        fromFen(state, DEFAULT_STARTPOSITION);
     }
 
     public void clear(ChessState state) {

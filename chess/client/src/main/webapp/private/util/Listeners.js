@@ -8,10 +8,11 @@ function Listeners() {
 
 	this.unsubscribe = function(listener) {
 		let index = listeners.indexOf(listener);
-		if (index < 0) {
+		if (~index) {
+			listeners.splice(index, 1);
+		} else {
 			throw "invalid index " + index;
 		}
-		listeners.splice(index, 1);
 	}
 
 	this.handle = function() {

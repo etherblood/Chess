@@ -1,12 +1,26 @@
 "use strict";
-function MessageModel(sender, text, created) {
-	this.getSender = function() {
-		return sender;
-	}
-	this.getText = function() {
-		return text;
-	}
-	this.getCreated = function() {
-		return created;
-	}
+function MessageModel(id, sender, text, created) {
+
+	Object.defineProperties(this, {
+		id : {
+			get : function() {
+				return id;
+			}
+		},
+		sender : {
+			get : function() {
+				return sender;
+			}
+		},
+		text : {
+			get : function() {
+				return text;
+			}
+		},
+		created : {
+			get : function() {
+				return created;
+			}
+		}
+	});
 }

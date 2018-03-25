@@ -1,11 +1,11 @@
 package com.etherblood.chess.server.match;
 
-import com.etherblood.chess.api.match.ChessPiece;
 import com.etherblood.chess.api.match.ChessSquare;
 import com.etherblood.chess.api.match.moves.ChessMove;
 import com.etherblood.chess.api.match.moves.MoveType;
 import com.etherblood.chess.engine.moves.Move;
 import com.etherblood.chess.engine.util.Piece;
+import com.etherblood.chess.server.match.model.MatchMove;
 
 /**
  *
@@ -13,99 +13,118 @@ import com.etherblood.chess.engine.util.Piece;
  */
 public class ChessModelConverter {
 
-    public static ChessMove convertMove(Move move) {
-        switch (move.info) {
-            case Piece.EMPTY:
-                return new ChessMove(MoveType.SIMPLE, ChessSquare.fromInt(move.from), ChessSquare.fromInt(move.to));
-            case Piece.RESERVED_1:
-                return new ChessMove(MoveType.DOUBLE, ChessSquare.fromInt(move.from), ChessSquare.fromInt(move.to));
-            case Piece.RESERVED_2:
-                return new ChessMove(MoveType.EN_PASSANT, ChessSquare.fromInt(move.from), ChessSquare.fromInt(move.to));
-            case Piece.RESERVED_3:
-                return new ChessMove(MoveType.CASTLING, ChessSquare.fromInt(move.from), ChessSquare.fromInt(move.to));
-            default:
-                return new ChessMove(MoveType.PROMOTION, ChessSquare.fromInt(move.from), ChessSquare.fromInt(move.to), convertPiece(move.info));
-        }
-    }
+	public static MoveType convertMoveType(int moveType) {
+		MoveType type;
+		switch (moveType) {
+		case Piece.EMPTY:
+			type = MoveType.SIMPLE;
+			break;
+		case Piece.RESERVED_1:
+			type = MoveType.PAWN_JUMP;
+			break;
+		case Piece.RESERVED_2:
+			type = MoveType.EN_PASSANT;
+			break;
+		case Piece.RESERVED_3:
+			type = MoveType.CASTLING;
+			break;
+		case Piece.W_KNIGHT:
+		case Piece.B_KNIGHT:
+			type = MoveType.PROMOTION_KNIGHT;
+			break;
+		case Piece.W_BISHOP:
+		case Piece.B_BISHOP:
+			type = MoveType.PROMOTION_BISHOP;
+			break;
+		case Piece.W_ROOK:
+		case Piece.B_ROOK:
+			type = MoveType.PROMOTION_ROOK;
+			break;
+		case Piece.W_QUEEN:
+		case Piece.B_QUEEN:
+			type = MoveType.PROMOTION_KNIGHT;
+			break;
+		default:
+			throw new AssertionError();
+		}
+		return type;
+	}
 
-    public static Move convertMove(ChessMove move) {
-        switch (move.type) {
-            case SIMPLE:
-                return new Move(ChessSquare.toInt(move.from), ChessSquare.toInt(move.to), 0, Piece.EMPTY);
-            case DOUBLE:
-                return new Move(ChessSquare.toInt(move.from), ChessSquare.toInt(move.to), 0, Piece.RESERVED_1);
-            case EN_PASSANT:
-                return new Move(ChessSquare.toInt(move.from), ChessSquare.toInt(move.to), 0, Piece.RESERVED_2);
-            case CASTLING:
-                return new Move(ChessSquare.toInt(move.from), ChessSquare.toInt(move.to), 0, Piece.RESERVED_3);
-            case PROMOTION:
-                return new Move(ChessSquare.toInt(move.from), ChessSquare.toInt(move.to), 0, convertPiece(move.promotion));
-            default:
-                throw new AssertionError();
-        }
-    }
+	public static int convertMoveType(MoveType moveType, boolean whiteToMove) {
+		int type;
+		switch (moveType) {
+		case SIMPLE:
+			type = Piece.EMPTY;
+			break;
+		case PAWN_JUMP:
+			type = Piece.RESERVED_1;
+			break;
+		case EN_PASSANT:
+			type = Piece.RESERVED_2;
+			break;
+		case CASTLING:
+			type = Piece.RESERVED_3;
+			break;
+		case PROMOTION_KNIGHT:
+			type = whiteToMove ? Piece.W_KNIGHT : Piece.B_KNIGHT;
+			break;
+		case PROMOTION_BISHOP:
+			type = whiteToMove ? Piece.W_BISHOP : Piece.B_BISHOP;
+			break;
+		case PROMOTION_ROOK:
+			type = whiteToMove ? Piece.W_ROOK : Piece.B_ROOK;
+			break;
+		case PROMOTION_QUEEN:
+			type = whiteToMove ? Piece.W_QUEEN : Piece.B_QUEEN;
+			break;
+		default:
+			throw new AssertionError();
+		}
+		return type;
+	}
 
-    public static ChessPiece convertPiece(int chessPiece) {
-        switch (chessPiece) {
-            case Piece.W_PAWN:
-                return ChessPiece.WHITE_PAWN;
-            case Piece.W_KING:
-                return ChessPiece.WHITE_KING;
-            case Piece.W_KNIGHT:
-                return ChessPiece.WHITE_KNIGHT;
-            case Piece.W_BISHOP:
-                return ChessPiece.WHITE_BISHOP;
-            case Piece.W_ROOK:
-                return ChessPiece.WHITE_ROOK;
-            case Piece.W_QUEEN:
-                return ChessPiece.WHITE_QUEEN;
+	public static Move convertMove(ChessMove move, boolean whiteToMove) {
+		int type;
+		switch (move.type) {
+		case SIMPLE:
+			type = Piece.EMPTY;
+			break;
+		case PAWN_JUMP:
+			type = Piece.RESERVED_1;
+			break;
+		case EN_PASSANT:
+			type = Piece.RESERVED_2;
+			break;
+		case CASTLING:
+			type = Piece.RESERVED_3;
+			break;
+		case PROMOTION_KNIGHT:
+			type = whiteToMove ? Piece.W_KNIGHT : Piece.B_KNIGHT;
+			break;
+		case PROMOTION_BISHOP:
+			type = whiteToMove ? Piece.W_BISHOP : Piece.B_BISHOP;
+			break;
+		case PROMOTION_ROOK:
+			type = whiteToMove ? Piece.W_ROOK : Piece.B_ROOK;
+			break;
+		case PROMOTION_QUEEN:
+			type = whiteToMove ? Piece.W_QUEEN : Piece.B_QUEEN;
+			break;
+		default:
+			throw new AssertionError();
+		}
+		return new Move(ChessSquare.toInt(move.from), ChessSquare.toInt(move.to), 0, type);
+	}
 
-            case Piece.B_PAWN:
-                return ChessPiece.BLACK_PAWN;
-            case Piece.B_KING:
-                return ChessPiece.BLACK_KING;
-            case Piece.B_KNIGHT:
-                return ChessPiece.BLACK_KNIGHT;
-            case Piece.B_BISHOP:
-                return ChessPiece.BLACK_BISHOP;
-            case Piece.B_ROOK:
-                return ChessPiece.BLACK_ROOK;
-            case Piece.B_QUEEN:
-                return ChessPiece.BLACK_QUEEN;
-            default:
-                throw new AssertionError();
-        }
-    }
+	public static Move convertMove(MatchMove move, boolean whiteToMove) {
+		return new Move(convertSquare(move.getFrom()), convertSquare(move.getTo()), Piece.EMPTY, convertMoveType(move.getType(), whiteToMove));
+	}
 
-    public static int convertPiece(ChessPiece chessPiece) {
-        switch (chessPiece) {
-            case WHITE_PAWN:
-                return Piece.W_PAWN;
-            case WHITE_KING:
-                return Piece.W_KING;
-            case WHITE_KNIGHT:
-                return Piece.W_KNIGHT;
-            case WHITE_BISHOP:
-                return Piece.W_BISHOP;
-            case WHITE_ROOK:
-                return Piece.W_ROOK;
-            case WHITE_QUEEN:
-                return Piece.W_QUEEN;
-
-            case BLACK_PAWN:
-                return Piece.B_PAWN;
-            case BLACK_KING:
-                return Piece.B_KING;
-            case BLACK_KNIGHT:
-                return Piece.B_KNIGHT;
-            case BLACK_BISHOP:
-                return Piece.B_BISHOP;
-            case BLACK_ROOK:
-                return Piece.B_ROOK;
-            case BLACK_QUEEN:
-                return Piece.B_QUEEN;
-            default:
-                throw new AssertionError();
-        }
-    }
+	public static ChessMove convertMove(MatchMove move) {
+		return new ChessMove(move.getType(), move.getFrom(), move.getTo());
+	}
+	
+	private static int convertSquare(ChessSquare square) {
+		return ChessSquare.toInt(square);
+	}
 }

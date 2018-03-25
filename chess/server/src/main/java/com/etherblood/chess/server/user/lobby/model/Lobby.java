@@ -2,8 +2,8 @@ package com.etherblood.chess.server.user.lobby.model;
 
 import java.util.UUID;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
@@ -21,12 +21,12 @@ public class Lobby extends MutableEntity {
 	@Id
 	@Type(type = "pg-uuid")
 	private UUID id;
-	
-	@Column(unique = true, nullable = false)
+
+	@NotNull
 	private String name;
 	
 	@NotNull
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Account owner;
 
 	@NotNull

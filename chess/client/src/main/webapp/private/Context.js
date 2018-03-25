@@ -1,18 +1,40 @@
 "use strict";
 
-let context = {};
+var context = {};
+
+context.matches = new TrackableList();
+context.requests = new TrackableList();
+context.selectedMatch = new TrackableItem();
+context.lobbies = new TrackableList();
+context.selectedLobby = new TrackableItem();
+context.selectedPlayer = new TrackableItem();
+context.ownAccount = new TrackableItem();
+
 context.httpService = new HttpService(Cookies.get("XSRF-TOKEN"));
 context.eventService = new EventService();
-context.lobbyProvider = new LobbyProvider(context.httpService);
-context.lobbyCache = new ObjectCache(context.lobbyProvider);
-context.lobbies = new TrackableList();
-context.selectedLobby = new TrackableProperty();
-context.lobbyService = new LobbyService(context.httpService, context.eventService, context.lobbies);
 context.pollService = new PollService(context.httpService, context.eventService);
 
-for (var i = 0; i < 3; i++) {//TODO: remove this
-	context.httpService.post("/api/lobby/create?name=testLobby" + i);
-}
+context.playerProvider = new PlayerProvider(context.httpService);
+context.playerCache = new ObjectCache(context.playerProvider.get);
+context.playerService = new PlayerService(context.httpService, context.eventService, context.ownAccount);
 
-context.lobbyService.run();
-context.pollService.run();
+context.lobbyProvider = new LobbyProvider(context.httpService, context.playerCache);
+context.lobbyCache = new ObjectCache(context.lobbyProvider.get);
+context.lobbyService = new LobbyService(context.httpService, context.eventService, context.lobbies, context.lobbyCache, context.playerCache);
+
+context.matchProvider = new MatchProvider(context.httpService, context.playerCache);
+context.matchCache = new ObjectCache(context.matchProvider.getMatch);
+context.matchService = new MatchService(context.httpService, context.eventService, context.matches, context.matchCache, context.requests);
+
+context.playerService.init();
+context.lobbyService.init();
+context.matchService.init();
+context.pollService.init();
+
+context.matchController = new MatchController($("#matchBoard"), context.selectedMatch, context.matchService, context.ownAccount);
+context.matchesController = new MatchesController($("#matchList"), context.matches, context.selectedMatch);
+context.requestsController = new MatchRequestsController($("#requestList"), context.requests, context.matchService);
+context.lobbyController = new LobbyController($("#lobbyContainer"), context.selectedLobby, context.selectedPlayer, context.lobbyService);
+context.selectedPlayerController = new PlayerController($("#playerDetails"), context.selectedPlayer, context.matchService, context.ownAccount);
+context.lobbiesController = new LobbiesController($("#lobbyList"), context.lobbies, context.selectedLobby);
+

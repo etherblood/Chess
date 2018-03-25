@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import com.etherblood.chess.api.PollEvent;
 import com.etherblood.chess.server.poll.model.PollClient;
 import com.etherblood.chess.server.user.authentication.UserContextService;
 
@@ -28,7 +29,7 @@ public class PollService {
 
     private final static Logger LOG = LoggerFactory.getLogger(PollService.class);
     private final UserContextService userContextService;
-    private final Map<Long, PollClient> clients = new ConcurrentHashMap<>();
+    private final Map<Integer, PollClient> clients = new ConcurrentHashMap<>();
     private final long timeoutSeconds = 300;
 
     @Autowired
@@ -36,16 +37,16 @@ public class PollService {
         this.userContextService = userContextService;
     }
 
-    public long subscribe(Instant instant) {
+    public int subscribe(Instant instant) {
         UUID currentUserId = userContextService.currentUserId();
-        long clientId;
+        int clientId;
         do {
             clientId = ThreadLocalRandom.current().nextInt();
         } while (!tryAddClient(clientId, currentUserId, instant));
         return clientId;
     }
 
-    private boolean tryAddClient(long clientId, UUID currentUserId, Instant instant) {
+    private boolean tryAddClient(int clientId, UUID currentUserId, Instant instant) {
         return clients.computeIfAbsent(clientId, id -> {
             PollClient client = new PollClient(id, currentUserId, instant);
             LOG.info("client(id={}, userId={}) subscribed", client.getId(), client.getUserId());
@@ -74,7 +75,7 @@ public class PollService {
     // client.getUserId());
     // }
 
-    public DeferredResult<List<PollEvent>> poll(long clientId) {
+    public DeferredResult<List<PollEvent>> poll(int clientId) {
         UUID currentUserId = userContextService.currentUserId();
         PollClient client = clients.get(clientId);
         if (!currentUserId.equals(client.getUserId())) {

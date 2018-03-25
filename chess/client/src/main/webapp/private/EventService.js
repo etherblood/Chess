@@ -25,8 +25,13 @@ function EventService() {
 
     this.broadcast = function (type, event) {
         let map = getListeners(type);
+        let count = 0;
         for (let key in map) {
             map[key](event);
+            count++;
+        }
+        if(count === 0) {
+        	console.log("no listeners for " + type)
         }
     };
 

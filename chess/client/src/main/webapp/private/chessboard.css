@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 .chessPanel {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCA4MDAgODAwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCIgZmlsbD0iI2I1ODg2MyIvPjxnIGlkPSJhIj48ZyBpZD0iYiI+PGcgaWQ9ImMiPjxnIGlkPSJkIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YwZDliNSIgaWQ9ImUiLz48dXNlIHg9IjIwMCIgeGxpbms6aHJlZj0iI2UiLz48L2c+PHVzZSB4PSI0MDAiIHhsaW5rOmhyZWY9IiNkIi8+PC9nPjx1c2UgeD0iMTAwIiB5PSIxMDAiIHhsaW5rOmhyZWY9IiNjIi8+PC9nPjx1c2UgeT0iMjAwIiB4bGluazpocmVmPSIjYiIvPjwvZz48dXNlIHk9IjQwMCIgeGxpbms6aHJlZj0iI2EiLz48L3N2Zz4=);
     background-size: cover;
@@ -6,19 +8,15 @@
     height: 512px;
 }
 
-.piece {
+.chessPanel > .piece {
     position: absolute;
     width: 12.5%;
     height: 12.5%;
     background-size: cover;
-    -webkit-transition: -wekbit-transform 0.3s ease-in-out;
-    -moz-transition: -moz-transform 0.3s ease-in-out;
-    -o-transition: -o-transform 0.3s ease-in-out;
-    -ms-transition: -ms-transform all 0.3s ease-in-out;
     transition: transform 0.3s ease-in-out;
 }
 
-.move-target {
+.chessPanel > .move-target {
     position: absolute;
     width: 12.5%;
     height: 12.5%;
@@ -26,45 +24,573 @@
     opacity: 0.3;
 }
 
-[draggable=true] {
+.chessPanel > .piece[draggable=true] {
     cursor: pointer;
-    -khtml-user-drag: element;
 }
 
-.piece.white.pawn {
+.chessPanel > .white.pawn {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PHBhdGggZD0iTTIyLjUgOWMtMi4yMSAwLTQgMS43OS00IDQgMCAuODkuMjkgMS43MS43OCAyLjM4QzE3LjMzIDE2LjUgMTYgMTguNTkgMTYgMjFjMCAyLjAzLjk0IDMuODQgMi40MSA1LjAzLTMgMS4wNi03LjQxIDUuNTUtNy40MSAxMy40N2gyM2MwLTcuOTItNC40MS0xMi40MS03LjQxLTEzLjQ3IDEuNDctMS4xOSAyLjQxLTMgMi40MS01LjAzIDAtMi40MS0xLjMzLTQuNS0zLjI4LTUuNjIuNDktLjY3Ljc4LTEuNDkuNzgtMi4zOCAwLTIuMjEtMS43OS00LTQtNHoiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==);
 }
-.piece.white.king {
+.chessPanel > .white.king {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMi41IDExLjYzVjZNMjAgOGg1IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIi8+PHBhdGggZD0iTTIyLjUgMjVzNC41LTcuNSAzLTEwLjVjMCAwLTEtMi41LTMtMi41cy0zIDIuNS0zIDIuNWMtMS41IDMgMyAxMC41IDMgMTAuNSIgZmlsbD0iI2ZmZiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiLz48cGF0aCBkPSJNMTEuNSAzN2M1LjUgMy41IDE1LjUgMy41IDIxIDB2LTdzOS00LjUgNi0xMC41Yy00LTYuNS0xMy41LTMuNS0xNiA0VjI3di0zLjVjLTMuNS03LjUtMTMtMTAuNS0xNi00LTMgNiA1IDEwIDUgMTBWMzd6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTExLjUgMzBjNS41LTMgMTUuNS0zIDIxIDBtLTIxIDMuNWM1LjUtMyAxNS41LTMgMjEgMG0tMjEgMy41YzUuNS0zIDE1LjUtMyAyMSAwIi8+PC9nPjwvc3ZnPg==);
 }
-.piece.white.knight {
+.chessPanel > .white.knight {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMiAxMGMxMC41IDEgMTYuNSA4IDE2IDI5SDE1YzAtOSAxMC02LjUgOC0yMSIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0yNCAxOGMuMzggMi45MS01LjU1IDcuMzctOCA5LTMgMi0yLjgyIDQuMzQtNSA0LTEuMDQyLS45NCAxLjQxLTMuMDQgMC0zLTEgMCAuMTkgMS4yMy0xIDItMSAwLTQuMDAzIDEtNC00IDAtMiA2LTEyIDYtMTJzMS44OS0xLjkgMi0zLjVjLS43My0uOTk0LS41LTItLjUtMyAxLTEgMyAyLjUgMyAyLjVoMnMuNzgtMS45OTIgMi41LTNjMSAwIDEgMyAxIDMiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNOS41IDI1LjVhLjUuNSAwIDEgMS0xIDAgLjUuNSAwIDEgMSAxIDB6bTUuNDMzLTkuNzVhLjUgMS41IDMwIDEgMS0uODY2LS41LjUgMS41IDMwIDEgMSAuODY2LjV6IiBmaWxsPSIjMDAwIi8+PC9nPjwvc3ZnPg==);
 }
-.piece.white.bishop {
+.chessPanel > .white.bishop {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiNmZmYiIHN0cm9rZS1saW5lY2FwPSJidXR0Ij48cGF0aCBkPSJNOSAzNmMzLjM5LS45NyAxMC4xMS40MyAxMy41LTIgMy4zOSAyLjQzIDEwLjExIDEuMDMgMTMuNSAyIDAgMCAxLjY1LjU0IDMgMi0uNjguOTctMS42NS45OS0zIC41LTMuMzktLjk3LTEwLjExLjQ2LTEzLjUtMS0zLjM5IDEuNDYtMTAuMTEuMDMtMTMuNSAxLTEuMzU0LjQ5LTIuMzIzLjQ3LTMtLjUgMS4zNTQtMS45NCAzLTIgMy0yeiIvPjxwYXRoIGQ9Ik0xNSAzMmMyLjUgMi41IDEyLjUgMi41IDE1IDAgLjUtMS41IDAtMiAwLTIgMC0yLjUtMi41LTQtMi41LTQgNS41LTEuNSA2LTExLjUtNS0xNS41LTExIDQtMTAuNSAxNC01IDE1LjUgMCAwLTIuNSAxLjUtMi41IDQgMCAwLS41LjUgMCAyeiIvPjxwYXRoIGQ9Ik0yNSA4YTIuNSAyLjUgMCAxIDEtNSAwIDIuNSAyLjUgMCAxIDEgNSAweiIvPjwvZz48cGF0aCBkPSJNMTcuNSAyNmgxME0xNSAzMGgxNW0tNy41LTE0LjV2NU0yMCAxOGg1IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIi8+PC9nPjwvc3ZnPg==);
 }
-.piece.white.rook {
+.chessPanel > .white.rook {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0iI2ZmZiIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik05IDM5aDI3di0zSDl2M3ptMy0zdi00aDIxdjRIMTJ6bS0xLTIyVjloNHYyaDVWOWg1djJoNVY5aDR2NSIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiLz48cGF0aCBkPSJNMzQgMTRsLTMgM0gxNGwtMy0zIi8+PHBhdGggZD0iTTMxIDE3djEyLjVIMTRWMTciIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIi8+PHBhdGggZD0iTTMxIDI5LjVsMS41IDIuNWgtMjBsMS41LTIuNSIvPjxwYXRoIGQ9Ik0xMSAxNGgyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPjwvZz48L3N2Zz4=);
 }
-.piece.white.queen {
+.chessPanel > .white.queen {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0iI2ZmZiIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik04IDEyYTIgMiAwIDEgMS00IDAgMiAyIDAgMSAxIDQgMHptMTYuNS00LjVhMiAyIDAgMSAxLTQgMCAyIDIgMCAxIDEgNCAwek00MSAxMmEyIDIgMCAxIDEtNCAwIDIgMiAwIDEgMSA0IDB6TTE2IDguNWEyIDIgMCAxIDEtNCAwIDIgMiAwIDEgMSA0IDB6TTMzIDlhMiAyIDAgMSAxLTQgMCAyIDIgMCAxIDEgNCAweiIvPjxwYXRoIGQ9Ik05IDI2YzguNS0xLjUgMjEtMS41IDI3IDBsMi0xMi03IDExVjExbC01LjUgMTMuNS0zLTE1LTMgMTUtNS41LTE0VjI1TDcgMTRsMiAxMnoiIHN0cm9rZS1saW5lY2FwPSJidXR0Ii8+PHBhdGggZD0iTTkgMjZjMCAyIDEuNSAyIDIuNSA0IDEgMS41IDEgMSAuNSAzLjUtMS41IDEtMS41IDIuNS0xLjUgMi41LTEuNSAxLjUuNSAyLjUuNSAyLjUgNi41IDEgMTYuNSAxIDIzIDAgMCAwIDEuNS0xIDAtMi41IDAgMCAuNS0xLjUtMS0yLjUtLjUtMi41LS41LTIgLjUtMy41IDEtMiAyLjUtMiAyLjUtNC04LjUtMS41LTE4LjUtMS41LTI3IDB6IiBzdHJva2UtbGluZWNhcD0iYnV0dCIvPjxwYXRoIGQ9Ik0xMS41IDMwYzMuNS0xIDE4LjUtMSAyMiAwTTEyIDMzLjVjNi0xIDE1LTEgMjEgMCIgZmlsbD0ibm9uZSIvPjwvZz48L3N2Zz4=);
 }
 
-.piece.black.pawn {
+.chessPanel > .black.pawn {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PHBhdGggZD0iTTIyLjUgOWMtMi4yMSAwLTQgMS43OS00IDQgMCAuODkuMjkgMS43MS43OCAyLjM4QzE3LjMzIDE2LjUgMTYgMTguNTkgMTYgMjFjMCAyLjAzLjk0IDMuODQgMi40MSA1LjAzLTMgMS4wNi03LjQxIDUuNTUtNy40MSAxMy40N2gyM2MwLTcuOTItNC40MS0xMi40MS03LjQxLTEzLjQ3IDEuNDctMS4xOSAyLjQxLTMgMi40MS01LjAzIDAtMi40MS0xLjMzLTQuNS0zLjI4LTUuNjIuNDktLjY3Ljc4LTEuNDkuNzgtMi4zOCAwLTIuMjEtMS43OS00LTQtNHoiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==);
 }
-.piece.black.king {
+.chessPanel > .black.king {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMi41IDExLjYzVjYiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiLz48cGF0aCBkPSJNMjIuNSAyNXM0LjUtNy41IDMtMTAuNWMwIDAtMS0yLjUtMy0yLjVzLTMgMi41LTMgMi41Yy0xLjUgMyAzIDEwLjUgMyAxMC41IiBmaWxsPSIjMDAwIiBzdHJva2UtbGluZWNhcD0iYnV0dCIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPjxwYXRoIGQ9Ik0xMS41IDM3YzUuNSAzLjUgMTUuNSAzLjUgMjEgMHYtN3M5LTQuNSA2LTEwLjVjLTQtNi41LTEzLjUtMy41LTE2IDRWMjd2LTMuNWMtMy41LTcuNS0xMy0xMC41LTE2LTQtMyA2IDUgMTAgNSAxMFYzN3oiIGZpbGw9IiMwMDAiLz48cGF0aCBkPSJNMjAgOGg1IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIi8+PHBhdGggZD0iTTMyIDI5LjVzOC41LTQgNi4wMy05LjY1QzM0LjE1IDE0IDI1IDE4IDIyLjUgMjQuNWwuMDEgMi4xLS4wMS0yLjFDMjAgMTggOS45MDYgMTQgNi45OTcgMTkuODVjLTIuNDk3IDUuNjUgNC44NTMgOSA0Ljg1MyA5IiBzdHJva2U9IiNlY2VjZWMiLz48cGF0aCBkPSJNMTEuNSAzMGM1LjUtMyAxNS41LTMgMjEgMG0tMjEgMy41YzUuNS0zIDE1LjUtMyAyMSAwbS0yMSAzLjVjNS41LTMgMTUuNS0zIDIxIDAiIHN0cm9rZT0iI2VjZWNlYyIvPjwvZz48L3N2Zz4=);
 }
-.piece.black.knight {
+.chessPanel > .black.knight {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMiAxMGMxMC41IDEgMTYuNSA4IDE2IDI5SDE1YzAtOSAxMC02LjUgOC0yMSIgZmlsbD0iIzAwMCIvPjxwYXRoIGQ9Ik0yNCAxOGMuMzggMi45MS01LjU1IDcuMzctOCA5LTMgMi0yLjgyIDQuMzQtNSA0LTEuMDQyLS45NCAxLjQxLTMuMDQgMC0zLTEgMCAuMTkgMS4yMy0xIDItMSAwLTQuMDAzIDEtNC00IDAtMiA2LTEyIDYtMTJzMS44OS0xLjkgMi0zLjVjLS43My0uOTk0LS41LTItLjUtMyAxLTEgMyAyLjUgMyAyLjVoMnMuNzgtMS45OTIgMi41LTNjMSAwIDEgMyAxIDMiIGZpbGw9IiMwMDAiLz48cGF0aCBkPSJNOS41IDI1LjVhLjUuNSAwIDEgMS0xIDAgLjUuNSAwIDEgMSAxIDB6bTUuNDMzLTkuNzVhLjUgMS41IDMwIDEgMS0uODY2LS41LjUgMS41IDMwIDEgMSAuODY2LjV6IiBmaWxsPSIjZWNlY2VjIiBzdHJva2U9IiNlY2VjZWMiLz48cGF0aCBkPSJNMjQuNTUgMTAuNGwtLjQ1IDEuNDUuNS4xNWMzLjE1IDEgNS42NSAyLjQ5IDcuOSA2Ljc1UzM1Ljc1IDI5LjA2IDM1LjI1IDM5bC0uMDUuNWgyLjI1bC4wNS0uNWMuNS0xMC4wNi0uODgtMTYuODUtMy4yNS0yMS4zNC0yLjM3LTQuNDktNS43OS02LjY0LTkuMTktNy4xNmwtLjUxLS4xeiIgZmlsbD0iI2VjZWNlYyIgc3Ryb2tlPSJub25lIi8+PC9nPjwvc3ZnPg==);
 }
-.piece.black.bishop {
+.chessPanel > .black.bishop {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiMwMDAiIHN0cm9rZS1saW5lY2FwPSJidXR0Ij48cGF0aCBkPSJNOSAzNmMzLjM5LS45NyAxMC4xMS40MyAxMy41LTIgMy4zOSAyLjQzIDEwLjExIDEuMDMgMTMuNSAyIDAgMCAxLjY1LjU0IDMgMi0uNjguOTctMS42NS45OS0zIC41LTMuMzktLjk3LTEwLjExLjQ2LTEzLjUtMS0zLjM5IDEuNDYtMTAuMTEuMDMtMTMuNSAxLTEuMzU0LjQ5LTIuMzIzLjQ3LTMtLjUgMS4zNTQtMS45NCAzLTIgMy0yeiIvPjxwYXRoIGQ9Ik0xNSAzMmMyLjUgMi41IDEyLjUgMi41IDE1IDAgLjUtMS41IDAtMiAwLTIgMC0yLjUtMi41LTQtMi41LTQgNS41LTEuNSA2LTExLjUtNS0xNS41LTExIDQtMTAuNSAxNC01IDE1LjUgMCAwLTIuNSAxLjUtMi41IDQgMCAwLS41LjUgMCAyeiIvPjxwYXRoIGQ9Ik0yNSA4YTIuNSAyLjUgMCAxIDEtNSAwIDIuNSAyLjUgMCAxIDEgNSAweiIvPjwvZz48cGF0aCBkPSJNMTcuNSAyNmgxME0xNSAzMGgxNW0tNy41LTE0LjV2NU0yMCAxOGg1IiBzdHJva2U9IiNlY2VjZWMiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiLz48L2c+PC9zdmc+);
 }
-.piece.black.rook {
+.chessPanel > .black.rook {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik05IDM5aDI3di0zSDl2M3ptMy41LTdsMS41LTIuNWgxN2wxLjUgMi41aC0yMHptLS41IDR2LTRoMjF2NEgxMnoiIHN0cm9rZS1saW5lY2FwPSJidXR0Ii8+PHBhdGggZD0iTTE0IDI5LjV2LTEzaDE3djEzSDE0eiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiLz48cGF0aCBkPSJNMTQgMTYuNUwxMSAxNGgyM2wtMyAyLjVIMTR6TTExIDE0VjloNHYyaDVWOWg1djJoNVY5aDR2NUgxMXoiIHN0cm9rZS1saW5lY2FwPSJidXR0Ii8+PHBhdGggZD0iTTEyIDM1LjVoMjFtLTIwLTRoMTltLTE4LTJoMTdtLTE3LTEzaDE3TTExIDE0aDIzIiBmaWxsPSJub25lIiBzdHJva2U9IiNlY2VjZWMiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPjwvZz48L3N2Zz4=);
 }
-.piece.black.queen {
+.chessPanel > .black.queen {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIHN0cm9rZT0ibm9uZSI+PGNpcmNsZSBjeD0iNiIgY3k9IjEyIiByPSIyLjc1Ii8+PGNpcmNsZSBjeD0iMTQiIGN5PSI5IiByPSIyLjc1Ii8+PGNpcmNsZSBjeD0iMjIuNSIgY3k9IjgiIHI9IjIuNzUiLz48Y2lyY2xlIGN4PSIzMSIgY3k9IjkiIHI9IjIuNzUiLz48Y2lyY2xlIGN4PSIzOSIgY3k9IjEyIiByPSIyLjc1Ii8+PC9nPjxwYXRoIGQ9Ik05IDI2YzguNS0xLjUgMjEtMS41IDI3IDBsMi41LTEyLjVMMzEgMjVsLS4zLTE0LjEtNS4yIDEzLjYtMy0xNC41LTMgMTQuNS01LjItMTMuNkwxNCAyNSA2LjUgMTMuNSA5IDI2eiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiLz48cGF0aCBkPSJNOSAyNmMwIDIgMS41IDIgMi41IDQgMSAxLjUgMSAxIC41IDMuNS0xLjUgMS0xLjUgMi41LTEuNSAyLjUtMS41IDEuNS41IDIuNS41IDIuNSA2LjUgMSAxNi41IDEgMjMgMCAwIDAgMS41LTEgMC0yLjUgMCAwIC41LTEuNS0xLTIuNS0uNS0yLjUtLjUtMiAuNS0zLjUgMS0yIDIuNS0yIDIuNS00LTguNS0xLjUtMTguNS0xLjUtMjcgMHoiIHN0cm9rZS1saW5lY2FwPSJidXR0Ii8+PHBhdGggZD0iTTExIDM4LjVhMzUgMzUgMSAwIDAgMjMgMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiLz48cGF0aCBkPSJNMTEgMjlhMzUgMzUgMSAwIDEgMjMgMG0tMjEuNSAyLjVoMjBtLTIxIDNhMzUgMzUgMSAwIDAgMjIgMG0tMjMgM2EzNSAzNSAxIDAgMCAyNCAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNlY2VjZWMiLz48L2c+PC9zdmc+);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.chessPanel.whiteView > .a1 {
+  transform: translate(0%, 700%);
+}
+
+.chessPanel.whiteView > .b1 {
+  transform: translate(100%, 700%);
+}
+
+.chessPanel.whiteView > .c1 {
+  transform: translate(200%, 700%);
+}
+
+.chessPanel.whiteView > .d1 {
+  transform: translate(300%, 700%);
+}
+
+.chessPanel.whiteView > .e1 {
+  transform: translate(400%, 700%);
+}
+
+.chessPanel.whiteView > .f1 {
+  transform: translate(500%, 700%);
+}
+
+.chessPanel.whiteView > .g1 {
+  transform: translate(600%, 700%);
+}
+
+.chessPanel.whiteView > .h1 {
+  transform: translate(700%, 700%);
+}
+
+.chessPanel.whiteView > .a2 {
+  transform: translate(0%, 600%);
+}
+
+.chessPanel.whiteView > .b2 {
+  transform: translate(100%, 600%);
+}
+
+.chessPanel.whiteView > .c2 {
+  transform: translate(200%, 600%);
+}
+
+.chessPanel.whiteView > .d2 {
+  transform: translate(300%, 600%);
+}
+
+.chessPanel.whiteView > .e2 {
+  transform: translate(400%, 600%);
+}
+
+.chessPanel.whiteView > .f2 {
+  transform: translate(500%, 600%);
+}
+
+.chessPanel.whiteView > .g2 {
+  transform: translate(600%, 600%);
+}
+
+.chessPanel.whiteView > .h2 {
+  transform: translate(700%, 600%);
+}
+
+.chessPanel.whiteView > .a3 {
+  transform: translate(0%, 500%);
+}
+
+.chessPanel.whiteView > .b3 {
+  transform: translate(100%, 500%);
+}
+
+.chessPanel.whiteView > .c3 {
+  transform: translate(200%, 500%);
+}
+
+.chessPanel.whiteView > .d3 {
+  transform: translate(300%, 500%);
+}
+
+.chessPanel.whiteView > .e3 {
+  transform: translate(400%, 500%);
+}
+
+.chessPanel.whiteView > .f3 {
+  transform: translate(500%, 500%);
+}
+
+.chessPanel.whiteView > .g3 {
+  transform: translate(600%, 500%);
+}
+
+.chessPanel.whiteView > .h3 {
+  transform: translate(700%, 500%);
+}
+
+.chessPanel.whiteView > .a4 {
+  transform: translate(0%, 400%);
+}
+
+.chessPanel.whiteView > .b4 {
+  transform: translate(100%, 400%);
+}
+
+.chessPanel.whiteView > .c4 {
+  transform: translate(200%, 400%);
+}
+
+.chessPanel.whiteView > .d4 {
+  transform: translate(300%, 400%);
+}
+
+.chessPanel.whiteView > .e4 {
+  transform: translate(400%, 400%);
+}
+
+.chessPanel.whiteView > .f4 {
+  transform: translate(500%, 400%);
+}
+
+.chessPanel.whiteView > .g4 {
+  transform: translate(600%, 400%);
+}
+
+.chessPanel.whiteView > .h4 {
+  transform: translate(700%, 400%);
+}
+
+.chessPanel.whiteView > .a5 {
+  transform: translate(0%, 300%);
+}
+
+.chessPanel.whiteView > .b5 {
+  transform: translate(100%, 300%);
+}
+
+.chessPanel.whiteView > .c5 {
+  transform: translate(200%, 300%);
+}
+
+.chessPanel.whiteView > .d5 {
+  transform: translate(300%, 300%);
+}
+
+.chessPanel.whiteView > .e5 {
+  transform: translate(400%, 300%);
+}
+
+.chessPanel.whiteView > .f5 {
+  transform: translate(500%, 300%);
+}
+
+.chessPanel.whiteView > .g5 {
+  transform: translate(600%, 300%);
+}
+
+.chessPanel.whiteView > .h5 {
+  transform: translate(700%, 300%);
+}
+
+.chessPanel.whiteView > .a6 {
+  transform: translate(0%, 200%);
+}
+
+.chessPanel.whiteView > .b6 {
+  transform: translate(100%, 200%);
+}
+
+.chessPanel.whiteView > .c6 {
+  transform: translate(200%, 200%);
+}
+
+.chessPanel.whiteView > .d6 {
+  transform: translate(300%, 200%);
+}
+
+.chessPanel.whiteView > .e6 {
+  transform: translate(400%, 200%);
+}
+
+.chessPanel.whiteView > .f6 {
+  transform: translate(500%, 200%);
+}
+
+.chessPanel.whiteView > .g6 {
+  transform: translate(600%, 200%);
+}
+
+.chessPanel.whiteView > .h6 {
+  transform: translate(700%, 200%);
+}
+
+.chessPanel.whiteView > .a7 {
+  transform: translate(0%, 100%);
+}
+
+.chessPanel.whiteView > .b7 {
+  transform: translate(100%, 100%);
+}
+
+.chessPanel.whiteView > .c7 {
+  transform: translate(200%, 100%);
+}
+
+.chessPanel.whiteView > .d7 {
+  transform: translate(300%, 100%);
+}
+
+.chessPanel.whiteView > .e7 {
+  transform: translate(400%, 100%);
+}
+
+.chessPanel.whiteView > .f7 {
+  transform: translate(500%, 100%);
+}
+
+.chessPanel.whiteView > .g7 {
+  transform: translate(600%, 100%);
+}
+
+.chessPanel.whiteView > .h7 {
+  transform: translate(700%, 100%);
+}
+
+.chessPanel.whiteView > .a8 {
+  transform: translate(0%, 0%);
+}
+
+.chessPanel.whiteView > .b8 {
+  transform: translate(100%, 0%);
+}
+
+.chessPanel.whiteView > .c8 {
+  transform: translate(200%, 0%);
+}
+
+.chessPanel.whiteView > .d8 {
+  transform: translate(300%, 0%);
+}
+
+.chessPanel.whiteView > .e8 {
+  transform: translate(400%, 0%);
+}
+
+.chessPanel.whiteView > .f8 {
+  transform: translate(500%, 0%);
+}
+
+.chessPanel.whiteView > .g8 {
+  transform: translate(600%, 0%);
+}
+
+.chessPanel.whiteView > .h8 {
+  transform: translate(700%, 0%);
+}
+
+
+
+
+
+
+
+.chessPanel.blackView > .a1 {
+  transform: translate(0%, 0%);
+}
+
+.chessPanel.blackView > .b1 {
+  transform: translate(100%, 0%);
+}
+
+.chessPanel.blackView > .c1 {
+  transform: translate(200%, 0%);
+}
+
+.chessPanel.blackView > .d1 {
+  transform: translate(300%, 0%);
+}
+
+.chessPanel.blackView > .e1 {
+  transform: translate(400%, 0%);
+}
+
+.chessPanel.blackView > .f1 {
+  transform: translate(500%, 0%);
+}
+
+.chessPanel.blackView > .g1 {
+  transform: translate(600%, 0%);
+}
+
+.chessPanel.blackView > .h1 {
+  transform: translate(700%, 0%);
+}
+
+.chessPanel.blackView > .a2 {
+  transform: translate(0%, 100%);
+}
+
+.chessPanel.blackView > .b2 {
+  transform: translate(100%, 100%);
+}
+
+.chessPanel.blackView > .c2 {
+  transform: translate(200%, 100%);
+}
+
+.chessPanel.blackView > .d2 {
+  transform: translate(300%, 100%);
+}
+
+.chessPanel.blackView > .e2 {
+  transform: translate(400%, 100%);
+}
+
+.chessPanel.blackView > .f2 {
+  transform: translate(500%, 100%);
+}
+
+.chessPanel.blackView > .g2 {
+  transform: translate(600%, 100%);
+}
+
+.chessPanel.blackView > .h2 {
+  transform: translate(700%, 100%);
+}
+
+.chessPanel.blackView > .a3 {
+  transform: translate(0%, 200%);
+}
+
+.chessPanel.blackView > .b3 {
+  transform: translate(100%, 200%);
+}
+
+.chessPanel.blackView > .c3 {
+  transform: translate(200%, 200%);
+}
+
+.chessPanel.blackView > .d3 {
+  transform: translate(300%, 200%);
+}
+
+.chessPanel.blackView > .e3 {
+  transform: translate(400%, 200%);
+}
+
+.chessPanel.blackView > .f3 {
+  transform: translate(500%, 200%);
+}
+
+.chessPanel.blackView > .g3 {
+  transform: translate(600%, 200%);
+}
+
+.chessPanel.blackView > .h3 {
+  transform: translate(700%, 200%);
+}
+
+.chessPanel.blackView > .a4 {
+  transform: translate(0%, 300%);
+}
+
+.chessPanel.blackView > .b4 {
+  transform: translate(100%, 300%);
+}
+
+.chessPanel.blackView > .c4 {
+  transform: translate(200%, 300%);
+}
+
+.chessPanel.blackView > .d4 {
+  transform: translate(300%, 300%);
+}
+
+.chessPanel.blackView > .e4 {
+  transform: translate(400%, 300%);
+}
+
+.chessPanel.blackView > .f4 {
+  transform: translate(500%, 300%);
+}
+
+.chessPanel.blackView > .g4 {
+  transform: translate(600%, 300%);
+}
+
+.chessPanel.blackView > .h4 {
+  transform: translate(700%, 300%);
+}
+
+.chessPanel.blackView > .a5 {
+  transform: translate(0%, 400%);
+}
+
+.chessPanel.blackView > .b5 {
+  transform: translate(100%, 400%);
+}
+
+.chessPanel.blackView > .c5 {
+  transform: translate(200%, 400%);
+}
+
+.chessPanel.blackView > .d5 {
+  transform: translate(300%, 400%);
+}
+
+.chessPanel.blackView > .e5 {
+  transform: translate(400%, 400%);
+}
+
+.chessPanel.blackView > .f5 {
+  transform: translate(500%, 400%);
+}
+
+.chessPanel.blackView > .g5 {
+  transform: translate(600%, 400%);
+}
+
+.chessPanel.blackView > .h5 {
+  transform: translate(700%, 400%);
+}
+
+.chessPanel.blackView > .a6 {
+  transform: translate(0%, 500%);
+}
+
+.chessPanel.blackView > .b6 {
+  transform: translate(100%, 500%);
+}
+
+.chessPanel.blackView > .c6 {
+  transform: translate(200%, 500%);
+}
+
+.chessPanel.blackView > .d6 {
+  transform: translate(300%, 500%);
+}
+
+.chessPanel.blackView > .e6 {
+  transform: translate(400%, 500%);
+}
+
+.chessPanel.blackView > .f6 {
+  transform: translate(500%, 500%);
+}
+
+.chessPanel.blackView > .g6 {
+  transform: translate(600%, 500%);
+}
+
+.chessPanel.blackView > .h6 {
+  transform: translate(700%, 500%);
+}
+
+.chessPanel.blackView > .a7 {
+  transform: translate(0%, 600%);
+}
+
+.chessPanel.blackView > .b7 {
+  transform: translate(100%, 600%);
+}
+
+.chessPanel.blackView > .c7 {
+  transform: translate(200%, 600%);
+}
+
+.chessPanel.blackView > .d7 {
+  transform: translate(300%, 600%);
+}
+
+.chessPanel.blackView > .e7 {
+  transform: translate(400%, 600%);
+}
+
+.chessPanel.blackView > .f7 {
+  transform: translate(500%, 600%);
+}
+
+.chessPanel.blackView > .g7 {
+  transform: translate(600%, 600%);
+}
+
+.chessPanel.blackView > .h7 {
+  transform: translate(700%, 600%);
+}
+
+.chessPanel.blackView > .a8 {
+  transform: translate(0%, 700%);
+}
+
+.chessPanel.blackView > .b8 {
+  transform: translate(100%, 700%);
+}
+
+.chessPanel.blackView > .c8 {
+  transform: translate(200%, 700%);
+}
+
+.chessPanel.blackView > .d8 {
+  transform: translate(300%, 700%);
+}
+
+.chessPanel.blackView > .e8 {
+  transform: translate(400%, 700%);
+}
+
+.chessPanel.blackView > .f8 {
+  transform: translate(500%, 700%);
+}
+
+.chessPanel.blackView > .g8 {
+  transform: translate(600%, 700%);
+}
+
+.chessPanel.blackView > .h8 {
+  transform: translate(700%, 700%);
 }

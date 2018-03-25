@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.etherblood.chess.server.user.account.model.Account;
+import com.etherblood.chess.server.user.authentication.model.Login;
 import com.etherblood.chess.server.user.authentication.model.UserAuthority;
 import com.etherblood.chess.server.user.authentication.model.UserDetailsImpl;
 
@@ -39,14 +39,14 @@ public class UserContextService {
         throw new IllegalStateException(String.valueOf(principal));
     }
 
-    public void forceLogin(Account account, Set<UserAuthority> authorities) {
+    public void forceLogin(Login login, Set<UserAuthority> authorities) {
         String password = null;
-        UserDetailsImpl userLogin = new UserDetailsImpl(account.getId(), account.getLoginHandle(), password, authorities);
+        UserDetailsImpl userLogin = new UserDetailsImpl(login.getAccount().getId(), login.getLoginHandle(), password, authorities);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userLogin, userLogin.getPassword(), authorities);
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
-        LOG.info("authentication updated {} - {}", account, authorities);
+        LOG.info("authentication updated {} - {}", login, authorities);
     }
 //    @Override
 //    public UserDetails loadUserByUsername(String loginHandle) throws UsernameNotFoundException {

@@ -43,11 +43,12 @@ function TrackableList() {
 
 	this.remove = function(item) {
 		let index = items.indexOf(item);
-		if (index < 0) {
-			throw "item " + item + " not contained in list";
+		if (~index) {
+			items.splice(index, 1);
+			removeListeners.handle(item);
+			return true;
 		}
-		items.splice(index, 1);
-		removeListeners.handle(item);
+		return false;
 	}
 
 	this.size = function() {
