@@ -31,6 +31,9 @@ WITH (
 ALTER TABLE public.chatmessage
   OWNER TO chess;
 
+CREATE INDEX chatmessage_receiver_id_idx ON public.chatmessage (receiver_id);
+CREATE INDEX chatmessage_sender_id_idx ON public.chatmessage (sender_id);
+CREATE INDEX chatmessage_created_idx ON public.chatmessage (created);
   
 CREATE TABLE public.emailaddress
 (
@@ -51,6 +54,7 @@ WITH (
 ALTER TABLE public.emailaddress
   OWNER TO chess;
 
+CREATE INDEX emailaddress_account_id_idx ON public.emailaddress (account_id);
   
 CREATE TABLE public.lobby
 (
@@ -72,6 +76,7 @@ WITH (
 ALTER TABLE public.lobby
   OWNER TO chess;
 
+CREATE INDEX lobby_owner_id_idx ON public.lobby (owner_id);
 
 CREATE TYPE membershiptype AS ENUM ('INVITED', 'REQUESTED', 'MEMBER', 'BANNED');
   
@@ -99,6 +104,7 @@ WITH (
 ALTER TABLE public.lobbymembership
   OWNER TO chess;
 
+CREATE INDEX lobbymembership_lobby_id_idx ON public.lobbymembership (lobby_id);
   
 
 CREATE TABLE public.login
@@ -122,6 +128,7 @@ WITH (
 ALTER TABLE public.login
   OWNER TO chess;
 
+CREATE INDEX login_account_id_idx ON public.login (account_id);
   
 
 CREATE TABLE public.chessmatch
@@ -148,6 +155,11 @@ WITH (
 );
 ALTER TABLE public.chessmatch
   OWNER TO chess;
+
+CREATE INDEX chessmatch_white_id_idx ON public.chessmatch (white_id);
+CREATE INDEX chessmatch_black_id_idx ON public.chessmatch (black_id);
+CREATE INDEX chessmatch_started_idx ON public.chessmatch (started);
+CREATE INDEX chessmatch_ended_idx ON public.chessmatch (ended);
 
   
 
@@ -206,3 +218,6 @@ WITH (
 );
 ALTER TABLE public.matchrequest
   OWNER TO chess;
+
+CREATE INDEX matchrequest_player_id_idx ON public.matchrequest (player_id);
+CREATE INDEX matchrequest_match_id_idx ON public.matchrequest (match_id);
