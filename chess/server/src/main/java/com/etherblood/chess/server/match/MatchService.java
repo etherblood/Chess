@@ -108,7 +108,7 @@ public class MatchService {
     		}
     	}
     	Move stateMove = ChessModelConverter.convertMove(move, whiteToMove);
-    	validateNextMove(moves, stateMove);
+    	validateNextMove(moves, stateMove, match.getStartFen());
     	
     	MatchMove matchMove = new MatchMove();
     	matchMove.setId(UUID.randomUUID());
@@ -123,10 +123,10 @@ public class MatchService {
     	LOG.info("applied {}", matchMove);
     }
     
-    private void validateNextMove(List<MatchMove> moves, Move nextMove) {
+    private void validateNextMove(List<MatchMove> moves, Move nextMove, String startFen) {
     	//TODO
     	
-    	ChessState state = stateFromMoves(moves);
+    	ChessState state = stateFromMoves(moves, startFen);
 //    	MoveGenerator moveGen = new MoveGenerator();
 //    	Move[] moveBuffer = MoveGenerator.createBuffer(1000);
 //    	for (int i = 0; i < moveBuffer.length; i++) {
@@ -142,9 +142,9 @@ public class MatchService {
 //    	throw new IllegalStateException("invalid move " + nextMove);
     }
     
-    private ChessState stateFromMoves(List<MatchMove> moves) {
+    private ChessState stateFromMoves(List<MatchMove> moves, String startFen) {
     	ChessState state = new ChessState();
-        new ChessSetup().reset(state);
+        new ChessSetup().fromFen(state, startFen);
         MoveExecutor executor = new MoveExecutor();
         boolean whiteToMove = true;
         for (MatchMove move : moves) {

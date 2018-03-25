@@ -27,7 +27,7 @@ function TrackableList() {
 				listener(items[i]);
 			}
 		}
-		addListeners.unsubscribe(listener);
+		removeListeners.unsubscribe(listener);
 	}
 
 	this.add = function(item) {
