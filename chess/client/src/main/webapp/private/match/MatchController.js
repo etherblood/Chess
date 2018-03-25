@@ -1,5 +1,5 @@
 "use strict";
-function MatchController(boardDiv, selectedMatch, matchService, ownAccount) {
+function MatchController(matchDiv, selectedMatch, matchService, ownAccount) {
 
 	let pieceDivs = {};
 	let chess = new Chess();
@@ -15,7 +15,14 @@ function MatchController(boardDiv, selectedMatch, matchService, ownAccount) {
 			r:"rook",
 			q:"queen"
 	}
-	boardDiv.addClass("chessPanel");
+	let upperPlayerDiv = $("<div/>");
+	matchDiv.append(upperPlayerDiv);
+	let boardDiv = $("<div/>", {
+		"class": "chessPanel"
+	});
+	matchDiv.append(boardDiv);
+	let lowerPlayerDiv = $("<div/>");
+	matchDiv.append(lowerPlayerDiv);
 	
 	let updatePieceDivSquare = function(pieceDiv,square) {
 		pieceDiv.attr('class',
@@ -112,14 +119,18 @@ function MatchController(boardDiv, selectedMatch, matchService, ownAccount) {
 		}
 		
 		if(match) {
-			boardDiv.show();
+			matchDiv.show();
 			let ownId = ownAccount.get().id;
 			if(match.white.id === ownId || match.black.id !== ownId) {
 				boardDiv.removeClass("blackView");
 				boardDiv.addClass("whiteView");
+				upperPlayerDiv.text(match.black.name);
+				lowerPlayerDiv.text(match.white.name);
 			} else {
 				boardDiv.removeClass("whiteView");
 				boardDiv.addClass("blackView");
+				upperPlayerDiv.text(match.white.name);
+				lowerPlayerDiv.text(match.black.name);
 			}
 			chess.load(match.startFen);
 			
@@ -133,7 +144,7 @@ function MatchController(boardDiv, selectedMatch, matchService, ownAccount) {
 			
 			match.moves.subscribeAddListener(moveAddListener, true);
 		} else {
-			boardDiv.hide();
+			matchDiv.hide();
 		}
 	}, true);
 	

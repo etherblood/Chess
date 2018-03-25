@@ -31,7 +31,7 @@ context.lobbyService.init();
 context.matchService.init();
 context.pollService.init();
 
-context.matchController = new MatchController($("#matchBoard"), context.selectedMatch, context.matchService, context.ownAccount);
+context.matchController = new MatchController($("#matchContainer"), context.selectedMatch, context.matchService, context.ownAccount);
 context.matchesController = new MatchesController($("#matchList"), context.matches, context.selectedMatch);
 context.requestsController = new MatchRequestsController($("#requestList"), context.requests, context.matchService);
 context.lobbyController = new LobbyController($("#lobbyContainer"), context.selectedLobby, context.selectedPlayer, context.lobbyService);

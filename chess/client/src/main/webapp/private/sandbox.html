@@ -36,28 +36,19 @@
         <script src="./message/MessageController.js" type="text/javascript" charset="UTF-8" defer></script>
         <script src="./EventService.js" type="text/javascript" charset="UTF-8" defer></script>
         <script src="./HttpService.js" type="text/javascript" charset="UTF-8" defer></script>
-        <script src="./UserService.js" type="text/javascript" charset="UTF-8" defer></script>
-        <script src="./BoardService.js" type="text/javascript" charset="UTF-8" defer></script>
         <script src="./PollService.js" type="text/javascript" charset="UTF-8" defer></script>
         <script src="./Context.js" type="text/javascript" charset="UTF-8" defer></script>
     </head>
     <body>
         <div id="lobbyList" class="container"></div>
-		<p/>
 		<form action="javascript:void(0);" onsubmit="context.lobbyService.createLobby(this.lobbyName.value)" class="container">
 			<input type="text" name="lobbyName" placeholder="lobby name">
             <input name="submit" type="submit" value="create"/>
 		</form>
         <div id="lobbyContainer" class="container"></div>
-		<p/>
         <div id="playerDetails" class="container"></div>
         <div id="requestList" class="container"></div>
         <div id="matchList" class="container"></div>
-		<p/>
-        <div id="matchContainer" class="container">
-        	<div id="matchWhitePlayer"></div>
-        	<div id="matchBlackPlayer"></div>
-        	<div id="matchBoard"></div>
-        </div>
+        <div id="matchContainer" class="container"></div>
     </body>
 </html>
