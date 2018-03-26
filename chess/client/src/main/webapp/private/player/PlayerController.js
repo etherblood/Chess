@@ -4,7 +4,7 @@ function PlayerController(jDiv, selectedPlayer, matchService, ownAccount) {
 	jDiv.append(nameDiv);
 
 	let challengeButton = $("<div/>");
-	challengeButton.text("challenge");
+	challengeButton.text("request match");
 	challengeButton.click(function() {
 		matchService.createMatch(ownAccount.get().id, selectedPlayer.get().id);
 	});

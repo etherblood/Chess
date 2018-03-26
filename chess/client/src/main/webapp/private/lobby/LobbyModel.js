@@ -1,6 +1,6 @@
 "use strict";
 function LobbyModel(id, name) {
-	this.details = null;
+	let details = new TrackableItem();
 
 	Object.defineProperties(this, {
 		id : {
@@ -11,6 +11,11 @@ function LobbyModel(id, name) {
 		name : {
 			get : function() {
 				return name;
+			}
+		},
+		details : {
+			get : function() {
+				return details;
 			}
 		}
 	});

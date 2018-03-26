@@ -1,9 +1,11 @@
 "use strict";
-function LobbyService(httpService, eventService, lobbies, lobbyCache, playerCache) {
+function LobbyService(httpService, eventService, lobbies, lobbyCache, playerCache, ownAccount, lobbyProvider) {
 
 	eventService.subscribe("newLobbyChatMessageEvent", function(event) {
 		$.when(lobbyCache.fetchObject(event.lobbyId), playerCache.fetchObject(event.message.senderId)).then(function(lobby, sender) {
-			lobby.details.messages.add(new MessageModel(event.message.id, sender, event.message.text, event.message.created));
+			if(lobby.details.get()) {
+				lobby.details.get().messages.add(new MessageModel(event.message.id, sender, event.message.text, event.message.created));
+			}
 		});
 	});
 	eventService.subscribe("newLobbyEvent", function(event) {
@@ -12,9 +14,13 @@ function LobbyService(httpService, eventService, lobbies, lobbyCache, playerCach
 		});
 	});
 	eventService.subscribe("newLobbyMemberEvent", function(event) {
-		lobbyCache.fetchObject(event.lobbyId).then(function(lobby) {
-			if(lobby.details) {
-				playerCache.fetchObject(event.memberId).then(lobby.details.members.add);
+		$.when(lobbyCache.fetchObject(event.lobbyId), playerCache.fetchObject(event.memberId)).then(function(lobby, member) {
+			if(lobby.details.get()) {
+				playerCache.fetchObject(event.memberId).then(lobby.details.get().members.add);
+			} else if(ownAccount.get().id === member.id) {
+				lobbyProvider.get(lobby.id).then(function(lobbyDetailed) {
+					lobby.details.set(lobbyDetailed.details.get());
+				});
 			}
 		});
 	});

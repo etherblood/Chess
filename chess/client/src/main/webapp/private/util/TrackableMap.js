@@ -31,7 +31,7 @@ function TrackableMap() {
 	}
 	
 	this.add = function(key, item) {
-		items.push(item);
+		items[key] = item;
 		addListeners.handle(item);
 	}
 	

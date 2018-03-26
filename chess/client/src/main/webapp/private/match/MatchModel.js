@@ -1,5 +1,5 @@
 "use strict";
-function MatchModel(id, white, black, startFen) {
+function MatchModel(id, white, black, startFen, started) {
 	let moves = new TrackableList();
 
 	Object.defineProperties(this, {
@@ -26,6 +26,11 @@ function MatchModel(id, white, black, startFen) {
 		startFen : {
 			get : function() {
 				return startFen;
+			}
+		},
+		started : {
+			get : function() {
+				return started;
 			}
 		}
 	});

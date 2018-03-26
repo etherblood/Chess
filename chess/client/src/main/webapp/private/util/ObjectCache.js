@@ -10,6 +10,6 @@ function ObjectCache(provider) {
 		promise = provider(id);
 		promises[id] = promise;
 		return promise;
-	}
+	};
 
 }

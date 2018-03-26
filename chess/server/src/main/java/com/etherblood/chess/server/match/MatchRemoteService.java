@@ -1,5 +1,6 @@
 package com.etherblood.chess.server.match;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.etherblood.chess.api.match.ChessMatchTo;
+import com.etherblood.chess.api.match.MatchRequestTo;
 import com.etherblood.chess.api.match.events.MatchMoveEvent;
 import com.etherblood.chess.api.match.events.MatchRequestedEvent;
 import com.etherblood.chess.api.match.events.MatchStartedEvent;
@@ -38,23 +40,6 @@ public class MatchRemoteService {
         this.pollService = pollService;
     }
 
-//    @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
-//    @RequestMapping("/{matchId}/status")
-//    public MatchData status(@PathVariable("matchId") UUID matchId) {
-//        return matchService.getMatch(matchId);
-//    }
-//
-//    @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
-//    @RequestMapping("/{matchId}/pieces")
-//    public Map<ChessSquare, ChessPiece> pieces(@PathVariable("matchId") UUID matchId) {
-//        Map<Integer, Integer> map = matchService.matchPieces(matchId);
-//        Map<ChessSquare, ChessPiece> result = new EnumMap<>(ChessSquare.class);
-//        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
-//            result.put(ChessSquare.fromInt(entry.getKey()), ChessModelConverter.convertPiece(entry.getValue()));
-//        }
-//        return result;
-//    }
-
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
     @RequestMapping(path = "/{matchId}/move", method = RequestMethod.POST)
     public void move(@PathVariable("matchId") UUID matchId, @RequestBody ChessMove move) {
@@ -68,22 +53,21 @@ public class MatchRemoteService {
     	return makeTo(matchService.getMatch(matchId));
     }
 
-	private ChessMatchTo makeTo(ChessMatch match) {
-		ChessMatchTo result = new ChessMatchTo();
-    	result.id = match.getId();
-    	result.whiteId = match.getWhite().getId();
-    	result.blackId = match.getBlack().getId();
-    	result.moves = matchService.getMatchMoves(match.getId()).stream().map(ChessModelConverter::convertMove).collect(Collectors.toList());
-    	result.startFen = match.getStartFen();
-		return result;
-	}
-
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
     @RequestMapping(path = "/create", method = RequestMethod.POST)
     public void createMatch(@RequestBody ChessMatchTo config) {
         MatchRequest request = matchService.createMatch(config);
-        pollService.sendEvent(new MatchRequestedEvent(request.getMatch().getId()), request.getPlayer().getId()::equals);
+        MatchRequestedEvent event = new MatchRequestedEvent(makeTo(request));
+		pollService.sendEvent(event, Arrays.asList(config.whiteId, config.blackId));
     }
+
+	private MatchRequestTo makeTo(MatchRequest request) {
+		MatchRequestTo to = new MatchRequestTo();
+        to.matchId = request.getMatch().getId();
+        to.receiverId = request.getPlayer().getId();
+        to.requesterId = request.getMatch().getWhite().getId().equals(to.receiverId)? request.getMatch().getBlack().getId(): request.getMatch().getWhite().getId();
+		return to;
+	}
 
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
     @RequestMapping(path = "/list")
@@ -93,8 +77,8 @@ public class MatchRemoteService {
 
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
     @RequestMapping(path = "/requests")
-    public List<UUID> getRequestedMatches() {
-        return matchService.requestedMatchIds();
+    public List<MatchRequestTo> getRequestedMatches() {
+        return matchService.matchRequests().stream().map(this::makeTo).collect(Collectors.toList());
     }
 
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
@@ -103,4 +87,15 @@ public class MatchRemoteService {
         matchService.acceptMatchChallenge(matchId);
         pollService.sendEvent(new MatchStartedEvent(matchId), x -> true);
     }
+
+	private ChessMatchTo makeTo(ChessMatch match) {
+		ChessMatchTo result = new ChessMatchTo();
+    	result.id = match.getId();
+    	result.whiteId = match.getWhite().getId();
+    	result.blackId = match.getBlack().getId();
+    	result.moves = matchService.getMatchMoves(match.getId()).stream().map(ChessModelConverter::convertMove).collect(Collectors.toList());
+    	result.startFen = match.getStartFen();
+    	result.started = match.getStarted();
+		return result;
+	}
 }

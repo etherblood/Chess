@@ -1,13 +1,12 @@
 "use strict";
 function LobbyProvider(httpService, playerCache) {
 
-	let convertLobby = function(json) {
-		let lobby = new LobbyModel(json.id, json.name);
+	let convertLobbyDetails = function(json) {
 		if(json.details) {
-			lobby.details = new LobbyDetailsModel(json.details.id);
+			let details = new LobbyDetailsModel(json.details.id);
 			for (let i = 0; i < json.details.memberIds.length; i++) {
 				let memberId = json.details.memberIds[i];
-				playerCache.fetchObject(memberId).then(lobby.details.members.add);
+				playerCache.fetchObject(memberId).then(details.members.add);
 			}
 			
 			let senders = {};
@@ -25,25 +24,17 @@ function LobbyProvider(httpService, playerCache) {
 					let jsonMessage = json.details.messages[i];
 					let sender = senders[jsonMessage.senderId];
 					let message = new MessageModel(jsonMessage.id, sender, jsonMessage.text, jsonMessage.created);
-					lobby.details.messages.add(message);
+					details.messages.add(message);
 				}
 			});
+			return details;
 		}
-		// if (json.members) {
-		// for (var i = 0; i < json.members.length; i++) {
-		// let jsonMember = json.members[i];
-		// let member = new PlayerModel(jsonMember.id, jsonMember.name);
-		// lobby.members.add(member);
-		// }
-		// }
-		// if (json.messages) {
-		// for (var i = 0; i < json.messages.length; i++) {
-		// let jsonMessage = json.messages[i];
-		// let message = new MessageModel(jsonMessage.id, jsonMessage.senderId,
-		// jsonMessage.text, jsonMessage.created);
-		// lobby.messages.add(message);
-		// }
-		// }
+		return null;
+	}
+	
+	let convertLobby = function(json) {
+		let lobby = new LobbyModel(json.id, json.name);
+		lobby.details.set(convertLobbyDetails(json));
 		return lobby;
 	}
 

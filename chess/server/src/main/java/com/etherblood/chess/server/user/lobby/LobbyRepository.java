@@ -27,6 +27,7 @@ public class LobbyRepository extends AbstractRepository {
 				.where(qMembership.membershipType.ne(MembershipType.BANNED));
 		return from(qLobby)
 				.where(qLobby.isPublic.isTrue().or(membership.exists()))
+				.orderBy(qLobby.created.asc())
 				.list(qLobby);
 	}
 

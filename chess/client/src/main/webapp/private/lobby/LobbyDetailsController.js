@@ -50,25 +50,35 @@ function LobbyDetailsController(jDiv, selectedLobby, selectedPlayer, lobbyServic
 		messagesDiv.append(messageDiv);
 	};
 	
-	let lobbyChangeListener = function(lobby, oldLobby) {
-		if(oldLobby && oldLobby.details) {
-			oldLobby.details.members.unsubscribeAddListener(memberAddListener);
-			oldLobby.details.members.unsubscribeRemoveListener(memberRemoveListener, true);
-			oldLobby.details.messages.unsubscribeAddListener(messageAddListener);
+	let lobbyDetailsChangeListener = function(lobbyDetails, oldDetails) {
+		if(oldDetails) {
+			oldDetails.members.unsubscribeAddListener(memberAddListener);
+			oldDetails.members.unsubscribeRemoveListener(memberRemoveListener, true);
+			oldDetails.messages.unsubscribeAddListener(messageAddListener);
 			messagesDiv.empty();
 		}
 		
-		if(lobby && lobby.details) {
+		if(lobbyDetails) {
 			detailsDiv.show();
 			joinDiv.hide();
 
-			lobby.details.members.subscribeAddListener(memberAddListener, true);
-			lobby.details.members.subscribeRemoveListener(memberRemoveListener);
+			lobbyDetails.members.subscribeAddListener(memberAddListener, true);
+			lobbyDetails.members.subscribeRemoveListener(memberRemoveListener);
 
-			lobby.details.messages.subscribeAddListener(messageAddListener, true);
+			lobbyDetails.messages.subscribeAddListener(messageAddListener, true);
 		} else {
 			detailsDiv.hide();
 			joinDiv.show();
+		}
+	};
+	
+	let lobbyChangeListener = function(lobby, oldLobby) {
+		if(oldLobby) {
+			oldLobby.details.unsubscribeChangeListener(lobbyDetailsChangeListener, true);
+		}
+		
+		if(lobby) {
+			lobby.details.subscribeChangeListener(lobbyDetailsChangeListener, true);
 		}
 	};
 	

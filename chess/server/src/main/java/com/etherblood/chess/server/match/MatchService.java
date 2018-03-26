@@ -45,8 +45,8 @@ public class MatchService {
     	return matchRepo.getActiveMatchIds();
     }
 
-	public List<UUID> requestedMatchIds() {
-		return matchRepo.getRequestedMatchIds(userContextService.currentUserId());
+	public List<MatchRequest> matchRequests() {
+		return matchRepo.getMatchRequests(userContextService.currentUserId());
 	}
     
     public List<MatchMove> getMatchMoves(UUID matchId) {
@@ -152,66 +152,5 @@ public class MatchService {
         }
         return state;
     }
-//
-//    public Map<Integer, Integer> matchPieces(UUID matchId) {
-//        ChessState state = getMatchState(matchId);
-//        Map<Integer, Integer> result = new HashMap<>();
-//        long pieces = state.allPieces();
-//        while (pieces != 0) {
-//            int square = Long.numberOfTrailingZeros(pieces);
-//            int piece = state.pieces[square];
-//
-//            result.put(square, piece);
-////            result.add(new SquarePiecePair(convert(piece), ChessSquare.fromInt(square)));
-//            pieces ^= Mask.toFlag(square);
-//        }
-//        return result;
-//    }
-//
-//    private ChessState getMatchState(UUID matchId) {
-//        ChessState state = new ChessState();
-//        new ChessSetup().reset(state);
-//        MatchData match = matches.get(matchId);
-//        MoveExecutor executor = new MoveExecutor();
-//        for (MatchMove move : match.getMoves()) {
-//            executor.makeMove(state, move.getMove());
-//        }
-//        return state;
-//    }
-//
-//    public void move(UUID matchId, Move selected) {
-//        Objects.requireNonNull(selected);
-//        MatchData match = getMatch(matchId);
-//        match.getMoves().add(new MatchMove(selected, new Date()));
-//        pollService.sendEvent(new MatchMoveEvent(matchId, selected), match.getSpectators());
-//    }
-//
-//    private List<Move> generateMoves(ChessState state) {
-//        MoveExecutor exec = new MoveExecutor();
-//        MoveGenerator generator = new MoveGenerator();
-//        Move[] moves = new Move[256];
-//        for (int i = 0; i < moves.length; i++) {
-//            moves[i] = new Move();
-//        }
-//        int numMoves = generator.generateMoves(state, moves, 0);
-//        List<Move> result = new ArrayList<>();
-//        for (int i = 0; i < numMoves; i++) {
-//            Move move = moves[i];
-//            exec.makeMove(state, move);
-//            if (!generator.isThreateningKing(state)) {
-//                result.add(move);
-//            }
-//            exec.unmakeMove(state, move);
-//        }
-//        return result;
-//    }
-//
-//    public List<Move> moves(UUID matchId) {
-//        return generateMoves(getMatchState(matchId));
-//    }
-//
-//    public Collection<MatchData> getAllMatches() {
-//        return matches.values();
-//    }
 
 }

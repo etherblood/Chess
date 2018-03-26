@@ -2,7 +2,7 @@
 function MatchProvider(httpService, playerCache) {
 
 	let convertMatch = function(json, white, black) {
-		let match = new MatchModel(json.id, white, black, json.startFen);
+		let match = new MatchModel(json.id, white, black, json.startFen, json.started);
 		for (let i = 0; i < json.moves.length; i++) {
 			let move = json.moves[i];
 			match.moves.add(move);

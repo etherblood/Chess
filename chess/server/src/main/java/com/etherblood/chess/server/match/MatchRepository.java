@@ -49,12 +49,15 @@ public class MatchRepository extends AbstractRepository {
 		return from(qMatch)
 				.where(qMatch.started.isNotNull())
 				.where(qMatch.ended.isNull())
+				.orderBy(qMatch.started.asc())
 				.list(qMatch.id);
 	}
 
-	public List<UUID> getRequestedMatchIds(UUID playerId) {
+	public List<MatchRequest> getMatchRequests(UUID playerId) {
 		return from(qRequest)
-				.where(qRequest.player.id.eq(playerId))
-				.list(qRequest.match.id);
+				.leftJoin(qRequest.match).fetch()
+				.where(qRequest.match.white.id.eq(playerId).or(qRequest.match.black.id.eq(playerId)))
+				.orderBy(qRequest.created.asc())
+				.list(qRequest);
 	}
 }

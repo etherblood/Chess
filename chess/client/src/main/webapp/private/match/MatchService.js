@@ -1,9 +1,15 @@
 "use strict";
-function MatchService(httpService, eventService, matches, matchCache, requests) {
+function MatchService(httpService, eventService, matches, matchCache, requests, playerCache) {
 
+	let convertRequest = function(jsonRequest) {
+		return $.when(matchCache.fetchObject(jsonRequest.matchId), playerCache.fetchObject(jsonRequest.requesterId), playerCache.fetchObject(jsonRequest.receiverId)).then(function(match, requester, receiver) {
+			return new MatchRequestModel(match, requester, receiver);
+		});
+	};
+	
 	eventService.subscribe("matchStartedEvent", function(matchId) {
 		matchCache.fetchObject(matchId).then(matches.add);
-		matchCache.fetchObject(matchId).then(requests.remove);
+		requests.remove(matchId);
 	});
 	eventService.subscribe("matchMoveEvent", function(moves) {
 		for (let matchId in moves) {
@@ -12,8 +18,10 @@ function MatchService(httpService, eventService, matches, matchCache, requests) 
 			});
 		}
 	});
-	eventService.subscribe("matchRequestedEvent", function(matchId) {
-		matchCache.fetchObject(matchId).then(requests.add);
+	eventService.subscribe("matchRequestedEvent", function(request) {
+		convertRequest(request).then(function(request) {
+			requests.add(request.match.id, request);
+		});
 	});
 
 	this.createMatch = function(white, black) {
@@ -37,7 +45,9 @@ function MatchService(httpService, eventService, matches, matchCache, requests) 
 
 		httpService.get("/api/match/requests").then(function(result) {
 			for (let i = 0; i < result.length; i++) {
-				matchCache.fetchObject(result[i]).then(requests.add);
+				convertRequest(result[i]).then(function(request) {
+					requests.add(request.match.id, request);
+				});
 			}
 		});
 	}

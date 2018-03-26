@@ -1,13 +1,12 @@
 package com.etherblood.chess.api.match.events;
 
-import java.util.UUID;
-
 import com.etherblood.chess.api.PollEvent;
+import com.etherblood.chess.api.match.MatchRequestTo;
 
 public class MatchRequestedEvent extends PollEvent {
 
-    public MatchRequestedEvent(UUID matchId) {
-        super("matchRequestedEvent", matchId);
+    public MatchRequestedEvent(MatchRequestTo request) {
+        super("matchRequestedEvent", request);
     }
 
 }

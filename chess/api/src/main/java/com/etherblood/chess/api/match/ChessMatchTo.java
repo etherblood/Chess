@@ -1,5 +1,6 @@
 package com.etherblood.chess.api.match;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,4 +12,5 @@ public class ChessMatchTo {
 	public String startFen;
     public UUID whiteId, blackId;
 	public List<ChessMove> moves;
+	public Date started;
 }

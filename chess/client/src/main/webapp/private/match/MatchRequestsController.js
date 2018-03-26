@@ -1,22 +1,26 @@
 "use strict";
-function MatchRequestsController(jDiv, requests, matchService) {
+function MatchRequestsController(jDiv, requests, matchService, ownAccount) {
 
 	let divMap = {};
 
 	let addListener = function(request) {
 		let requestDiv = $("<div/>");
-		requestDiv.text("accept " + request.white.name + " vs " + request.black.name);
-		requestDiv.click(function() {
-			matchService.accept(request.id);
-		});
+		if(request.receiver.id == ownAccount.get().id) {
+			requestDiv.text("accept " + request.match.white.name + " vs " + request.match.black.name);
+			requestDiv.click(function() {
+				matchService.accept(request.match.id);
+			});
+		} else {
+			requestDiv.text("pending " + request.match.white.name + " vs " + request.match.black.name);
+		}
 		jDiv.append(requestDiv);
-		divMap[request.id] = requestDiv;
+		divMap[request.match.id] = requestDiv;
 	};
 
 	let removeListener = function(request) {
-		if (request.id in divMap) {
-			divMap[request.id].remove();
-			delete divMap[request.id];
+		if (request.match.id in divMap) {
+			divMap[request.match.id].remove();
+			delete divMap[request.match.id];
 		}
 	};
 
