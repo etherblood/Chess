@@ -340,257 +340,257 @@
 
 
 .chessPanel.blackView > .a1 {
-  transform: translate(0%, 0%);
-}
-
-.chessPanel.blackView > .b1 {
-  transform: translate(100%, 0%);
-}
-
-.chessPanel.blackView > .c1 {
-  transform: translate(200%, 0%);
-}
-
-.chessPanel.blackView > .d1 {
-  transform: translate(300%, 0%);
-}
-
-.chessPanel.blackView > .e1 {
-  transform: translate(400%, 0%);
-}
-
-.chessPanel.blackView > .f1 {
-  transform: translate(500%, 0%);
-}
-
-.chessPanel.blackView > .g1 {
-  transform: translate(600%, 0%);
-}
-
-.chessPanel.blackView > .h1 {
   transform: translate(700%, 0%);
 }
 
+.chessPanel.blackView > .b1 {
+  transform: translate(600%, 0%);
+}
+
+.chessPanel.blackView > .c1 {
+  transform: translate(500%, 0%);
+}
+
+.chessPanel.blackView > .d1 {
+  transform: translate(400%, 0%);
+}
+
+.chessPanel.blackView > .e1 {
+  transform: translate(300%, 0%);
+}
+
+.chessPanel.blackView > .f1 {
+  transform: translate(200%, 0%);
+}
+
+.chessPanel.blackView > .g1 {
+  transform: translate(100%, 0%);
+}
+
+.chessPanel.blackView > .h1 {
+  transform: translate(0%, 0%);
+}
+
 .chessPanel.blackView > .a2 {
-  transform: translate(0%, 100%);
-}
-
-.chessPanel.blackView > .b2 {
-  transform: translate(100%, 100%);
-}
-
-.chessPanel.blackView > .c2 {
-  transform: translate(200%, 100%);
-}
-
-.chessPanel.blackView > .d2 {
-  transform: translate(300%, 100%);
-}
-
-.chessPanel.blackView > .e2 {
-  transform: translate(400%, 100%);
-}
-
-.chessPanel.blackView > .f2 {
-  transform: translate(500%, 100%);
-}
-
-.chessPanel.blackView > .g2 {
-  transform: translate(600%, 100%);
-}
-
-.chessPanel.blackView > .h2 {
   transform: translate(700%, 100%);
 }
 
+.chessPanel.blackView > .b2 {
+  transform: translate(600%, 100%);
+}
+
+.chessPanel.blackView > .c2 {
+  transform: translate(500%, 100%);
+}
+
+.chessPanel.blackView > .d2 {
+  transform: translate(400%, 100%);
+}
+
+.chessPanel.blackView > .e2 {
+  transform: translate(300%, 100%);
+}
+
+.chessPanel.blackView > .f2 {
+  transform: translate(200%, 100%);
+}
+
+.chessPanel.blackView > .g2 {
+  transform: translate(100%, 100%);
+}
+
+.chessPanel.blackView > .h2 {
+  transform: translate(0%, 100%);
+}
+
 .chessPanel.blackView > .a3 {
-  transform: translate(0%, 200%);
-}
-
-.chessPanel.blackView > .b3 {
-  transform: translate(100%, 200%);
-}
-
-.chessPanel.blackView > .c3 {
-  transform: translate(200%, 200%);
-}
-
-.chessPanel.blackView > .d3 {
-  transform: translate(300%, 200%);
-}
-
-.chessPanel.blackView > .e3 {
-  transform: translate(400%, 200%);
-}
-
-.chessPanel.blackView > .f3 {
-  transform: translate(500%, 200%);
-}
-
-.chessPanel.blackView > .g3 {
-  transform: translate(600%, 200%);
-}
-
-.chessPanel.blackView > .h3 {
   transform: translate(700%, 200%);
 }
 
+.chessPanel.blackView > .b3 {
+  transform: translate(600%, 200%);
+}
+
+.chessPanel.blackView > .c3 {
+  transform: translate(500%, 200%);
+}
+
+.chessPanel.blackView > .d3 {
+  transform: translate(400%, 200%);
+}
+
+.chessPanel.blackView > .e3 {
+  transform: translate(300%, 200%);
+}
+
+.chessPanel.blackView > .f3 {
+  transform: translate(200%, 200%);
+}
+
+.chessPanel.blackView > .g3 {
+  transform: translate(100%, 200%);
+}
+
+.chessPanel.blackView > .h3 {
+  transform: translate(0%, 200%);
+}
+
 .chessPanel.blackView > .a4 {
-  transform: translate(0%, 300%);
-}
-
-.chessPanel.blackView > .b4 {
-  transform: translate(100%, 300%);
-}
-
-.chessPanel.blackView > .c4 {
-  transform: translate(200%, 300%);
-}
-
-.chessPanel.blackView > .d4 {
-  transform: translate(300%, 300%);
-}
-
-.chessPanel.blackView > .e4 {
-  transform: translate(400%, 300%);
-}
-
-.chessPanel.blackView > .f4 {
-  transform: translate(500%, 300%);
-}
-
-.chessPanel.blackView > .g4 {
-  transform: translate(600%, 300%);
-}
-
-.chessPanel.blackView > .h4 {
   transform: translate(700%, 300%);
 }
 
+.chessPanel.blackView > .b4 {
+  transform: translate(600%, 300%);
+}
+
+.chessPanel.blackView > .c4 {
+  transform: translate(500%, 300%);
+}
+
+.chessPanel.blackView > .d4 {
+  transform: translate(400%, 300%);
+}
+
+.chessPanel.blackView > .e4 {
+  transform: translate(300%, 300%);
+}
+
+.chessPanel.blackView > .f4 {
+  transform: translate(200%, 300%);
+}
+
+.chessPanel.blackView > .g4 {
+  transform: translate(100%, 300%);
+}
+
+.chessPanel.blackView > .h4 {
+  transform: translate(0%, 300%);
+}
+
 .chessPanel.blackView > .a5 {
-  transform: translate(0%, 400%);
-}
-
-.chessPanel.blackView > .b5 {
-  transform: translate(100%, 400%);
-}
-
-.chessPanel.blackView > .c5 {
-  transform: translate(200%, 400%);
-}
-
-.chessPanel.blackView > .d5 {
-  transform: translate(300%, 400%);
-}
-
-.chessPanel.blackView > .e5 {
-  transform: translate(400%, 400%);
-}
-
-.chessPanel.blackView > .f5 {
-  transform: translate(500%, 400%);
-}
-
-.chessPanel.blackView > .g5 {
-  transform: translate(600%, 400%);
-}
-
-.chessPanel.blackView > .h5 {
   transform: translate(700%, 400%);
 }
 
+.chessPanel.blackView > .b5 {
+  transform: translate(600%, 400%);
+}
+
+.chessPanel.blackView > .c5 {
+  transform: translate(500%, 400%);
+}
+
+.chessPanel.blackView > .d5 {
+  transform: translate(400%, 400%);
+}
+
+.chessPanel.blackView > .e5 {
+  transform: translate(300%, 400%);
+}
+
+.chessPanel.blackView > .f5 {
+  transform: translate(200%, 400%);
+}
+
+.chessPanel.blackView > .g5 {
+  transform: translate(100%, 400%);
+}
+
+.chessPanel.blackView > .h5 {
+  transform: translate(0%, 400%);
+}
+
 .chessPanel.blackView > .a6 {
-  transform: translate(0%, 500%);
-}
-
-.chessPanel.blackView > .b6 {
-  transform: translate(100%, 500%);
-}
-
-.chessPanel.blackView > .c6 {
-  transform: translate(200%, 500%);
-}
-
-.chessPanel.blackView > .d6 {
-  transform: translate(300%, 500%);
-}
-
-.chessPanel.blackView > .e6 {
-  transform: translate(400%, 500%);
-}
-
-.chessPanel.blackView > .f6 {
-  transform: translate(500%, 500%);
-}
-
-.chessPanel.blackView > .g6 {
-  transform: translate(600%, 500%);
-}
-
-.chessPanel.blackView > .h6 {
   transform: translate(700%, 500%);
 }
 
+.chessPanel.blackView > .b6 {
+  transform: translate(600%, 500%);
+}
+
+.chessPanel.blackView > .c6 {
+  transform: translate(500%, 500%);
+}
+
+.chessPanel.blackView > .d6 {
+  transform: translate(400%, 500%);
+}
+
+.chessPanel.blackView > .e6 {
+  transform: translate(300%, 500%);
+}
+
+.chessPanel.blackView > .f6 {
+  transform: translate(200%, 500%);
+}
+
+.chessPanel.blackView > .g6 {
+  transform: translate(100%, 500%);
+}
+
+.chessPanel.blackView > .h6 {
+  transform: translate(0%, 500%);
+}
+
 .chessPanel.blackView > .a7 {
-  transform: translate(0%, 600%);
-}
-
-.chessPanel.blackView > .b7 {
-  transform: translate(100%, 600%);
-}
-
-.chessPanel.blackView > .c7 {
-  transform: translate(200%, 600%);
-}
-
-.chessPanel.blackView > .d7 {
-  transform: translate(300%, 600%);
-}
-
-.chessPanel.blackView > .e7 {
-  transform: translate(400%, 600%);
-}
-
-.chessPanel.blackView > .f7 {
-  transform: translate(500%, 600%);
-}
-
-.chessPanel.blackView > .g7 {
-  transform: translate(600%, 600%);
-}
-
-.chessPanel.blackView > .h7 {
   transform: translate(700%, 600%);
 }
 
+.chessPanel.blackView > .b7 {
+  transform: translate(600%, 600%);
+}
+
+.chessPanel.blackView > .c7 {
+  transform: translate(500%, 600%);
+}
+
+.chessPanel.blackView > .d7 {
+  transform: translate(400%, 600%);
+}
+
+.chessPanel.blackView > .e7 {
+  transform: translate(300%, 600%);
+}
+
+.chessPanel.blackView > .f7 {
+  transform: translate(200%, 600%);
+}
+
+.chessPanel.blackView > .g7 {
+  transform: translate(100%, 600%);
+}
+
+.chessPanel.blackView > .h7 {
+  transform: translate(0%, 600%);
+}
+
 .chessPanel.blackView > .a8 {
-  transform: translate(0%, 700%);
+  transform: translate(700%, 700%);
 }
 
 .chessPanel.blackView > .b8 {
-  transform: translate(100%, 700%);
-}
-
-.chessPanel.blackView > .c8 {
-  transform: translate(200%, 700%);
-}
-
-.chessPanel.blackView > .d8 {
-  transform: translate(300%, 700%);
-}
-
-.chessPanel.blackView > .e8 {
-  transform: translate(400%, 700%);
-}
-
-.chessPanel.blackView > .f8 {
-  transform: translate(500%, 700%);
-}
-
-.chessPanel.blackView > .g8 {
   transform: translate(600%, 700%);
 }
 
+.chessPanel.blackView > .c8 {
+  transform: translate(500%, 700%);
+}
+
+.chessPanel.blackView > .d8 {
+  transform: translate(400%, 700%);
+}
+
+.chessPanel.blackView > .e8 {
+  transform: translate(300%, 700%);
+}
+
+.chessPanel.blackView > .f8 {
+  transform: translate(200%, 700%);
+}
+
+.chessPanel.blackView > .g8 {
+  transform: translate(100%, 700%);
+}
+
 .chessPanel.blackView > .h8 {
-  transform: translate(700%, 700%);
+  transform: translate(0%, 700%);
 }
