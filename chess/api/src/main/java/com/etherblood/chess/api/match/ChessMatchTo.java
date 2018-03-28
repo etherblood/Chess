@@ -13,4 +13,9 @@ public class ChessMatchTo {
     public UUID whiteId, blackId;
 	public List<ChessMove> moves;
 	public Date started;
+	@Override
+	public String toString() {
+		return "ChessMatchTo [id=" + id + ", startFen=" + startFen + ", whiteId=" + whiteId + ", blackId=" + blackId
+				+ ", moves=" + moves + ", started=" + started + "]";
+	}
 }

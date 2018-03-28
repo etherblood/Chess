@@ -4,12 +4,12 @@ package com.etherblood.chess.api;
  *
  * @author Philipp
  */
-public abstract class PollEvent {
+public abstract class PollEvent<T> {
 
     private final String type;
-    private final Object data;
+    private final T data;
 
-    public PollEvent(String type, Object data) {
+    public PollEvent(String type, T data) {
         this.type = type;
         this.data = data;
     }
@@ -18,8 +18,7 @@ public abstract class PollEvent {
         return type;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getData() {
-        return (T) data;
+    public T getData() {
+        return data;
     }
 }

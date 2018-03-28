@@ -15,7 +15,7 @@
 
     <context-param>
         <param-name>appId</param-name>
-        <param-value>noname</param-value>
+        <param-value>chess</param-value>
     </context-param>
 
 		
@@ -29,13 +29,6 @@
     </session-config>
 
 
-
-    <!-- SPRING CONFIG -->
-    <!-- The parent context in which to find the service beans def -->
-    <!--    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>classpath*:main.xml</param-value>
-    </context-param>-->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>

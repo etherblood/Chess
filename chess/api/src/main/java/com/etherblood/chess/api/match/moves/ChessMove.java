@@ -16,4 +16,9 @@ public class ChessMove {
         this.from = from;
         this.to = to;
     }
+
+	@Override
+	public String toString() {
+		return "ChessMove [type=" + type + ", from=" + from + ", to=" + to + "]";
+	}
 }

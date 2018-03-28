@@ -7,14 +7,16 @@ import com.etherblood.chess.api.PollEvent;
 import com.etherblood.chess.api.match.moves.ChessMove;
 import com.etherblood.chess.api.util.MapBuilder;
 
-public class MatchMoveEvent extends PollEvent {
+public class MatchMoveEvent extends PollEvent<Map<UUID, ChessMove>> {
 
-    public MatchMoveEvent(UUID matchId, ChessMove selected) {
+    public static final String KEY = "matchMoveEvent";
+
+	public MatchMoveEvent(UUID matchId, ChessMove selected) {
         this(new MapBuilder<UUID, ChessMove>().with(matchId, selected).build());
     }
 
     public MatchMoveEvent(Map<UUID, ChessMove> moves) {
-        super("matchMoveEvent", moves);
+        super(KEY, moves);
     }
 
 }

@@ -35,6 +35,7 @@ public class MoveExecutorTest {
         ChessState state = new ChessState();
         ChessSetup setup = new ChessSetup();
         setup.flipPiece(state, Board.E1, Piece.W_KING);
+        setup.flipPiece(state, Board.A1, Piece.W_ROOK);
         setup.setCastling(state, Castling.CASTLE_A1);
         setup.setFiftyRule(state, (byte)20);
         Move move = new Move();

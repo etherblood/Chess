@@ -21,8 +21,12 @@
         pre-post-annotations="enabled" />
 
     <security:http auto-config="true">
+    
     	<security:http-basic/>
-    	<security:csrf token-repository-ref="tokenRepository"/>
+    	<security:csrf disabled="true"/>
+    	<!-- <security:csrf token-repository-ref="tokenRepository"/> -->
+    	
+    	
         <security:intercept-url pattern="/private/**"
                                 access="hasRole('ROLE_PLAYER')" />
         <security:form-login login-processing-url="/login"
@@ -38,7 +42,7 @@
     </security:http>
     <bean id="authenticationSuccessHandler" class="com.etherblood.chess.server.user.authentication.AuthenticationSuccessHandlerImpl"/>
     <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
-    <bean id="tokenRepository" class="org.springframework.security.web.csrf.CookieCsrfTokenRepository">
+    <!-- <bean id="tokenRepository" class="org.springframework.security.web.csrf.CookieCsrfTokenRepository">
     	<property name="cookieHttpOnly" value="false"/>
-    </bean>
+    </bean> -->
 </beans>

@@ -20,7 +20,6 @@ import com.etherblood.chess.api.lobby.events.NewDirectChatMessageEvent;
 import com.etherblood.chess.api.lobby.events.NewLobbyChatMessageEvent;
 import com.etherblood.chess.server.poll.PollService;
 import com.etherblood.chess.server.user.chat.model.ChatMessage;
-import com.etherblood.chess.server.user.chat.model.ReceiverType;
 import com.etherblood.chess.server.user.lobby.LobbyService;
 
 @RestController

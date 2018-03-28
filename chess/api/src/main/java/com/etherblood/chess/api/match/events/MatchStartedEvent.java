@@ -4,10 +4,12 @@ import java.util.UUID;
 
 import com.etherblood.chess.api.PollEvent;
 
-public class MatchStartedEvent extends PollEvent {
+public class MatchStartedEvent extends PollEvent<UUID> {
 
-    public MatchStartedEvent(UUID matchId) {
-        super("matchStartedEvent", matchId);
+    public static final String KEY = "matchStartedEvent";
+
+	public MatchStartedEvent(UUID matchId) {
+        super(KEY, matchId);
     }
 
 }

@@ -22,8 +22,8 @@ public class PollClient {
 	private final int id;
 	private final UUID userId;
 	private volatile Instant heartbeat;
-	private final Queue<PollEvent> eventQueue = new ConcurrentLinkedQueue<>();
-	private final AtomicReference<DeferredResult<List<PollEvent>>> deferredResult = new AtomicReference<>(null);
+	private final Queue<PollEvent<?>> eventQueue = new ConcurrentLinkedQueue<>();
+	private final AtomicReference<DeferredResult<List<PollEvent<?>>>> deferredResult = new AtomicReference<>(null);
 
 	public PollClient(int id, UUID userId, Instant heartbeat) {
 		this.id = id;
@@ -49,17 +49,17 @@ public class PollClient {
 		this.heartbeat = heartbeat;
 	}
 
-	public void offer(PollEvent event) {
+	public void offer(PollEvent<?> event) {
 		Objects.requireNonNull(event);
 		eventQueue.add(event);
 	}
 
 	public void tryResolve() {
-		DeferredResult<List<PollEvent>> result = replace(null);
+		DeferredResult<List<PollEvent<?>>> result = replace(null);
 		if (result == null) {
 			return;
 		}
-		List<PollEvent> events = pollEvents();
+		List<PollEvent<?>> events = pollEvents();
 		if (events.isEmpty() && deferredResult.compareAndSet(null, result)) {
 			// deferredResult is discarded if replacement was added in the meantime
 			return;
@@ -67,16 +67,16 @@ public class PollClient {
 		result.setResult(events);
 	}
 
-	public List<PollEvent> pollEvents() {
-		List<PollEvent> result = new ArrayList<>();
-		PollEvent next;
+	public List<PollEvent<?>> pollEvents() {
+		List<PollEvent<?>> result = new ArrayList<>();
+		PollEvent<?> next;
 		while ((next = eventQueue.poll()) != null) {
 			result.add(next);
 		}
 		return result;
 	}
 
-	public DeferredResult<List<PollEvent>> replace(DeferredResult<List<PollEvent>> result) {
+	public DeferredResult<List<PollEvent<?>>> replace(DeferredResult<List<PollEvent<?>>> result) {
 		return deferredResult.getAndSet(result);
 	}
 

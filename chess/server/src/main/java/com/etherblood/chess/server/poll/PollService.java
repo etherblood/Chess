@@ -75,23 +75,23 @@ public class PollService {
     // client.getUserId());
     // }
 
-    public DeferredResult<List<PollEvent>> poll(int clientId) {
+    public DeferredResult<List<PollEvent<?>>> poll(int clientId) {
         UUID currentUserId = userContextService.currentUserId();
         PollClient client = clients.get(clientId);
         if (!currentUserId.equals(client.getUserId())) {
             throw new RuntimeException();
         }
-        DeferredResult<List<PollEvent>> deferredResult = new DeferredResult<>(null, Collections.emptyList());
+        DeferredResult<List<PollEvent<?>>> deferredResult = new DeferredResult<>(null, Collections.emptyList());
         client.replace(deferredResult);// previous result is discarded
         client.setHeartbeat(Instant.now());
         return deferredResult;
     }
 
-    public void sendEvent(PollEvent message, Collection<UUID> recipients) {
+    public void sendEvent(PollEvent<?> message, Collection<UUID> recipients) {
         sendEvent(message, recipients::contains);
     }
 
-    public void sendEvent(PollEvent message, Predicate<UUID> recipients) {
+    public void sendEvent(PollEvent<?> message, Predicate<UUID> recipients) {
         for (PollClient client : clients.values()) {
             if (recipients.test(client.getUserId())) {
                 client.offer(message);

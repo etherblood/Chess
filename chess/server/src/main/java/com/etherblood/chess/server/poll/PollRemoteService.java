@@ -37,7 +37,7 @@ public class PollRemoteService {
     @PreAuthorize(value = "hasRole('ROLE_PLAYER')")
     @ResponseBody
     @RequestMapping("/{clientId}")
-    public DeferredResult<List<PollEvent>> poll(@PathVariable("clientId") int clientId) {
+    public DeferredResult<List<PollEvent<?>>> poll(@PathVariable("clientId") int clientId) {
         return pollService.poll(clientId);
     }
 }

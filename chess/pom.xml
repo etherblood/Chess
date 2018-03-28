@@ -14,6 +14,7 @@
 		<module>bot</module>
 		<module>api</module>
 		<module>web</module>
+	 	<module>bot-client</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
