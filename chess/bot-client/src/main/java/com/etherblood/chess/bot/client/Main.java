@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.etherblood.chess.api.PollEvent;
 import com.etherblood.chess.api.match.ChessMatchTo;
 import com.etherblood.chess.api.match.MatchRequestTo;
@@ -18,9 +21,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Main {
+	
+	private final static Logger LOG = LoggerFactory.getLogger(Main.class);
+	
 	public static void main(String... args) throws IOException, InterruptedException {
 		if(args.length != 3) {
-			System.out.println("args are: serverUrl loginHandle password");
+			LOG.error("args are: serverUrl loginHandle password");
 			return;
 		}
 		Config config = new Config();
@@ -28,7 +34,7 @@ public class Main {
 		config.loginHandle = args[1];
 		config.password = args[2];
 
-		System.out.println("initializing services...");
+		LOG.info("initializing services...");
 		Gson gson = new GsonBuilder().registerTypeAdapter(PollEvent.class, new PollEventDeserializer()).create();
 		HttpService httpService = new HttpService(config, gson);
 		ApiService apiService = new ApiService(httpService);
@@ -37,22 +43,22 @@ public class Main {
 		MatchService matchService = new MatchService(apiService, apiService.getSelf().id, botService);
 
 		int pollingId = apiService.subscribePolling();
-		System.out.println("accepting match requests...");
+		LOG.info("accepting match requests...");
 		for (MatchRequestTo request : apiService.getRequestedMatches()) {
 			matchService.handleMatchRequest(request);
 		}
 
-		System.out.println("processing running matches...");
+		LOG.info("processing running matches...");
 		for (UUID matchId : apiService.getActiveMatches()) {
 			ChessMatchTo match = apiService.getMatch(matchId);
 			matchService.handleMatch(match);
 		}
 
-		System.out.println("started polling");
+		LOG.info("started polling");
 		while (true) {
-			System.out.println("polling...");
+			LOG.info("polling...");
 			for (PollEvent<?> event : apiService.poll(pollingId)) {
-				System.out.println("handling " + gson.toJson(event));
+				LOG.info("handling " + gson.toJson(event));
 				if (event instanceof MatchRequestedEvent) {
 					matchService.handleMatchRequest(((MatchRequestedEvent) event).getData());
 				} else if (event instanceof MatchStartedEvent) {
@@ -67,7 +73,7 @@ public class Main {
 					}
 				}
 			}
-			System.out.println("finished iteration, sleeping...");
+			LOG.info("finished iteration, sleeping...");
 			Thread.sleep(1000);
 		}
 	}

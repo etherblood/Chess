@@ -82,8 +82,12 @@ public class PollService {
             throw new RuntimeException();
         }
         DeferredResult<List<PollEvent<?>>> deferredResult = new DeferredResult<>(null, Collections.emptyList());
-        client.replace(deferredResult);// previous result is discarded
+        DeferredResult<List<PollEvent<?>>> discardedResult = client.replace(deferredResult);
+        if(discardedResult != null) {
+        	LOG.warn("discarded deferredResult of client(id={})", clientId);
+        }
         client.setHeartbeat(Instant.now());
+        client.tryResolve();
         return deferredResult;
     }
 

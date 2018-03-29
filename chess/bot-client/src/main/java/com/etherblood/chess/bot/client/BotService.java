@@ -34,6 +34,9 @@ public class BotService {
 			selectedMove = moveBuffer[indexOf(moveBuffer, moveCount, selectedMove)];
 			moveExecutor.makeMove(state, selectedMove);
 		}
+		if(gen.generateMoves(state, moveBuffer, 0) == 0) {
+			return null;
+		}
 		bot.setState(state);
 		Move move = bot.compute(8);
 		return ChessModelConverter.convertMove(move);

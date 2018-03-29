@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.etherblood.chess.api.PollEvent;
@@ -18,6 +20,7 @@ import com.etherblood.chess.api.PollEvent;
  * @author Philipp
  */
 public class PollClient {
+	private final static Logger LOG = LoggerFactory.getLogger(PollClient.class);
 
 	private final int id;
 	private final UUID userId;
@@ -47,24 +50,31 @@ public class PollClient {
 	public void setHeartbeat(Instant heartbeat) {
 		Objects.requireNonNull(heartbeat);
 		this.heartbeat = heartbeat;
+		LOG.debug("updated heartbeat to {} for client(userId={},clientId={})", heartbeat, userId, id);
 	}
 
 	public void offer(PollEvent<?> event) {
 		Objects.requireNonNull(event);
 		eventQueue.add(event);
+		LOG.debug("added event {} to queue of client(userId={},clientId={})", event, userId, id);
 	}
 
 	public void tryResolve() {
-		DeferredResult<List<PollEvent<?>>> result = replace(null);
+		DeferredResult<List<PollEvent<?>>> result = deferredResult.getAndSet(null);
 		if (result == null) {
 			return;
 		}
 		List<PollEvent<?>> events = pollEvents();
 		if (events.isEmpty() && deferredResult.compareAndSet(null, result)) {
-			// deferredResult is discarded if replacement was added in the meantime
+			// deferredResult is discarded if replacement was set in the meantime
 			return;
 		}
-		result.setResult(events);
+		// events might be empty if an other deferredResult was set in the meantime
+		if(result.setResult(events)) {
+			LOG.debug("resolved events {} for client(userId={},clientId={})", events, userId, id);
+		} else {
+			LOG.error("lost events {} for client(userId={},clientId={})", events, userId, id);
+		}
 	}
 
 	public List<PollEvent<?>> pollEvents() {
