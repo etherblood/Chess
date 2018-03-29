@@ -36,6 +36,7 @@ public class Main {
 		BotService botService = new BotService(bot);
 		MatchService matchService = new MatchService(apiService, apiService.getSelf().id, botService);
 
+		int pollingId = apiService.subscribePolling();
 		System.out.println("accepting match requests...");
 		for (MatchRequestTo request : apiService.getRequestedMatches()) {
 			matchService.handleMatchRequest(request);
@@ -47,7 +48,6 @@ public class Main {
 			matchService.handleMatch(match);
 		}
 
-		int pollingId = apiService.subscribePolling();
 		System.out.println("started polling");
 		while (true) {
 			System.out.println("polling...");
