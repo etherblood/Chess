@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.etherblood.chess.engine.ChessState;
+import com.etherblood.chess.engine.HistoryState;
 import com.etherblood.chess.engine.moves.Move;
 import com.etherblood.chess.engine.moves.generators.MoveGenerator;
 import com.etherblood.chess.engine.moves.handlers.MoveExecutor;
@@ -14,7 +15,7 @@ public class ChessWrapper {
 	private final Move[] buffer;
 
 	public ChessWrapper() {
-		this(new MoveExecutor(), new MoveGenerator(), MoveGenerator.createBuffer(256));
+		this(new MoveExecutor(), new MoveGenerator());
 	}
 
 	public ChessWrapper(MoveExecutor exe, MoveGenerator gen) {
@@ -80,18 +81,25 @@ public class ChessWrapper {
 		return gen.isKingThreatened(state) && legalMoves(state).isEmpty();
 	}
 	
+	public boolean isStalemate(ChessState state) {
+		return !gen.isKingThreatened(state) && legalMoves(state).isEmpty();
+	}
+	
 	public boolean isFiftyRule(ChessState state) {
 		return state.currentHistory().fiftyRule >= 100;
 	}
 	
-	public boolean isRepetitionDraw(ChessState state) {
-		int repetitions = 0;
-		for (int i = 0; i < state.moveCounter; i++) {
-			if (state.history[i].hash == state.currentHistory().hash) {
-				repetitions++;
-			}
-		}
-		return repetitions >= 2;
+	public boolean is3FoldRepetition(ChessState state) {
+        HistoryState history = state.currentHistory();
+        long hash = history.hash;
+        int limit = state.moveCounter - history.fiftyRule;
+        int repetitions = 0;
+        for (int i = state.moveCounter - 4; i >= limit; i -= 2) {
+            if (state.history[i].hash == hash) {
+                repetitions++;
+            }
+        }
+        return repetitions >= 2;
 	}
 	
 	public boolean insufficientMatingMaterial(ChessState state) {
@@ -113,40 +121,7 @@ public class ChessWrapper {
 	}
 
 	public boolean isGameOver(ChessState state) {
-		int moves = gen.generateMoves(state, buffer, 0);
-		boolean noMoves = true;
-		for (int i = 0; noMoves && i < moves; i++) {
-			exe.makeMove(state, buffer[i]);
-			noMoves &= gen.isThreateningKing(state);
-			exe.unmakeMove(state, buffer[i]);
-		}
-		if (noMoves) {
-			if (gen.isKingThreatened(state)) {
-				System.out.println("mate - " + (Player.isWhite(state.currentPlayer()) ? "black" : "white") + " won");
-			} else {
-				System.out.println("stalemate");
-			}
-			return true;
-		}
-		if (state.currentHistory().fiftyRule >= 100) {
-			System.out.println("50 rule");
-			return true;
-		}
-		int repetitions = 0;
-		for (int i = 0; i < state.moveCounter; i++) {
-			if (state.history[i].hash == state.currentHistory().hash) {
-				repetitions++;
-			}
-		}
-		if (repetitions == 2) {
-			System.out.println("3 fold repetition");
-			return true;
-		}
-		if(insufficientMatingMaterial(state)) {
-			System.out.println("insufficient mating material");
-			return true;
-		}
-		return false;
+		return legalMoves(state).isEmpty() || isFiftyRule(state) || is3FoldRepetition(state) || insufficientMatingMaterial(state);
 	}
 
 	public void makeMove(ChessState state, Move move) {

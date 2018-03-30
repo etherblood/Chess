@@ -159,7 +159,7 @@ public class MatchService {
     			return ChessResult.DRAW;
     		}
     	}
-    	if(chessWrapper.isFiftyRule(state) || chessWrapper.isRepetitionDraw(state) || chessWrapper.insufficientMatingMaterial(state)) {
+    	if(chessWrapper.isFiftyRule(state) || chessWrapper.is3FoldRepetition(state) || chessWrapper.insufficientMatingMaterial(state)) {
 			return ChessResult.DRAW;
     	}
 		return ChessResult.UNDECIDED;
