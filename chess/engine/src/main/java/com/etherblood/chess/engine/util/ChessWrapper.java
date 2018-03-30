@@ -93,6 +93,24 @@ public class ChessWrapper {
 		}
 		return repetitions >= 2;
 	}
+	
+	public boolean insufficientMatingMaterial(ChessState state) {
+		if ((state.pieceMasks[Piece.W_PAWN] | state.pieceMasks[Piece.B_PAWN]) == 0) {
+            long whitePieces = state.playerMasks[Player.WHITE] ^ state.pieceMasks[Piece.W_KING];
+            long blackPieces = state.playerMasks[Player.BLACK] ^ state.pieceMasks[Piece.B_KING];
+            long allPieces = whitePieces | blackPieces;
+            
+            long allKnights = state.pieceMasks[Piece.W_KNIGHT] | state.pieceMasks[Piece.B_KNIGHT];
+            if((allKnights & (allKnights - 1)) == 0) {
+                if (allKnights == allPieces) {
+                    return true;
+                }
+                long allBishops = state.pieceMasks[Piece.W_BISHOP] | state.pieceMasks[Piece.B_BISHOP];
+                return (allBishops == allPieces && ((allBishops & Mask.WHITE_SQUARES) == 0 || (allBishops & Mask.BLACK_SQUARES) == 0));
+            }
+        }
+		return false;
+	}
 
 	public boolean isGameOver(ChessState state) {
 		int moves = gen.generateMoves(state, buffer, 0);
@@ -122,6 +140,10 @@ public class ChessWrapper {
 		}
 		if (repetitions == 2) {
 			System.out.println("3 fold repetition");
+			return true;
+		}
+		if(insufficientMatingMaterial(state)) {
+			System.out.println("insufficient mating material");
 			return true;
 		}
 		return false;
