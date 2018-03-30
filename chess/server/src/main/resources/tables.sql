@@ -150,7 +150,9 @@ CREATE TABLE public.chessmatch
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT chessmatch_black_id_fkey FOREIGN KEY (black_id)
       REFERENCES public.account (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT chessmatch_ended_matches_result CHECK ((ended IS NULL) = (result = 'UNDECIDED')),
+  CONSTRAINT chessmatch_ended_matches_started CHECK (ended IS NULL OR started IS NOT NULL)
 )
 WITH (
   OIDS=FALSE
