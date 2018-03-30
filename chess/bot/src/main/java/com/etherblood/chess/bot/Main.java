@@ -10,6 +10,7 @@ import com.etherblood.chess.engine.moves.Move;
 import com.etherblood.chess.engine.moves.generators.MoveGenerator;
 import com.etherblood.chess.engine.transpositions.PerftTranspositionTable;
 import com.etherblood.chess.engine.util.Board;
+import com.etherblood.chess.engine.util.ChessWrapper;
 import com.etherblood.chess.engine.util.Piece;
 import com.etherblood.chess.engine.util.Player;
 import java.util.ArrayList;
@@ -84,49 +85,14 @@ public class Main {
         PvsBucketBot botB = new PvsBucketBot(new PstEvaluation());
         botB.setState(state);
         Bot[] bots = new Bot[]{botA, botB};
-        while (!isGameOver(state)) {
+        ChessWrapper chessWrapper = new ChessWrapper(exe, new MoveGenerator());
+        while (!chessWrapper.isGameOver(state)) {
             System.out.println("bot" + state.currentPlayer() + " computing...");
             Move botMove = bots[state.currentPlayer()].compute(7);
             System.out.println(botMove.toString());
             exe.makeMove(state, botMove);
             printer.print(state.pieces);
         }
-    }
-    
-    public static boolean isGameOver(ChessState state) {
-        MoveExecutor exe = new MoveExecutor();
-        MoveGenerator gen = new MoveGenerator();
-        Move[] buffer = MoveGenerator.createBuffer(100);
-        int moves = gen.generateMoves(state, buffer, 0);
-        boolean noMoves = true;
-        for (int i = 0; noMoves && i < moves; i++) {
-            exe.makeMove(state, buffer[i]);
-            noMoves &= gen.isThreateningKing(state);
-            exe.unmakeMove(state, buffer[i]);
-        }
-        if(noMoves) {
-            if(gen.isKingThreatened(state)) {
-                System.out.println("mate - " + (Player.isWhite(state.currentPlayer())? "black" : "white") + " won");
-            } else {
-                System.out.println("stalemate");
-            }
-            return true;
-        }
-        if(state.currentHistory().fiftyRule >= 100) {
-            System.out.println("50 rule");
-            return true;
-        }
-        int repetitions = 0;
-        for (int i = 0; i < state.moveCounter; i++) {
-            if(state.history[i].hash == state.currentHistory().hash) {
-                repetitions++;
-            }
-        }
-        if(repetitions == 2) {
-            System.out.println("3 fold repetition");
-            return true;
-        }
-        return false;
     }
 
     private static void game(int botFlags) {
@@ -141,8 +107,9 @@ public class Main {
         bot.setState(state);
         Move[] buffer = MoveGenerator.createBuffer(500);
 
+        ChessWrapper chessWrapper = new ChessWrapper();
         try (Scanner s = new Scanner(System.in)) {
-            while (!isGameOver(state)) {
+			while (!chessWrapper.isGameOver(state)) {
                 if (((1 << state.currentPlayer()) & botFlags) == 0) {
                     System.out.println("your turn...");
                     String line = s.nextLine();

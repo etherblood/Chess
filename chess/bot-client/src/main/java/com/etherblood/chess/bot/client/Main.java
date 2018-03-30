@@ -73,8 +73,8 @@ public class Main {
 					}
 				}
 			}
-			LOG.info("finished iteration, sleeping...");
-			Thread.sleep(1000);
+			LOG.info("finished iteration");
+			Thread.sleep(100);
 		}
 	}
 }

@@ -116,15 +116,11 @@ public class ChessModelConverter {
 		return new Move(ChessSquare.toInt(move.from), ChessSquare.toInt(move.to), 0, type);
 	}
 
-	public static Move convertMove(MatchMove move, boolean whiteToMove) {
-		return new Move(convertSquare(move.getFrom()), convertSquare(move.getTo()), Piece.EMPTY, convertMoveType(move.getType(), whiteToMove));
-	}
-
 	public static ChessMove convertMove(MatchMove move) {
 		return new ChessMove(move.getType(), move.getFrom(), move.getTo());
 	}
 	
-	private static int convertSquare(ChessSquare square) {
+	public static int convertSquare(ChessSquare square) {
 		return ChessSquare.toInt(square);
 	}
 }

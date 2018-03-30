@@ -1,5 +1,7 @@
 package com.etherblood.chess.server.match;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -11,12 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.etherblood.chess.api.match.ChessMatchTo;
+import com.etherblood.chess.api.match.ChessResult;
 import com.etherblood.chess.api.match.moves.ChessMove;
 import com.etherblood.chess.engine.ChessSetup;
 import com.etherblood.chess.engine.ChessState;
-import com.etherblood.chess.engine.moves.Move;
-import com.etherblood.chess.engine.moves.generators.MoveGenerator;
-import com.etherblood.chess.engine.moves.handlers.MoveExecutor;
+import com.etherblood.chess.engine.util.ChessWrapper;
+import com.etherblood.chess.engine.util.Player;
 import com.etherblood.chess.server.match.model.ChessMatch;
 import com.etherblood.chess.server.match.model.MatchMove;
 import com.etherblood.chess.server.match.model.MatchRequest;
@@ -63,7 +65,6 @@ public class MatchService {
     	if(!currentUserId.equals(config.whiteId) && !currentUserId.equals(config.blackId)) {
     		throw new IllegalStateException("cant create matches for other users");
     	}
-    	//TODO: validate startFen
     	Account whiteProxy = matchRepo.proxyById(Account.class, config.whiteId);
     	Account blackProxy = matchRepo.proxyById(Account.class, config.blackId);
     	ChessMatch match = new ChessMatch();
@@ -71,6 +72,10 @@ public class MatchService {
     	match.setWhite(whiteProxy);
 		match.setBlack(blackProxy);
 		match.setStartFen(config.startFen != null? config.startFen: ChessSetup.DEFAULT_STARTPOSITION);
+		updateMatchResult(match, Collections.emptyList());
+		if(match.getResult() != ChessResult.UNDECIDED) {
+			throw new IllegalStateException("may not create already ended match");
+		}
     	matchRepo.persist(match);
     	
     	MatchRequest request = new MatchRequest();
@@ -94,7 +99,7 @@ public class MatchService {
     }
     
     @Transactional
-    public void makeMove(UUID matchId, ChessMove move) {
+    public ChessMatch makeMove(UUID matchId, ChessMove move) {
     	ChessMatch match = matchRepo.getMatchById(matchId);
     	List<MatchMove> moves = matchRepo.getMatchMoves(matchId);
     	boolean whiteToMove = (moves.size() & 1) == 0;
@@ -107,8 +112,6 @@ public class MatchService {
     			throw new IllegalStateException("current player is not black player of this match");
     		}
     	}
-    	Move stateMove = ChessModelConverter.convertMove(move, whiteToMove);
-    	validateNextMove(moves, stateMove, match.getStartFen());
     	
     	MatchMove matchMove = new MatchMove();
     	matchMove.setId(UUID.randomUUID());
@@ -118,39 +121,48 @@ public class MatchService {
     	matchMove.setIndex(moves.size());
     	matchMove.setMatch(match);
     	matchRepo.persist(matchMove);
-    	
-    	//TODO: end match if move game-ending
     	LOG.info("applied {}", matchMove);
-    }
-    
-    private void validateNextMove(List<MatchMove> moves, Move nextMove, String startFen) {
-    	//TODO
     	
-    	ChessState state = stateFromMoves(moves, startFen);
-//    	MoveGenerator moveGen = new MoveGenerator();
-//    	Move[] moveBuffer = MoveGenerator.createBuffer(1000);
-//    	for (int i = 0; i < moveBuffer.length; i++) {
-//			moveBuffer[i] = new Move();
-//		}
-//    	int moveCount = moveGen.generateMoves(state, moveBuffer, 0);
-//    	for (int i = 0; i < moveCount; i++) {
-//			Move move = moveBuffer[i];
-//			if(move.from == nextMove.from && move.to == nextMove.to && move.info == nextMove.info) {
-//				return;
-//			}
-//		}
-//    	throw new IllegalStateException("invalid move " + nextMove);
+    	List<MatchMove> allMoves = new ArrayList<>();
+    	allMoves.addAll(moves);
+    	allMoves.add(matchMove);
+    	
+    	updateMatchResult(match, allMoves);
+    	return match;
     }
+
+	private void updateMatchResult(ChessMatch match, List<MatchMove> allMoves) {
+		ChessResult matchResult = getMatchResult(allMoves, match.getStartFen());
+		match.setResult(matchResult);
+    	if(matchResult != ChessResult.UNDECIDED) {
+    		match.setEnded(new Date());
+        	LOG.info("{} ended", match);
+    	}
+	}
     
-    private ChessState stateFromMoves(List<MatchMove> moves, String startFen) {
+    private ChessResult getMatchResult(List<MatchMove> moves, String startFen) {
+    	ChessWrapper chessWrapper = new ChessWrapper();
     	ChessState state = new ChessState();
-        new ChessSetup().fromFen(state, startFen);
-        MoveExecutor executor = new MoveExecutor();
-        boolean whiteToMove = true;
-        for (MatchMove move : moves) {
-            executor.makeMove(state, ChessModelConverter.convertMove(move, whiteToMove));
-        }
-        return state;
+    	ChessSetup setup = new ChessSetup();
+    	setup.fromFen(state, startFen);
+    	for (MatchMove move : moves) {
+			int moveInfo = ChessModelConverter.convertMoveType(move.getType(), state.currentPlayer() == Player.WHITE);
+			int from = ChessModelConverter.convertSquare(move.getFrom());
+			int to = ChessModelConverter.convertSquare(move.getTo());
+			chessWrapper.makeMove(state, chessWrapper.find(state, from, to, moveInfo));
+		}
+    	
+    	if(chessWrapper.isKingChecked(state)) {
+    		if(chessWrapper.legalMoves(state).isEmpty()) {
+    			return state.currentPlayer() == Player.WHITE? ChessResult.BLACK_VICTORY: ChessResult.WHITE_VICTORY;
+    		} else {
+    			return ChessResult.DRAW;
+    		}
+    	}
+    	if(chessWrapper.isFiftyRule(state) || chessWrapper.isRepetitionDraw(state)) {
+			return ChessResult.DRAW;
+    	}
+		return ChessResult.UNDECIDED;
     }
 
 }

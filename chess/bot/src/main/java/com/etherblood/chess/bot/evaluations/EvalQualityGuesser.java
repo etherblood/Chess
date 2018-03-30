@@ -9,6 +9,7 @@ import com.etherblood.chess.bot.PvsBucketBot;
 import com.etherblood.chess.engine.moves.Move;
 import com.etherblood.chess.engine.moves.generators.MoveGenerator;
 import com.etherblood.chess.engine.moves.handlers.MoveExecutor;
+import com.etherblood.chess.engine.util.ChessWrapper;
 import com.etherblood.chess.engine.util.Score;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +48,8 @@ public class EvalQualityGuesser {
         long sum = 0, count = 0;
 //        for (String fen : TEST_POSITIONS) {
 //            setup.fromFen(state, fen);
-        while(!Main.isGameOver(state)) {
+        ChessWrapper chessWrapper = new ChessWrapper();
+		while(!chessWrapper.isGameOver(state)) {
             String fen = ChessPrinter.toFen(state);
             
             Move move = bot.compute(3);

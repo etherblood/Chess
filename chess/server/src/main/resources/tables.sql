@@ -130,6 +130,7 @@ ALTER TABLE public.login
 
 CREATE INDEX login_account_id_idx ON public.login (account_id);
   
+CREATE TYPE chessresult AS ENUM ('UNDECIDED', 'WHITE_VICTORY', 'BLACK_VICTORY', 'DRAW');
 
 CREATE TABLE public.chessmatch
 (
@@ -142,6 +143,7 @@ CREATE TABLE public.chessmatch
   started timestamp without time zone,
   black_id uuid NOT NULL,
   white_id uuid NOT NULL,
+  result chessresult NOT NULL,
   CONSTRAINT chessmatch_pkey PRIMARY KEY (id),
   CONSTRAINT chessmatch_white_id_fkey FOREIGN KEY (white_id)
       REFERENCES public.account (id) MATCH SIMPLE

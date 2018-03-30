@@ -83,35 +83,7 @@ public class ChessModelConverter {
 	}
 
 	public static Move convertMove(ChessMove move, boolean whiteToMove) {
-		int type;
-		switch (move.type) {
-		case SIMPLE:
-			type = Piece.EMPTY;
-			break;
-		case PAWN_JUMP:
-			type = Piece.RESERVED_1;
-			break;
-		case EN_PASSANT:
-			type = Piece.RESERVED_2;
-			break;
-		case CASTLING:
-			type = Piece.RESERVED_3;
-			break;
-		case PROMOTION_KNIGHT:
-			type = whiteToMove ? Piece.W_KNIGHT : Piece.B_KNIGHT;
-			break;
-		case PROMOTION_BISHOP:
-			type = whiteToMove ? Piece.W_BISHOP : Piece.B_BISHOP;
-			break;
-		case PROMOTION_ROOK:
-			type = whiteToMove ? Piece.W_ROOK : Piece.B_ROOK;
-			break;
-		case PROMOTION_QUEEN:
-			type = whiteToMove ? Piece.W_QUEEN : Piece.B_QUEEN;
-			break;
-		default:
-			throw new AssertionError();
-		}
+		int type = convertMoveType(move.type, whiteToMove);
 		return new Move(ChessSquare.toInt(move.from), ChessSquare.toInt(move.to), 0, type);
 	}
 

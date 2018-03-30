@@ -64,16 +64,26 @@ public class PollClient {
 		if (result == null) {
 			return;
 		}
+		if (result.isSetOrExpired()) {
+			LOG.warn("removed {} deferred result of client(userId={},clientId={})",
+					result.hasResult() ? "resolved" : "expired", userId, id);
+			return;
+		}
 		List<PollEvent<?>> events = pollEvents();
 		if (events.isEmpty() && deferredResult.compareAndSet(null, result)) {
+			LOG.debug("deferredResult for client(userId={},clientId={}) was replaced", events, userId, id);
 			// deferredResult is discarded if replacement was set in the meantime
 			return;
 		}
 		// events might be empty if an other deferredResult was set in the meantime
-		if(result.setResult(events)) {
+		if (result.setResult(events)) {
 			LOG.debug("resolved events {} for client(userId={},clientId={})", events, userId, id);
 		} else {
-			LOG.error("lost events {} for client(userId={},clientId={})", events, userId, id);
+			LOG.error("failed to send events {} for client(userId={},clientId={}, putting them back into the queue...)",
+					events, userId, id);
+			for (PollEvent<?> pollEvent : events) {
+				offer(pollEvent);
+			}
 		}
 	}
 

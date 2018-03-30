@@ -30,7 +30,8 @@ public class PollService {
     private final static Logger LOG = LoggerFactory.getLogger(PollService.class);
     private final UserContextService userContextService;
     private final Map<Integer, PollClient> clients = new ConcurrentHashMap<>();
-    private final long timeoutSeconds = 300;
+    private final long clientTimeoutSeconds = 300;
+    private final long pollTimeoutMillis = 30000;
 
     @Autowired
     public PollService(UserContextService userContextService) {
@@ -79,12 +80,12 @@ public class PollService {
         UUID currentUserId = userContextService.currentUserId();
         PollClient client = clients.get(clientId);
         if (!currentUserId.equals(client.getUserId())) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
-        DeferredResult<List<PollEvent<?>>> deferredResult = new DeferredResult<>(null, Collections.emptyList());
+        DeferredResult<List<PollEvent<?>>> deferredResult = new DeferredResult<>(pollTimeoutMillis, Collections.emptyList());
         DeferredResult<List<PollEvent<?>>> discardedResult = client.replace(deferredResult);
         if(discardedResult != null) {
-        	LOG.warn("discarded deferredResult of client(id={})", clientId);
+        	LOG.debug("discarded deferredResult of client(id={})", clientId);
         }
         client.setHeartbeat(Instant.now());
         client.tryResolve();
@@ -106,7 +107,7 @@ public class PollService {
 
     @Scheduled(fixedRate = 30000)
     public void timeoutClients() {
-        Instant timeout = Instant.now().minusSeconds(timeoutSeconds);
+        Instant timeout = Instant.now().minusSeconds(clientTimeoutSeconds);
         for (PollClient client : clients.values()) {
             if (client.getHeartbeat().isBefore(timeout)) {
                 clients.remove(client.getId());

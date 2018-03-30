@@ -2,7 +2,6 @@ package com.etherblood.chess.engine.moves.handlers;
 
 import com.etherblood.chess.engine.ChessState;
 import com.etherblood.chess.engine.moves.Move;
-import com.etherblood.chess.engine.util.Board;
 import com.etherblood.chess.engine.util.Mask;
 import com.etherblood.chess.engine.util.Piece;
 

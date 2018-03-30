@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -12,11 +14,15 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
+import com.etherblood.chess.api.match.ChessResult;
 import com.etherblood.chess.server.persistence.MutableEntity;
+import com.etherblood.chess.server.persistence.PostgreSQLEnumType;
 import com.etherblood.chess.server.user.account.model.Account;
 
 @Entity
+@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 public class ChessMatch extends MutableEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -38,6 +44,11 @@ public class ChessMatch extends MutableEntity {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date ended;
 
+	@NotNull
+	@Enumerated(EnumType.STRING)
+    @Type( type = "pgsql_enum" )
+	private ChessResult result;
+	
 	@NotNull
 	private String startFen;
 
@@ -89,10 +100,18 @@ public class ChessMatch extends MutableEntity {
 		this.startFen = startFen;
 	}
 
+	public ChessResult getResult() {
+		return result;
+	}
+
+	public void setResult(ChessResult result) {
+		this.result = result;
+	}
+
 	@Override
 	public String toString() {
-		return "Match[id=" + id + ", whiteId=" + white.getId() + ", blackId=" + black.getId() + ", started=" + started
-				+ ", ended=" + ended + ", startFen=" + startFen + "]";
+		return "ChessMatch [id=" + id + ", white=" + white + ", black=" + black + ", started=" + started + ", ended="
+				+ ended + ", result=" + result + ", startFen=" + startFen + "]";
 	}
 
 }

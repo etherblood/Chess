@@ -32,6 +32,9 @@ public class Piece {
     public static int asOpponentPiece(int piece) {
         return piece ^ 1;
     }
+    public static int asPieceWithOwner(int piece, int owner) {
+        return asWhitePiece(piece) | owner;
+    }
     
     public static boolean isWhite(int piece) {
         return owner(piece) == Player.WHITE;
