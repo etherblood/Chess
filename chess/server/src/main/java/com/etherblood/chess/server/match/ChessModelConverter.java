@@ -42,7 +42,7 @@ public class ChessModelConverter {
 			break;
 		case Piece.W_QUEEN:
 		case Piece.B_QUEEN:
-			type = MoveType.PROMOTION_KNIGHT;
+			type = MoveType.PROMOTION_QUEEN;
 			break;
 		default:
 			throw new AssertionError();
