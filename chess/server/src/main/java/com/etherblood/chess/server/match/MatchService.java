@@ -156,8 +156,8 @@ public class MatchService {
 			chessWrapper.makeMove(state, chessWrapper.find(state, from, to, moveInfo));
 		}
 
-		if (chessWrapper.isKingChecked(state)) {
-			if (chessWrapper.legalMoves(state).isEmpty()) {
+		if (chessWrapper.legalMoves(state).isEmpty()) {
+			if (chessWrapper.isKingChecked(state)) {
 				return state.currentPlayer() == Player.WHITE ? ChessResult.BLACK_VICTORY : ChessResult.WHITE_VICTORY;
 			} else {
 				return ChessResult.DRAW;
