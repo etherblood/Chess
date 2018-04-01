@@ -1,8 +1,8 @@
 CREATE TABLE public.account
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
-  updated timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   username text NOT NULL,
   CONSTRAINT account_pkey PRIMARY KEY (id)
@@ -18,7 +18,7 @@ CREATE TYPE receivertype AS ENUM ('LOBBY', 'ACCOUNT');
 CREATE TABLE public.chatmessage
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
   receiver_id uuid NOT NULL,
   receivertype receivertype NOT NULL,
   sender_id uuid NOT NULL,
@@ -38,8 +38,8 @@ CREATE INDEX chatmessage_created_idx ON public.chatmessage (created);
 CREATE TABLE public.emailaddress
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
-  updated timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   address text NOT NULL,
   account_id uuid NOT NULL,
@@ -59,8 +59,8 @@ CREATE INDEX emailaddress_account_id_idx ON public.emailaddress (account_id);
 CREATE TABLE public.lobby
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
-  updated timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   ispublic boolean NOT NULL,
   name text NOT NULL,
@@ -83,8 +83,8 @@ CREATE TYPE membershiptype AS ENUM ('INVITED', 'REQUESTED', 'MEMBER', 'BANNED');
 CREATE TABLE public.lobbymembership
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
-  updated timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   membershiptype membershiptype NOT NULL,
   account_id uuid NOT NULL,
@@ -110,8 +110,8 @@ CREATE INDEX lobbymembership_lobby_id_idx ON public.lobbymembership (lobby_id);
 CREATE TABLE public.login
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
-  updated timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   loginhandle text NOT NULL,
   password text NOT NULL,
@@ -135,12 +135,12 @@ CREATE TYPE chessresult AS ENUM ('UNDECIDED', 'WHITE_VICTORY', 'BLACK_VICTORY', 
 CREATE TABLE public.chessmatch
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
-  updated timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
-  ended timestamp without time zone,
+  ended TIMESTAMP WITH TIME ZONE,
   startfen text NOT NULL,
-  started timestamp without time zone,
+  started TIMESTAMP WITH TIME ZONE,
   black_id uuid NOT NULL,
   white_id uuid NOT NULL,
   result chessresult NOT NULL,
@@ -182,7 +182,7 @@ CREATE TYPE chessmovetype AS ENUM ('SIMPLE','PAWN_JUMP','EN_PASSANT','CASTLING',
 CREATE TABLE public.matchmove
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
   fromsquare chesssquare NOT NULL,
   moveindex integer NOT NULL,
   tosquare chesssquare NOT NULL,
@@ -206,7 +206,7 @@ ALTER TABLE public.matchmove
 CREATE TABLE public.matchrequest
 (
   id uuid NOT NULL,
-  created timestamp without time zone NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
   match_id uuid NOT NULL,
   player_id uuid NOT NULL,
   CONSTRAINT matchrequest_pkey PRIMARY KEY (id),
