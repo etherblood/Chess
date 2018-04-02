@@ -2,6 +2,7 @@ package com.etherblood.chess.server.test;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,22 +46,25 @@ public class TestDbManager {
 			}
 		}
 		
-		Map<Class<?>, EntityType<?>> result = new LinkedHashMap<>();
-		int iterations = 0;
-		while(result.size() != dependencies.size()) {
-			if(iterations++ > 100) {
-				throw new IllegalStateException();
-			}
+		Map<Class<?>, EntityType<?>> resolvedEntities = new LinkedHashMap<>();
+		int previousCount = -1;
+		while(previousCount != resolvedEntities.size()) {
+			previousCount = resolvedEntities.size();
 			for (EntityType<?> entityType : entities) {
-				if(result.containsKey(entityType.getJavaType())) {
+				if(resolvedEntities.containsKey(entityType.getJavaType())) {
 					continue;
 				}
-				if(new ArrayList<>(result.keySet()).containsAll(dependencies.get(entityType.getJavaType()))) {
-					result.put(entityType.getJavaType(), entityType);
+				if(new ArrayList<>(resolvedEntities.keySet()).containsAll(dependencies.get(entityType.getJavaType()))) {
+					resolvedEntities.put(entityType.getJavaType(), entityType);
 				}
 			}
 		}
-		entityTypes = new ArrayList<>(result.values());
+		if(resolvedEntities.size() != entities.size()) {
+			ArrayList<EntityType<?>> list = new ArrayList<>(entities);
+			list.removeAll(resolvedEntities.values());
+			throw new IllegalStateException("cyclic foreign keys contained in " + Arrays.toString(list.toArray()));
+		}
+		entityTypes = new ArrayList<>(resolvedEntities.values());
 		Collections.reverse(entityTypes);
 	}
 

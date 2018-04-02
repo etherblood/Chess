@@ -23,6 +23,8 @@ function MatchController(matchDiv, selectedMatch, matchService, ownAccount) {
 	matchDiv.append(boardDiv);
 	let lowerPlayerDiv = $("<div/>");
 	matchDiv.append(lowerPlayerDiv);
+	let moveHistoryDiv = $("<div/>");
+	matchDiv.append(moveHistoryDiv);
 	
 	let updatePieceDivSquare = function(pieceDiv,square) {
 		pieceDiv.attr('class',
@@ -106,6 +108,8 @@ function MatchController(matchDiv, selectedMatch, matchService, ownAccount) {
 		if(~result.flags.indexOf(chess.FLAGS.PROMOTION)) {
 			updatePieceDivType(pieceDivs[m.to], chess.get(m.to));
 		}
+		moveHistoryDiv.append($("<span/>", {text:result.san}));
+		moveHistoryDiv.append($("<span/>", {text:" "}));
 	};
 	
 	selectedMatch.subscribeChangeListener(function(match, oldMatch) {
