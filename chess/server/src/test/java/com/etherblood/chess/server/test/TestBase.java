@@ -12,9 +12,12 @@ public abstract class TestBase {
 
 	@Autowired
 	private TestDbManager testDbManager;
+	@Autowired
+	protected MockTimeService mockTime;
 	
 	@After
 	public void cleanDatabase() {
-		testDbManager.cleanDb();
+		testDbManager.clearDb();
+		mockTime.reset();
 	}
 }

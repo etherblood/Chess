@@ -60,4 +60,13 @@ public class MatchRepository extends AbstractRepository {
 				.orderBy(qRequest.created.asc())
 				.list(qRequest);
 	}
+
+	public List<UUID> historyMatchIds(int page, int pageSize) {
+		return from(qMatch)
+				.where(qMatch.ended.isNotNull())
+				.orderBy(qMatch.started.desc())
+				.offset(page * pageSize)
+				.limit(pageSize)
+				.list(qMatch.id);
+	}
 }

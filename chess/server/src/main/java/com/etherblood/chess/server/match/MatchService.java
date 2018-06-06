@@ -22,6 +22,7 @@ import com.etherblood.chess.engine.util.Player;
 import com.etherblood.chess.server.match.model.ChessMatch;
 import com.etherblood.chess.server.match.model.MatchMove;
 import com.etherblood.chess.server.match.model.MatchRequest;
+import com.etherblood.chess.server.time.TimeService;
 import com.etherblood.chess.server.user.account.model.Account;
 import com.etherblood.chess.server.user.authentication.UserContextService;
 
@@ -36,11 +37,13 @@ public class MatchService {
 
 	private final MatchRepository matchRepo;
 	private final UserContextService userContextService;
+	private final TimeService timeService;
 
 	@Autowired
-	public MatchService(UserContextService userContextService, MatchRepository matchRepo) {
+	public MatchService(UserContextService userContextService, MatchRepository matchRepo, TimeService timeService) {
 		this.userContextService = userContextService;
 		this.matchRepo = matchRepo;
+		this.timeService = timeService;
 	}
 
 	public List<UUID> activeMatchIds() {
@@ -93,7 +96,7 @@ public class MatchService {
 		UUID currentUserId = userContextService.currentUserId();
 		MatchRequest request = matchRepo.getMatchRequestByMatchAndPlayerId(matchId, currentUserId);
 		ChessMatch match = request.getMatch();
-		match.setStarted(new Date());
+		match.setStarted(timeService.now().toDate());
 		matchRepo.remove(request);
 		LOG.info("accepted {}", request);
 		return match;
@@ -139,7 +142,7 @@ public class MatchService {
 		ChessResult matchResult = getMatchResult(allMoves, match.getStartFen());
 		if (matchResult != ChessResult.UNDECIDED) {
 			match.setResult(matchResult);
-			match.setEnded(new Date());
+			match.setEnded(timeService.now().toDate());
 			LOG.info("{} ended", match);
 		}
 	}
@@ -168,6 +171,10 @@ public class MatchService {
 			return ChessResult.DRAW;
 		}
 		return ChessResult.UNDECIDED;
+	}
+
+	public List<UUID> historyMatchIds(int page, int pageSize) {
+		return matchRepo.historyMatchIds(page, pageSize);
 	}
 
 }

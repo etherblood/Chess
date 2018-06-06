@@ -1,52 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:security="http://www.springframework.org/schema/security"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
 						http://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/context
 						http://www.springframework.org/schema/context/spring-context-4.2.xsd">
 
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
-    </bean>
+	<bean id="transactionManager"
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory"
+			ref="entityManagerFactory" />
+	</bean>
 
-    <bean
-        class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
-    <bean
-        class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+	<bean id="timestampInterceptor"
+		class="com.etherblood.chess.server.persistence.TimestampInterceptor" />
+	<bean
+		class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+	<bean
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
 
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-        <!-- Connection properties -->
-        <property name="driverClass" value="org.postgresql.Driver" />
-        <property name="jdbcUrl" value="${jdbc.url}" />
-        <property name="user" value="${jdbc.username}" />
-        <property name="password" value="${jdbc.password}" />
+	<bean id="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<!-- Connection properties -->
+		<property name="driverClass" value="org.postgresql.Driver" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
 
-        <!-- Pool properties -->
-        <property name="minPoolSize" value="3" />
-        <property name="maxPoolSize" value="20" />
-        <property name="maxStatements" value="0" />
-        <property name="idleConnectionTestPeriod" value="100" />
-        <property name="loginTimeout" value="300" />
-    </bean>
+		<!-- Pool properties -->
+		<property name="minPoolSize" value="3" />
+		<property name="maxPoolSize" value="20" />
+		<property name="maxStatements" value="0" />
+		<property name="idleConnectionTestPeriod" value="100" />
+		<property name="loginTimeout" value="300" />
+	</bean>
 
 
-    <bean id="entityManagerFactory"
-          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="packagesToScan" value="com.etherblood.chess.server" />
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <property name="showSql" value="${hibernate.showSql}" />
-            </bean>
-        </property>
-        <property name="jpaProperties">
-            <props>
-                <prop key="hibernate.hbm2ddl.auto">${hibernate.generateDdl}</prop>
-            </props>
-        </property>
-        <property name="dataSource" ref="dataSource" />
-    </bean>
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="packagesToScan"
+			value="com.etherblood.chess.server" />
+		<property name="jpaVendorAdapter">
+			<bean
+				class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="showSql" value="${hibernate.showSql}" />
+			</bean>
+		</property>
+		<property name="jpaPropertyMap">
+			<map>
+				<entry key="hibernate.hbm2ddl.auto"
+					value="${hibernate.generateDdl}"></entry>
+				<entry key="hibernate.query.plan_cache_max_size" value="128"></entry>
+				<entry key="hibernate.ejb.interceptor">
+					<ref bean="timestampInterceptor" />
+				</entry>
+			</map>
+		</property>
+		<property name="dataSource" ref="dataSource" />
+	</bean>
 
 
 </beans>

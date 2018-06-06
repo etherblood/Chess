@@ -54,7 +54,7 @@ public class TestDbManager {
 				if(resolvedEntities.containsKey(entityType.getJavaType())) {
 					continue;
 				}
-				if(new ArrayList<>(resolvedEntities.keySet()).containsAll(dependencies.get(entityType.getJavaType()))) {
+				if(resolvedEntities.keySet().containsAll(dependencies.get(entityType.getJavaType()))) {
 					resolvedEntities.put(entityType.getJavaType(), entityType);
 				}
 			}
@@ -69,7 +69,7 @@ public class TestDbManager {
 	}
 
 	@Transactional
-	public void cleanDb() {
+	public void clearDb() {
 		for (EntityType<?> entityType : entityTypes) {
 			entityManager.createNativeQuery("delete from " + entityType.getName() + ";").executeUpdate();
 		}

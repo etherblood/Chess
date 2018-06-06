@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.etherblood.chess.api.match.ChessMatchTo;
@@ -72,12 +73,13 @@ public class MatchRemoteService {
 	}
 
 	private MatchRequestTo makeTo(MatchRequest request) {
+		ChessMatch match = request.getMatch();
 		MatchRequestTo to = new MatchRequestTo();
-		to.matchId = request.getMatch().getId();
+		to.matchId = match.getId();
 		to.receiverId = request.getPlayer().getId();
-		to.requesterId = request.getMatch().getWhite().getId().equals(to.receiverId)
-				? request.getMatch().getBlack().getId()
-				: request.getMatch().getWhite().getId();
+		to.requesterId = match.getWhite().getId().equals(to.receiverId)
+				? match.getBlack().getId()
+				: match.getWhite().getId();
 		return to;
 	}
 
@@ -85,6 +87,15 @@ public class MatchRemoteService {
 	@RequestMapping(path = "/list")
 	public List<UUID> getActiveMatches() {
 		return matchService.activeMatchIds();
+	}
+
+	@PreAuthorize(value = "hasRole('ROLE_PLAYER')")
+	@RequestMapping(path = "/history/{page}")
+	public List<UUID> getHistoryMatches(@PathVariable(name="page", required=false) Integer page, @RequestParam(name="size", defaultValue="20") int pageSize) {
+		if(page == null) {
+			page = 0;
+		}
+		return matchService.historyMatchIds(page, pageSize);
 	}
 
 	@PreAuthorize(value = "hasRole('ROLE_PLAYER')")
