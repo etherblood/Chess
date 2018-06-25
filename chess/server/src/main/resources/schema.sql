@@ -1,52 +1,25 @@
 CREATE TABLE public.account
 (
-  id uuid NOT NULL,
+  id uuid PRIMARY KEY,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
-  username text NOT NULL,
-  CONSTRAINT account_pkey PRIMARY KEY (id)
+  username text NOT NULL
 )
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE public.account
   OWNER TO chess;
-
-CREATE TYPE receivertype AS ENUM ('LOBBY', 'ACCOUNT');
-  
-CREATE TABLE public.chatmessage
-(
-  id uuid NOT NULL,
-  created TIMESTAMP WITH TIME ZONE NOT NULL,
-  receiver_id uuid NOT NULL,
-  receivertype receivertype NOT NULL,
-  sender_id uuid NOT NULL,
-  messagetext text NOT NULL,
-  CONSTRAINT chatmessage_pkey PRIMARY KEY (id)
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE public.chatmessage
-  OWNER TO chess;
-
-CREATE INDEX chatmessage_receiver_id_idx ON public.chatmessage (receiver_id);
-CREATE INDEX chatmessage_sender_id_idx ON public.chatmessage (sender_id);
-CREATE INDEX chatmessage_created_idx ON public.chatmessage (created);
   
 CREATE TABLE public.emailaddress
 (
-  id uuid NOT NULL,
+  id uuid PRIMARY KEY,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   address text NOT NULL,
-  account_id uuid NOT NULL,
-  CONSTRAINT emailaddress_pkey PRIMARY KEY (id),
-  CONSTRAINT emailaddress_account_id_fkey FOREIGN KEY (account_id)
-      REFERENCES public.account (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  account_id uuid NOT NULL REFERENCES public.account (id) ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
@@ -58,17 +31,13 @@ CREATE INDEX emailaddress_account_id_idx ON public.emailaddress (account_id);
   
 CREATE TABLE public.lobby
 (
-  id uuid NOT NULL,
+  id uuid PRIMARY KEY,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   ispublic boolean NOT NULL,
   name text NOT NULL,
-  owner_id uuid NOT NULL,
-  CONSTRAINT lobby_pkey PRIMARY KEY (id),
-  CONSTRAINT lobby_owner_id_fkey FOREIGN KEY (owner_id)
-      REFERENCES public.account (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  owner_id uuid NOT NULL REFERENCES public.account (id) ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
@@ -77,25 +46,39 @@ ALTER TABLE public.lobby
   OWNER TO chess;
 
 CREATE INDEX lobby_owner_id_idx ON public.lobby (owner_id);
+  
+CREATE TABLE public.chatmessage
+(
+  id uuid PRIMARY KEY,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  receiver_lobby_id uuid REFERENCES public.lobby (id) ON DELETE CASCADE,
+  receiver_account_id uuid REFERENCES public.account (id) ON DELETE CASCADE,
+  sender_id uuid NOT NULL REFERENCES public.account (id) ON DELETE CASCADE,
+  messagetext text NOT NULL,
+  CONSTRAINT chatmessage_receiver_exactly_one CHECK ((receiver_lobby_id IS NULL) <> (receiver_account_id IS NULL))
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.chatmessage
+  OWNER TO chess;
+
+CREATE INDEX chatmessage_receiver_account_id_idx ON public.chatmessage (receiver_account_id);
+CREATE INDEX chatmessage_receiver_lobby_id_idx ON public.chatmessage (receiver_lobby_id);
+CREATE INDEX chatmessage_sender_id_idx ON public.chatmessage (sender_id);
+CREATE INDEX chatmessage_created_idx ON public.chatmessage (created);
 
 CREATE TYPE membershiptype AS ENUM ('INVITED', 'REQUESTED', 'MEMBER', 'BANNED');
   
 CREATE TABLE public.lobbymembership
 (
-  id uuid NOT NULL,
+  id uuid PRIMARY KEY,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   membershiptype membershiptype NOT NULL,
-  account_id uuid NOT NULL,
-  lobby_id uuid NOT NULL,
-  CONSTRAINT lobbymembership_pkey PRIMARY KEY (id),
-  CONSTRAINT lobbymembership_lobby_id_fkey FOREIGN KEY (lobby_id)
-      REFERENCES public.lobby (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT lobbymembership_account_id_fkey FOREIGN KEY (account_id)
-      REFERENCES public.account (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  account_id uuid NOT NULL REFERENCES public.account (id) ON DELETE CASCADE,
+  lobby_id uuid NOT NULL REFERENCES public.lobby (id) ON DELETE CASCADE,
   CONSTRAINT lobbymembership_account_id_lobby_id_ukey UNIQUE (account_id, lobby_id)
 )
 WITH (
@@ -109,18 +92,13 @@ CREATE INDEX lobbymembership_lobby_id_idx ON public.lobbymembership (lobby_id);
 
 CREATE TABLE public.login
 (
-  id uuid NOT NULL,
+  id uuid PRIMARY KEY,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
-  loginhandle text NOT NULL,
+  loginhandle text NOT NULL UNIQUE,
   password text NOT NULL,
-  account_id uuid NOT NULL,
-  CONSTRAINT login_pkey PRIMARY KEY (id),
-  CONSTRAINT login_account_id_fkey FOREIGN KEY (account_id)
-      REFERENCES public.account (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT login_loginhandle_ukey UNIQUE (loginhandle)
+  account_id uuid NOT NULL REFERENCES public.account (id) ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
@@ -134,23 +112,16 @@ CREATE TYPE chessresult AS ENUM ('UNDECIDED', 'WHITE_VICTORY', 'BLACK_VICTORY', 
 
 CREATE TABLE public.chessmatch
 (
-  id uuid NOT NULL,
+  id uuid PRIMARY KEY,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   updated TIMESTAMP WITH TIME ZONE NOT NULL,
   version integer NOT NULL,
   ended TIMESTAMP WITH TIME ZONE,
   startfen text NOT NULL,
   started TIMESTAMP WITH TIME ZONE,
-  black_id uuid NOT NULL,
-  white_id uuid NOT NULL,
+  black_id uuid NOT NULL REFERENCES public.account (id) ON DELETE CASCADE,
+  white_id uuid NOT NULL REFERENCES public.account (id) ON DELETE CASCADE,
   result chessresult NOT NULL,
-  CONSTRAINT chessmatch_pkey PRIMARY KEY (id),
-  CONSTRAINT chessmatch_white_id_fkey FOREIGN KEY (white_id)
-      REFERENCES public.account (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT chessmatch_black_id_fkey FOREIGN KEY (black_id)
-      REFERENCES public.account (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT chessmatch_ended_matches_result CHECK ((ended IS NULL) = (result = 'UNDECIDED')),
   CONSTRAINT chessmatch_ended_matches_started CHECK (ended IS NULL OR started IS NOT NULL)
 )
@@ -181,19 +152,14 @@ CREATE TYPE chessmovetype AS ENUM ('SIMPLE','PAWN_JUMP','EN_PASSANT','CASTLING',
 
 CREATE TABLE public.matchmove
 (
-  id uuid NOT NULL,
+  id uuid PRIMARY KEY,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   fromsquare chesssquare NOT NULL,
-  moveindex integer NOT NULL,
+  moveindex integer NOT NULL CHECK (moveindex >= 0),
   tosquare chesssquare NOT NULL,
   movetype chessmovetype NOT NULL,
-  match_id uuid NOT NULL,
-  CONSTRAINT matchmove_pkey PRIMARY KEY (id),
-  CONSTRAINT matchmove_match_id_fkey FOREIGN KEY (match_id)
-      REFERENCES public.chessmatch (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT matchmove_match_id_moveindex_ukey UNIQUE (match_id, moveindex),
-  CONSTRAINT matchmove_moveindex_nonnegative CHECK (moveindex >= 0)
+  match_id uuid NOT NULL REFERENCES public.chessmatch (id) ON DELETE CASCADE,
+  CONSTRAINT matchmove_match_id_moveindex_ukey UNIQUE (match_id, moveindex)
 )
 WITH (
   OIDS=FALSE
@@ -205,17 +171,10 @@ ALTER TABLE public.matchmove
 
 CREATE TABLE public.matchrequest
 (
-  id uuid NOT NULL,
+  id uuid PRIMARY KEY,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
-  match_id uuid NOT NULL,
-  player_id uuid NOT NULL,
-  CONSTRAINT matchrequest_pkey PRIMARY KEY (id),
-  CONSTRAINT matchrequest_player_id_fkey FOREIGN KEY (player_id)
-      REFERENCES public.account (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT matchrequest_match_id_fkey FOREIGN KEY (match_id)
-      REFERENCES public.chessmatch (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  match_id uuid NOT NULL REFERENCES public.chessmatch (id) ON DELETE CASCADE,
+  player_id uuid NOT NULL REFERENCES public.account (id) ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE

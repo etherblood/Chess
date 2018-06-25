@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import com.etherblood.chess.server.persistence.AbstractRepository;
 import com.etherblood.chess.server.user.chat.model.ChatMessage;
 import com.etherblood.chess.server.user.chat.model.QChatMessage;
-import com.etherblood.chess.server.user.chat.model.ReceiverType;
 
 @Repository
 public class ChatMessageRepository extends AbstractRepository {
@@ -18,17 +17,15 @@ public class ChatMessageRepository extends AbstractRepository {
 
 	public List<ChatMessage> getLobbyMessages(UUID lobbyId) {
 		return from(qMessage)
-				.where(qMessage.receiverType.eq(ReceiverType.LOBBY))
-				.where(qMessage.receiver_id.eq(lobbyId))
+				.where(qMessage.receiver_lobby.id.eq(lobbyId))
 				.orderBy(qMessage.created.desc())
 				.list(qMessage);
 	}
 
 	public List<ChatMessage> getDirectMessages(UUID firstAccountId, UUID secondAccountId, Date olderThan, int limit) {
 		return from(qMessage)
-				.where(qMessage.receiverType.eq(ReceiverType.ACCOUNT))
-				.where(qMessage.receiver_id.eq(firstAccountId).and(qMessage.sender.id.eq(secondAccountId))
-						.or(qMessage.receiver_id.eq(secondAccountId).and(qMessage.sender.id.eq(firstAccountId))))
+				.where(qMessage.receiver_account.id.eq(firstAccountId).and(qMessage.sender.id.eq(secondAccountId))
+						.or(qMessage.receiver_account.id.eq(secondAccountId).and(qMessage.sender.id.eq(firstAccountId))))
 				.where(qMessage.created.before(olderThan))
 				.limit(limit)
 				.orderBy(qMessage.created.desc())

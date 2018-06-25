@@ -3,22 +3,16 @@ package com.etherblood.chess.server.user.chat.model;
 import java.util.UUID;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-
 import com.etherblood.chess.server.persistence.ImmutableEntity;
-import com.etherblood.chess.server.persistence.PostgreSQLEnumType;
 import com.etherblood.chess.server.user.account.model.Account;
+import com.etherblood.chess.server.user.lobby.model.Lobby;
 
 @Entity
-@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 public class ChatMessage extends ImmutableEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -29,13 +23,11 @@ public class ChatMessage extends ImmutableEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Account sender;
 
-	@NotNull
-	@Enumerated(EnumType.STRING)
-    @Type( type = "pgsql_enum" )
-	private ReceiverType receiverType;
-
-	@NotNull
-	private UUID receiver_id;
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Lobby receiver_lobby;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Account receiver_account;
 
 	@NotNull
 	private String messageText;
@@ -65,19 +57,23 @@ public class ChatMessage extends ImmutableEntity {
 	}
 
 	public ReceiverType getReceiverType() {
-		return receiverType;
+		return receiver_account == null? ReceiverType.LOBBY: ReceiverType.ACCOUNT;
 	}
 
-	public void setReceiverType(ReceiverType receiverType) {
-		this.receiverType = receiverType;
+	public Lobby getReceiverLobby() {
+		return receiver_lobby;
 	}
 
-	public UUID getReceiverId() {
-		return receiver_id;
+	public void setReceiverLobby(Lobby lobby) {
+		this.receiver_lobby = lobby;
 	}
 
-	public void setReceiverId(UUID receiverId) {
-		this.receiver_id = receiverId;
+	public Account getReceiverAccount() {
+		return receiver_account;
+	}
+
+	public void setReceiverAccount(Account account) {
+		this.receiver_account = account;
 	}
 
 }

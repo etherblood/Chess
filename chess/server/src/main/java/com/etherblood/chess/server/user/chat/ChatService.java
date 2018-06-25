@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.etherblood.chess.server.user.account.model.Account;
 import com.etherblood.chess.server.user.authentication.UserContextService;
 import com.etherblood.chess.server.user.chat.model.ChatMessage;
-import com.etherblood.chess.server.user.chat.model.ReceiverType;
+import com.etherblood.chess.server.user.lobby.model.Lobby;
 
 @Service
 public class ChatService {
@@ -35,21 +35,21 @@ public class ChatService {
 
 	@Transactional
 	public ChatMessage sendLobbyMessage(UUID lobbyId, String text) {
-		return persistChatMessage(lobbyId, ReceiverType.LOBBY, text);
+		return persistChatMessage(chatMessageRepo.proxyById(Lobby.class, lobbyId), null, text);
 	}
 
 	@Transactional
 	public ChatMessage sendDirectMessage(UUID accountId, String text) {
-		return persistChatMessage(accountId, ReceiverType.ACCOUNT, text);
+		return persistChatMessage(null, chatMessageRepo.proxyById(Account.class, accountId), text);
 	}
 
-	private ChatMessage persistChatMessage(UUID receiverId, ReceiverType receiverType, String text) {
+	private ChatMessage persistChatMessage(Lobby lobby, Account account, String text) {
 		UUID currentUserId = userContextService.currentUserId();
 		ChatMessage message = new ChatMessage();
 		message.setId(UUID.randomUUID());
 		message.setSender(chatMessageRepo.proxyById(Account.class, currentUserId));
-		message.setReceiverId(receiverId);
-		message.setReceiverType(receiverType);
+		message.setReceiverLobby(lobby);
+		message.setReceiverAccount(account);
 		message.setText(text);
 		chatMessageRepo.persist(message);
 		return message;
