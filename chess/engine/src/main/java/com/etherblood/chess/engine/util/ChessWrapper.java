@@ -97,6 +97,7 @@ public class ChessWrapper {
         for (int i = state.moveCounter - 4; i >= limit; i -= 2) {
             if (state.history[i].hash == hash) {
                 repetitions++;
+		i -= 2;
             }
         }
         return repetitions >= 2;
